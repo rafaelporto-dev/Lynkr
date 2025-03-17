@@ -15,7 +15,16 @@ import {
   Link as LinkIcon,
   MousePointerClick,
 } from "lucide-react";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default async function Home() {
   const supabase = await createClient();
@@ -24,18 +33,28 @@ export default async function Home() {
   } = await supabase.auth.getUser();
 
   const { data: plans, error } = await supabase.functions.invoke(
-    "supabase-functions-get-plans",
+    "supabase-functions-get-plans"
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-950 to-black">
+    <div className="min-h-screen bg-[#1A0933] relative">
+      {/* Background blobs - mais sutis */}
+      <div className="absolute top-0 -left-4 w-96 h-96 bg-purple-900/10 rounded-full filter blur-3xl opacity-20 -z-10"></div>
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-purple-900/10 rounded-full filter blur-3xl opacity-20 -z-10"></div>
+
       <Navbar />
       <Hero />
 
       {/* How It Works Section */}
-      <section className="py-24 bg-black/80">
+      <section className="py-24" id="features">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
+            <Badge
+              variant="outline"
+              className="mb-4 bg-black/30 backdrop-blur-sm border-purple-800/30 text-purple-300"
+            >
+              Simple Process
+            </Badge>
             <h2 className="text-3xl font-bold mb-4 text-white">
               How Lynkr Works
             </h2>
@@ -46,9 +65,15 @@ export default async function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-12 max-w-5xl mx-auto">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-purple-600/20 rounded-full flex items-center justify-center mb-6 border border-purple-500/30">
-                <span className="text-2xl font-bold text-purple-400">1</span>
+            <div className="flex flex-col items-center text-center group">
+              <div className="relative w-20 h-20 mb-6">
+                <div className="absolute inset-0 bg-purple-900/20 rounded-full group-hover:bg-purple-900/30 transition-colors"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-3xl font-bold text-purple-400 group-hover:scale-110 transition-transform">
+                    1
+                  </span>
+                </div>
+                <div className="absolute inset-0 border border-purple-900/30 rounded-full animate-pulse"></div>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-white">Sign Up</h3>
               <p className="text-gray-300">
@@ -56,9 +81,15 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-blue-600/20 rounded-full flex items-center justify-center mb-6 border border-blue-500/30">
-                <span className="text-2xl font-bold text-blue-400">2</span>
+            <div className="flex flex-col items-center text-center group">
+              <div className="relative w-20 h-20 mb-6">
+                <div className="absolute inset-0 bg-purple-900/20 rounded-full group-hover:bg-purple-900/30 transition-colors"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-3xl font-bold text-purple-400 group-hover:scale-110 transition-transform">
+                    2
+                  </span>
+                </div>
+                <div className="absolute inset-0 border border-purple-900/30 rounded-full animate-pulse"></div>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-white">
                 Add Your Links
@@ -69,9 +100,15 @@ export default async function Home() {
               </p>
             </div>
 
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-indigo-600/20 rounded-full flex items-center justify-center mb-6 border border-indigo-500/30">
-                <span className="text-2xl font-bold text-indigo-400">3</span>
+            <div className="flex flex-col items-center text-center group">
+              <div className="relative w-20 h-20 mb-6">
+                <div className="absolute inset-0 bg-purple-900/20 rounded-full group-hover:bg-purple-900/30 transition-colors"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-3xl font-bold text-purple-400 group-hover:scale-110 transition-transform">
+                    3
+                  </span>
+                </div>
+                <div className="absolute inset-0 border border-purple-900/30 rounded-full animate-pulse"></div>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-white">
                 Share Your Profile
@@ -85,9 +122,15 @@ export default async function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-gradient-to-b from-black/90 to-indigo-950/90">
+      <section className="py-24">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
+            <Badge
+              variant="outline"
+              className="mb-4 bg-black/30 backdrop-blur-sm border-purple-800/30 text-purple-300"
+            >
+              What We Offer
+            </Badge>
             <h2 className="text-3xl font-bold mb-4 text-white">
               Powerful Features
             </h2>
@@ -139,26 +182,36 @@ export default async function Home() {
                 description: "Connect all your social profiles",
               },
             ].map((feature, index) => (
-              <div
+              <Card
                 key={index}
-                className="p-6 bg-gray-900/50 backdrop-blur-sm rounded-xl border border-purple-900/30 hover:border-purple-700/50 transition-all"
+                className="group bg-black/40 backdrop-blur-sm border-purple-900/30 hover:border-purple-800/40 transition-all"
               >
-                <div className="text-purple-500 mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-2 text-white">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-300">{feature.description}</p>
-              </div>
+                <CardHeader>
+                  <div className="text-purple-400 mb-2 transition-transform group-hover:scale-110">
+                    {feature.icon}
+                  </div>
+                  <CardTitle className="text-white">{feature.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300">{feature.description}</p>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
       </section>
 
       {/* Demo/Preview Section */}
-      <section className="py-24 bg-black/80">
+      <section className="py-24">
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <div className="lg:w-1/2">
+              <Badge
+                variant="outline"
+                className="mb-4 bg-black/30 backdrop-blur-sm border-purple-800/30 text-purple-300"
+              >
+                Showcase
+              </Badge>
               <h2 className="text-3xl font-bold mb-6 text-white">
                 Your Personal Link Hub
               </h2>
@@ -175,27 +228,30 @@ export default async function Home() {
                   "Real-time analytics dashboard",
                 ].map((item, index) => (
                   <li key={index} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-200">{item}</span>
                   </li>
                 ))}
               </ul>
               <div className="mt-8">
-                <a
-                  href="/sign-up"
-                  className="inline-flex items-center px-6 py-3 text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg shadow-purple-500/20"
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-purple-600 hover:bg-purple-700 text-white border-none"
                 >
-                  Create Your Lynkr
-                  <ArrowUpRight className="ml-2 w-4 h-4" />
-                </a>
+                  <a href="/sign-up">
+                    Create Your Lynkr
+                    <ArrowUpRight className="ml-2 w-4 h-4" />
+                  </a>
+                </Button>
               </div>
             </div>
             <div className="lg:w-1/2 relative">
-              <div className="relative mx-auto w-[280px] h-[580px] bg-gray-900 rounded-[40px] p-4 border-4 border-gray-800 shadow-xl shadow-purple-500/10">
-                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-6 bg-gray-800 rounded-b-xl"></div>
-                <div className="w-full h-full bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 rounded-[28px] p-6 overflow-hidden">
+              <div className="relative mx-auto w-[280px] h-[580px] bg-black/60 backdrop-blur-sm rounded-[40px] p-4 border border-purple-900/30 shadow-xl">
+                <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-40 h-6 bg-black/40 backdrop-blur-sm rounded-b-xl"></div>
+                <div className="w-full h-full bg-gradient-to-br from-purple-950 via-purple-900 to-purple-950 backdrop-blur-sm rounded-[28px] p-6 overflow-hidden border border-purple-800/30">
                   <div className="flex flex-col items-center">
-                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 mb-4"></div>
+                    <div className="w-20 h-20 rounded-full bg-purple-800 mb-4 ring-2 ring-purple-700/20"></div>
                     <h3 className="text-white font-bold text-xl mb-1">
                       @username
                     </h3>
@@ -212,7 +268,7 @@ export default async function Home() {
                     ].map((link, index) => (
                       <div
                         key={index}
-                        className="w-full p-3 mb-3 bg-white/10 backdrop-blur-sm rounded-lg text-center text-white hover:bg-white/20 transition-all cursor-pointer"
+                        className="w-full p-3 mb-3 bg-black/40 backdrop-blur-sm rounded-lg text-center text-white hover:bg-black/60 transition-all cursor-pointer border border-purple-800/20"
                       >
                         {link}
                       </div>
@@ -220,37 +276,65 @@ export default async function Home() {
                   </div>
                 </div>
               </div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-600/20 rounded-full blur-3xl"></div>
-              <div className="absolute -top-6 -left-6 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl"></div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-purple-900/10 rounded-full blur-3xl"></div>
+              <div className="absolute -top-6 -left-6 w-32 h-32 bg-purple-900/10 rounded-full blur-3xl"></div>
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-purple-900 to-blue-900 text-white">
-        <div className="container mx-auto px-4">
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm -z-10"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-900/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-900/10 rounded-full blur-3xl"></div>
+
+        <div className="container mx-auto px-4 relative">
           <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div>
-              <div className="text-4xl font-bold mb-2">10K+</div>
-              <div className="text-purple-200">Active Users</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">1M+</div>
-              <div className="text-purple-200">Profile Views</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold mb-2">5M+</div>
-              <div className="text-purple-200">Link Clicks</div>
-            </div>
+            <Card className="bg-black/40 backdrop-blur-sm border-purple-900/30 hover:bg-black/50 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-4xl font-bold mb-2 text-white">
+                  10K+
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-300">Active Users</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-black/40 backdrop-blur-sm border-purple-900/30 hover:bg-black/50 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-4xl font-bold mb-2 text-white">
+                  1M+
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-300">Profile Views</p>
+              </CardContent>
+            </Card>
+            <Card className="bg-black/40 backdrop-blur-sm border-purple-900/30 hover:bg-black/50 transition-colors">
+              <CardHeader>
+                <CardTitle className="text-4xl font-bold mb-2 text-white">
+                  5M+
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-purple-300">Link Clicks</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="py-24 bg-black/80" id="pricing">
+      <section className="py-24" id="pricing">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
+            <Badge
+              variant="outline"
+              className="mb-4 bg-black/30 backdrop-blur-sm border-purple-800/30 text-purple-300"
+            >
+              Pricing
+            </Badge>
             <h2 className="text-3xl font-bold mb-4 text-white">
               Simple, Transparent Pricing
             </h2>
@@ -279,22 +363,37 @@ export default async function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-b from-indigo-950/90 to-black/90">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4 text-white">
-            Ready to Create Your Link Hub?
-          </h2>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of creators who've already centralized their online
-            presence with Lynkr.
-          </p>
-          <a
-            href="/sign-up"
-            className="inline-flex items-center px-8 py-4 text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all text-lg font-medium shadow-lg shadow-purple-500/20"
-          >
-            Get Started Now
-            <ArrowUpRight className="ml-2 w-5 h-5" />
-          </a>
+      <section className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm -z-10"></div>
+        <div className="absolute -top-20 -right-20 w-60 h-60 bg-purple-900/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-purple-900/10 rounded-full blur-3xl"></div>
+
+        <div className="container mx-auto px-4 text-center relative">
+          <div className="max-w-3xl mx-auto backdrop-blur-sm p-8 rounded-2xl bg-black/40 border border-purple-900/30">
+            <Badge
+              variant="outline"
+              className="mb-4 bg-black/30 backdrop-blur-sm border-purple-800/30 text-purple-300"
+            >
+              Get Started
+            </Badge>
+            <h2 className="text-3xl font-bold mb-4 text-white">
+              Ready to Create Your Link Hub?
+            </h2>
+            <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
+              Join thousands of creators who've already centralized their online
+              presence with Lynkr.
+            </p>
+            <Button
+              asChild
+              size="lg"
+              className="bg-purple-600 hover:bg-purple-700 text-white border-none px-8"
+            >
+              <a href="/sign-up">
+                Get Started Now
+                <ArrowUpRight className="ml-2 w-5 h-5" />
+              </a>
+            </Button>
+          </div>
         </div>
       </section>
 

@@ -6,20 +6,27 @@ import {
   Instagram,
   Link as LinkIcon,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black border-t border-purple-900/30">
+    <footer className="relative overflow-hidden">
+      {/* Blurred background elements */}
+      <div className="absolute inset-0 bg-black/70 border-t border-purple-900/30 -z-10"></div>
+      <div className="absolute -top-40 left-0 w-72 h-72 bg-purple-900/10 rounded-full blur-3xl -z-10 opacity-30"></div>
+      <div className="absolute -bottom-20 right-0 w-72 h-72 bg-purple-900/10 rounded-full blur-3xl -z-10 opacity-30"></div>
+
       <div className="container mx-auto px-4 py-12">
         <div className="flex justify-center mb-8">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
+          <Link href="/" className="group relative flex items-center gap-2">
+            <div className="w-8 h-8 bg-purple-800 rounded-lg flex items-center justify-center">
               <LinkIcon className="w-4 h-4 text-white" />
             </div>
             <span className="text-2xl font-bold text-white">Lynkr</span>
-          </div>
+          </Link>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
@@ -180,40 +187,46 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-purple-900/30">
-          <div className="text-gray-400 mb-4 md:mb-0">
+        <Separator className="bg-purple-900/30 mb-8" />
+
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-gray-400 text-sm">
             © {currentYear} Lynkr. All rights reserved.
           </div>
 
-          <div className="flex space-x-6">
-            <a
-              href="#"
-              className="text-gray-500 hover:text-purple-400 transition-colors"
+          <div className="flex space-x-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
             >
-              <span className="sr-only">Twitter</span>
               <Twitter className="h-5 w-5" />
-            </a>
-            <a
-              href="#"
-              className="text-gray-500 hover:text-purple-400 transition-colors"
+              <span className="sr-only">Twitter</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
             >
-              <span className="sr-only">Instagram</span>
-              <Instagram className="h-5 w-5" />
-            </a>
-            <a
-              href="#"
-              className="text-gray-500 hover:text-purple-400 transition-colors"
-            >
-              <span className="sr-only">LinkedIn</span>
               <Linkedin className="h-5 w-5" />
-            </a>
-            <a
-              href="#"
-              className="text-gray-500 hover:text-purple-400 transition-colors"
+              <span className="sr-only">LinkedIn</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
             >
-              <span className="sr-only">GitHub</span>
               <Github className="h-5 w-5" />
-            </a>
+              <span className="sr-only">GitHub</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
+            >
+              <Instagram className="h-5 w-5" />
+              <span className="sr-only">Instagram</span>
+            </Button>
           </div>
         </div>
       </div>
