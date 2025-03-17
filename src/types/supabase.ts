@@ -192,6 +192,7 @@ export type Database = {
           token_identifier: string
           updated_at: string | null
           user_id: string | null
+          username: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -206,6 +207,7 @@ export type Database = {
           token_identifier: string
           updated_at?: string | null
           user_id?: string | null
+          username?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -220,6 +222,7 @@ export type Database = {
           token_identifier?: string
           updated_at?: string | null
           user_id?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -258,11 +261,23 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_username_availability: {
+        Args: {
+          username: string
+        }
+        Returns: boolean
+      }
       increment_link_click: {
         Args: {
           link_id: string
         }
         Returns: undefined
+      }
+      is_username_available: {
+        Args: {
+          username_to_check: string
+        }
+        Returns: boolean
       }
     }
     Enums: {

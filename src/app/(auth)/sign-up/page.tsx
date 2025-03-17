@@ -25,19 +25,26 @@ export default async function Signup(props: {
       <div className="flex flex-1 items-center justify-center px-4 py-12">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-white">Create your account</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-white">
+              Create your account
+            </h1>
             <p className="mt-2 text-sm text-gray-400">
               Already have an account?{" "}
-              <Link href="/sign-in" className="font-medium text-indigo-400 hover:text-indigo-300">
+              <Link
+                href="/sign-in"
+                className="font-medium text-indigo-400 hover:text-indigo-300"
+              >
                 Sign in
               </Link>
             </p>
           </div>
-          
+
           <div className="rounded-xl border border-gray-800 bg-gray-900 p-8">
             <form className="space-y-6">
               <div className="space-y-2 text-center">
-                <h1 className="text-3xl font-semibold tracking-tight text-white">Sign up</h1>
+                <h1 className="text-3xl font-semibold tracking-tight text-white">
+                  Sign up
+                </h1>
                 <p className="text-sm text-gray-300">
                   Already have an account?{" "}
                   <Link
@@ -62,6 +69,30 @@ export default async function Signup(props: {
                     required
                     className="w-full"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-sm font-medium">
+                    Username
+                  </Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <span className="text-gray-500">lynkr.me/</span>
+                    </div>
+                    <Input
+                      id="username"
+                      name="username"
+                      type="text"
+                      placeholder="yourname"
+                      required
+                      pattern="^[a-zA-Z0-9_-]+$"
+                      title="Username can only contain letters, numbers, underscores and hyphens"
+                      className="w-full pl-24"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Only letters, numbers, underscores and hyphens allowed
+                  </p>
                 </div>
 
                 <div className="space-y-2">
@@ -105,7 +136,7 @@ export default async function Signup(props: {
               <FormMessage message={searchParams} />
             </form>
           </div>
-          
+
           <SmtpMessage />
         </div>
       </div>

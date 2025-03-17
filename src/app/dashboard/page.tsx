@@ -13,6 +13,7 @@ import LinksList from "@/components/links-list";
 import { useEffect, useState } from "react";
 import PreviewToggle from "@/components/preview-toggle";
 import ProfilePreview from "@/components/profile-preview";
+import ProfileEditor from "@/components/profile-editor";
 import { Button } from "@/components/ui/button";
 import { createClient } from "../../../supabase/client";
 
@@ -100,7 +101,7 @@ export default function Dashboard() {
           </section>
 
           {/* User Profile Section */}
-          <section className="bg-card rounded-xl p-6 border shadow-sm">
+          <section>
             <div className="flex items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-4">
                 <UserCircle size={48} className="text-primary" />
@@ -117,11 +118,7 @@ export default function Dashboard() {
                 Preview Profile
               </Button>
             </div>
-            <div className="bg-muted/50 rounded-lg p-4 overflow-hidden">
-              <pre className="text-xs font-mono max-h-48 overflow-auto">
-                {user ? JSON.stringify(user, null, 2) : "Loading..."}
-              </pre>
-            </div>
+            <ProfileEditor />
           </section>
         </div>
       </main>

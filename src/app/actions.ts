@@ -9,13 +9,39 @@ export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
   const fullName = formData.get("full_name")?.toString() || "";
+  const username = formData.get("username")?.toString();
   const supabase = await createClient();
 
-  if (!email || !password) {
+  if (!email || !password || !username) {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "Email and password are required",
+      "Email, password, and username are required",
+    );
+  }
+
+  // Validate username format
+  const usernameRegex = /^[a-zA-Z0-9_-]+$/;
+  if (!usernameRegex.test(username)) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Username can only contain letters, numbers, underscores and hyphens",
+    );
+  }
+
+  // Check if username is already taken
+  const { data: existingUser, error: usernameCheckError } = await supabase
+    .from("profiles")
+    .select("username")
+    .eq("username", username)
+    .single();
+
+  if (existingUser) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "This username is already taken. Please choose another one.",
     );
   }
 
@@ -29,6 +55,7 @@ export const signUpAction = async (formData: FormData) => {
       data: {
         full_name: fullName,
         email: email,
+        username: username,
       },
     },
   });
@@ -39,11 +66,21 @@ export const signUpAction = async (formData: FormData) => {
 
   if (user) {
     try {
+      // Update the profile with the username
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        id: user.id,
+        username: username,
+        full_name: fullName,
+        updated_at: new Date().toISOString(),
+      });
+
+      // Also update users table if it exists
       const { error: updateError } = await supabase.from("users").insert({
         id: user.id,
         user_id: user.id,
         name: fullName,
         email: email,
+        username: username,
         token_identifier: user.id,
         created_at: new Date().toISOString(),
       });
