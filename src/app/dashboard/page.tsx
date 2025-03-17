@@ -6,6 +6,7 @@ import {
   UserCircle,
   Link as LinkIcon,
   ExternalLink,
+  BarChart2,
 } from "lucide-react";
 import { SubscriptionCheckClient } from "@/components/subscription-check-client";
 import LinkForm from "@/components/link-form";
@@ -14,8 +15,10 @@ import { useEffect, useState } from "react";
 import PreviewToggle from "@/components/preview-toggle";
 import ProfilePreview from "@/components/profile-preview";
 import ProfileEditor from "@/components/profile-editor";
+import UserStatistics from "@/components/user-statistics";
 import { Button } from "@/components/ui/button";
 import { createClient } from "../../../supabase/client";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Dashboard() {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
@@ -90,15 +93,39 @@ export default function Dashboard() {
             )}
           </header>
 
-          {/* Links Management Section */}
-          <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
-              <LinkForm />
-            </div>
-            <div className="md:col-span-2">
-              <LinksList />
-            </div>
-          </section>
+          {/* Dashboard Tabs */}
+          <Tabs defaultValue="links" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="links" className="flex items-center gap-2">
+                <LinkIcon size={16} />
+                Links Management
+              </TabsTrigger>
+              <TabsTrigger
+                value="analytics"
+                className="flex items-center gap-2"
+              >
+                <BarChart2 size={16} />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="links" className="space-y-6">
+              {/* Links Management Section */}
+              <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="md:col-span-1">
+                  <LinkForm />
+                </div>
+                <div className="md:col-span-2">
+                  <LinksList />
+                </div>
+              </section>
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              {/* Analytics Section */}
+              <UserStatistics />
+            </TabsContent>
+          </Tabs>
 
           {/* User Profile Section */}
           <section>

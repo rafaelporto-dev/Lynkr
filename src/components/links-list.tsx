@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import { createClient } from "../../supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
 import {
   ExternalLink,
   Trash2,
   BarChart2,
   Loader2,
   GripVertical,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -43,10 +46,14 @@ function SortableLink({
   link,
   onDelete,
   deletingId,
+  onToggleActive,
+  togglingId,
 }: {
   link: Link;
   onDelete: (id: string) => void;
   deletingId: string | null;
+  onToggleActive: (id: string, active: boolean) => void;
+  togglingId: string | null;
 }) {
   const {
     attributes,
@@ -67,7 +74,7 @@ function SortableLink({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center justify-between p-3 bg-card border rounded-lg transition-colors ${isDragging ? "shadow-lg opacity-90 border-primary" : "hover:bg-accent/5"}`}
+      className={`flex items-center justify-between p-3 bg-card border rounded-lg transition-colors ${isDragging ? "shadow-lg opacity-90 border-primary" : link.active ? "hover:bg-accent/5" : "hover:bg-accent/5 bg-muted/20 border-dashed"}`}
     >
       <div className="flex items-center gap-2">
         <div
@@ -95,6 +102,28 @@ function SortableLink({
           <BarChart2 size={12} />
           <span>{link.click_count}</span>
         </div>
+        <div className="flex items-center gap-1 px-2">
+          {togglingId === link.id ? (
+            <Loader2 size={16} className="animate-spin text-muted-foreground" />
+          ) : (
+            <div
+              className="flex items-center gap-1.5"
+              title={link.active ? "Active" : "Inactive"}
+            >
+              {link.active ? (
+                <Eye size={16} className="text-primary" />
+              ) : (
+                <EyeOff size={16} className="text-muted-foreground" />
+              )}
+              <Switch
+                checked={link.active}
+                onCheckedChange={(checked) => onToggleActive(link.id, checked)}
+                disabled={togglingId === link.id}
+                aria-label={`Toggle visibility for ${link.title}`}
+              />
+            </div>
+          )}
+        </div>
         <Button
           variant="destructive"
           size="icon"
@@ -117,6 +146,7 @@ export default function LinksList() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const [isReordering, setIsReordering] = useState(false);
   const supabase = createClient();
   const router = useRouter();
@@ -176,6 +206,32 @@ export default function LinksList() {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  const handleToggleActive = async (id: string, active: boolean) => {
+    try {
+      setTogglingId(id);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("You must be logged in to update links");
+      }
+
+      const { error: updateError } = await supabase
+        .from("links")
+        .update({ active })
+        .eq("id", id)
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+      // The list will update via the realtime subscription
+    } catch (err: any) {
+      setError(err.message || "Failed to update link status");
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   const handleDelete = async (id: string) => {
     try {
@@ -312,6 +368,8 @@ export default function LinksList() {
                     link={link}
                     onDelete={handleDelete}
                     deletingId={deletingId}
+                    onToggleActive={handleToggleActive}
+                    togglingId={togglingId}
                   />
                 ))}
               </div>

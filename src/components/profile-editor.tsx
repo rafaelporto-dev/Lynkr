@@ -28,11 +28,72 @@ import AvatarCropModal from "./avatar-crop-modal";
 import { useToast } from "@/components/ui/use-toast";
 
 const themes = [
-  { id: "default", name: "Default", color: "bg-primary" },
-  { id: "purple", name: "Purple Neon", color: "bg-purple-600" },
-  { id: "blue", name: "Blue Neon", color: "bg-blue-600" },
-  { id: "cyan", name: "Cyan Future", color: "bg-cyan-500" },
-  { id: "indigo", name: "Indigo Night", color: "bg-indigo-600" },
+  {
+    id: "default",
+    name: "Default",
+    color: "bg-primary",
+    gradient: "from-gray-900 via-purple-950 to-black",
+    cardBg: "bg-gray-900/80",
+    borderColor: "border-purple-900/30",
+    buttonGradient: "from-purple-600 to-blue-600",
+    buttonHoverGradient: "from-purple-700 to-blue-700",
+    badgeGradient: "from-purple-500 to-blue-500",
+  },
+  {
+    id: "purple",
+    name: "Purple Neon",
+    color: "bg-purple-600",
+    gradient: "from-purple-950 via-purple-900 to-black",
+    cardBg: "bg-purple-950/80",
+    borderColor: "border-purple-500/30",
+    buttonGradient: "from-purple-600 to-fuchsia-600",
+    buttonHoverGradient: "from-purple-700 to-fuchsia-700",
+    badgeGradient: "from-purple-500 to-fuchsia-500",
+  },
+  {
+    id: "blue",
+    name: "Blue Neon",
+    color: "bg-blue-600",
+    gradient: "from-blue-950 via-blue-900 to-black",
+    cardBg: "bg-blue-950/80",
+    borderColor: "border-blue-500/30",
+    buttonGradient: "from-blue-600 to-cyan-600",
+    buttonHoverGradient: "from-blue-700 to-cyan-700",
+    badgeGradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    id: "cyberpunk",
+    name: "Cyberpunk",
+    color: "bg-yellow-500",
+    gradient: "from-purple-900 via-pink-800 to-yellow-900",
+    cardBg: "bg-gray-900/90",
+    borderColor: "border-yellow-500/30",
+    buttonGradient: "from-yellow-500 to-pink-600",
+    buttonHoverGradient: "from-yellow-600 to-pink-700",
+    badgeGradient: "from-yellow-500 to-pink-500",
+  },
+  {
+    id: "synthwave",
+    name: "Synthwave",
+    color: "bg-pink-600",
+    gradient: "from-indigo-900 via-purple-800 to-pink-800",
+    cardBg: "bg-indigo-950/80",
+    borderColor: "border-pink-500/30",
+    buttonGradient: "from-indigo-600 to-pink-600",
+    buttonHoverGradient: "from-indigo-700 to-pink-700",
+    badgeGradient: "from-indigo-500 to-pink-500",
+  },
+  {
+    id: "matrix",
+    name: "Matrix",
+    color: "bg-green-600",
+    gradient: "from-green-950 via-green-900 to-black",
+    cardBg: "bg-black/90",
+    borderColor: "border-green-500/30",
+    buttonGradient: "from-green-600 to-emerald-600",
+    buttonHoverGradient: "from-green-700 to-emerald-700",
+    badgeGradient: "from-green-500 to-emerald-500",
+  },
 ];
 
 export default function ProfileEditor() {
@@ -177,6 +238,11 @@ export default function ProfileEditor() {
 
   const handleThemeChange = (value: string) => {
     setProfile((prev) => (prev ? { ...prev, theme: value } : null));
+  };
+
+  const getCurrentTheme = () => {
+    const themeId = profile?.theme || "default";
+    return themes.find((theme) => theme.id === themeId) || themes[0];
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -334,32 +400,73 @@ export default function ProfileEditor() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="theme">Profile Theme</Label>
-                <Select
-                  value={profile.theme || "default"}
-                  onValueChange={handleThemeChange}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a theme" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {themes.map((theme) => (
-                      <SelectItem
-                        key={theme.id}
-                        value={theme.id}
-                        className="flex items-center gap-2"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`w-4 h-4 rounded-full ${theme.color}`}
-                          />
-                          {theme.name}
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="theme" className="mb-2 block">
+                    Profile Theme
+                  </Label>
+                  <Select
+                    value={profile.theme || "default"}
+                    onValueChange={handleThemeChange}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a theme" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {themes.map((theme) => (
+                        <SelectItem
+                          key={theme.id}
+                          value={theme.id}
+                          className="flex items-center gap-2"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-4 h-4 rounded-full ${theme.color}`}
+                            />
+                            {theme.name}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="text-sm font-medium px-4 py-2 bg-muted">
+                    Theme Preview
+                  </div>
+                  <div
+                    className={`w-full h-48 bg-gradient-to-br ${getCurrentTheme().gradient} p-4 relative`}
+                  >
+                    <div
+                      className={`absolute bottom-4 left-4 right-4 ${getCurrentTheme().cardBg} rounded-lg p-3 border ${getCurrentTheme().borderColor} shadow-lg`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold">
+                          U
                         </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                        <div>
+                          <div className="font-medium text-white">Username</div>
+                          <div className="text-xs text-gray-300">
+                            Bio description
+                          </div>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex gap-2">
+                        <div
+                          className={`px-3 py-1.5 rounded-md bg-gradient-to-r ${getCurrentTheme().buttonGradient} text-white text-xs font-medium`}
+                        >
+                          Link 1
+                        </div>
+                        <div
+                          className={`px-3 py-1.5 rounded-md bg-gradient-to-r ${getCurrentTheme().buttonGradient} text-white text-xs font-medium`}
+                        >
+                          Link 2
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

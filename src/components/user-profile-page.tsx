@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { createClient } from "../../supabase/client";
 import { Database } from "@/types/database.types";
 import { Avatar } from "./ui/avatar";
@@ -12,11 +12,74 @@ import { Card } from "./ui/card";
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Link = Database["public"]["Tables"]["links"]["Row"];
 
+// Define theme configurations matching those in profile-editor.tsx
+const themes = [
+  {
+    id: "default",
+    gradient: "from-gray-900 via-purple-950 to-black",
+    cardBg: "bg-gray-900/80",
+    borderColor: "border-purple-900/30",
+    buttonGradient: "from-purple-600 to-blue-600",
+    buttonHoverGradient: "from-purple-700 to-blue-700",
+    badgeGradient: "from-purple-500 to-blue-500",
+  },
+  {
+    id: "purple",
+    gradient: "from-purple-950 via-purple-900 to-black",
+    cardBg: "bg-purple-950/80",
+    borderColor: "border-purple-500/30",
+    buttonGradient: "from-purple-600 to-fuchsia-600",
+    buttonHoverGradient: "from-purple-700 to-fuchsia-700",
+    badgeGradient: "from-purple-500 to-fuchsia-500",
+  },
+  {
+    id: "blue",
+    gradient: "from-blue-950 via-blue-900 to-black",
+    cardBg: "bg-blue-950/80",
+    borderColor: "border-blue-500/30",
+    buttonGradient: "from-blue-600 to-cyan-600",
+    buttonHoverGradient: "from-blue-700 to-cyan-700",
+    badgeGradient: "from-blue-500 to-cyan-500",
+  },
+  {
+    id: "cyberpunk",
+    gradient: "from-purple-900 via-pink-800 to-yellow-900",
+    cardBg: "bg-gray-900/90",
+    borderColor: "border-yellow-500/30",
+    buttonGradient: "from-yellow-500 to-pink-600",
+    buttonHoverGradient: "from-yellow-600 to-pink-700",
+    badgeGradient: "from-yellow-500 to-pink-500",
+  },
+  {
+    id: "synthwave",
+    gradient: "from-indigo-900 via-purple-800 to-pink-800",
+    cardBg: "bg-indigo-950/80",
+    borderColor: "border-pink-500/30",
+    buttonGradient: "from-indigo-600 to-pink-600",
+    buttonHoverGradient: "from-indigo-700 to-pink-700",
+    badgeGradient: "from-indigo-500 to-pink-500",
+  },
+  {
+    id: "matrix",
+    gradient: "from-green-950 via-green-900 to-black",
+    cardBg: "bg-black/90",
+    borderColor: "border-green-500/30",
+    buttonGradient: "from-green-600 to-emerald-600",
+    buttonHoverGradient: "from-green-700 to-emerald-700",
+    badgeGradient: "from-green-500 to-emerald-500",
+  },
+];
+
 export default function UserProfilePage({ username }: { username: string }) {
   const supabase = createClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const themeConfig = useMemo(() => {
+    const themeId = profile?.theme || "default";
+    return themes.find((theme) => theme.id === themeId) || themes[0];
+  }, [profile?.theme]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -82,7 +145,9 @@ export default function UserProfilePage({ username }: { username: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-black py-12 px-4 sm:px-6 lg:px-8">
+    <div
+      className={`min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-12 px-4 sm:px-6 lg:px-8`}
+    >
       <div className="max-w-md mx-auto">
         {/* Profile Header */}
         <div className="text-center mb-10">
@@ -105,7 +170,9 @@ export default function UserProfilePage({ username }: { username: string }) {
 
           {profile.bio && <p className="text-gray-300 mb-4">{profile.bio}</p>}
 
-          <div className="inline-block bg-gradient-to-r from-purple-500 to-blue-500 rounded-full px-4 py-1 text-sm text-white">
+          <div
+            className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-4 py-1 text-sm text-white`}
+          >
             @{profile.username}
           </div>
         </div>
@@ -124,7 +191,9 @@ export default function UserProfilePage({ username }: { username: string }) {
                 onClick={() => handleLinkClick(link.id)}
                 className="block w-full"
               >
-                <Card className="w-full bg-gradient-to-r from-gray-800 to-gray-900 hover:from-purple-900 hover:to-blue-900 border-purple-500/30 shadow-lg shadow-purple-500/10 hover:shadow-purple-500/20 transition-all duration-300">
+                <Card
+                  className={`w-full ${themeConfig.cardBg} hover:bg-gradient-to-r hover:${themeConfig.buttonGradient} ${themeConfig.borderColor} shadow-lg shadow-${themeConfig.borderColor} hover:shadow-${themeConfig.borderColor.replace("border-", "")} transition-all duration-300`}
+                >
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center">
                       {link.icon ? (
