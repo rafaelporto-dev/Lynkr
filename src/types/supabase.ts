@@ -44,6 +44,36 @@ export type Database = {
           },
         ]
       }
+      custom_domains: {
+        Row: {
+          created_at: string | null
+          domain: string
+          id: string
+          updated_at: string | null
+          user_id: string
+          verification_code: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          id?: string
+          updated_at?: string | null
+          user_id: string
+          verification_code?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+          verification_code?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       links: {
         Row: {
           active: boolean | null
@@ -97,6 +127,7 @@ export type Database = {
           bio: string | null
           created_at: string | null
           full_name: string | null
+          has_custom_domain: boolean | null
           has_free_plan: boolean | null
           id: string
           theme: string | null
@@ -108,6 +139,7 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           full_name?: string | null
+          has_custom_domain?: boolean | null
           has_free_plan?: boolean | null
           id: string
           theme?: string | null
@@ -119,6 +151,7 @@ export type Database = {
           bio?: string | null
           created_at?: string | null
           full_name?: string | null
+          has_custom_domain?: boolean | null
           has_free_plan?: boolean | null
           id?: string
           theme?: string | null

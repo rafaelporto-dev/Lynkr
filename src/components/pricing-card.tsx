@@ -111,6 +111,7 @@ export default function PricingCard({
         "Advanced analytics",
         "Custom themes",
         "Remove Lynkr branding",
+        "Custom domain",
         "Priority support",
       ];
     } else if (planName.toLowerCase().includes("business")) {
@@ -119,10 +120,11 @@ export default function PricingCard({
         "Advanced analytics",
         "Custom themes",
         "Remove Lynkr branding",
+        "Custom domain",
         "Priority support",
         "Team collaboration",
         "API access",
-        "Custom domain",
+        "Multiple custom domains",
       ];
     }
 

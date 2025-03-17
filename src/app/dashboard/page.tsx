@@ -9,6 +9,7 @@ import {
   BarChart2,
 } from "lucide-react";
 import { SubscriptionCheckClient } from "@/components/subscription-check-client";
+import CustomDomainManager from "@/components/custom-domain-manager";
 import LinkForm from "@/components/link-form";
 import LinksList from "@/components/links-list";
 import { useEffect, useState } from "react";
@@ -17,6 +18,7 @@ import ProfilePreview from "@/components/profile-preview";
 import ProfileEditor from "@/components/profile-editor";
 import UserStatistics from "@/components/user-statistics";
 import { Button } from "@/components/ui/button";
+import { Globe } from "lucide-react";
 import { createClient } from "../../../supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -95,7 +97,7 @@ export default function Dashboard() {
 
           {/* Dashboard Tabs */}
           <Tabs defaultValue="links" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
               <TabsTrigger value="links" className="flex items-center gap-2">
                 <LinkIcon size={16} />
                 Links Management
@@ -106,6 +108,10 @@ export default function Dashboard() {
               >
                 <BarChart2 size={16} />
                 Analytics
+              </TabsTrigger>
+              <TabsTrigger value="domains" className="flex items-center gap-2">
+                <Globe size={16} />
+                Custom Domain
               </TabsTrigger>
             </TabsList>
 
@@ -124,6 +130,11 @@ export default function Dashboard() {
             <TabsContent value="analytics" className="space-y-6">
               {/* Analytics Section */}
               <UserStatistics />
+            </TabsContent>
+
+            <TabsContent value="domains" className="space-y-6">
+              {/* Custom Domain Section */}
+              <CustomDomainManager />
             </TabsContent>
           </Tabs>
 
