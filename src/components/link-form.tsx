@@ -12,8 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { LinkIcon, Plus, Loader2 } from "lucide-react";
+import { LinkIcon, Plus, Loader2, Link2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useToast } from "./ui/use-toast";
 
 export default function LinkForm() {
   const [title, setTitle] = useState("");
@@ -22,6 +23,7 @@ export default function LinkForm() {
   const [error, setError] = useState("");
   const supabase = createClient();
   const router = useRouter();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,8 +87,18 @@ export default function LinkForm() {
       setTitle("");
       setUrl("");
       router.refresh();
+
+      toast({
+        title: "Link created",
+        description: "Your link has been added successfully.",
+      });
     } catch (err: any) {
       setError(err.message || "Failed to create link");
+      toast({
+        title: "Error",
+        description: "Failed to create link. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -96,7 +108,7 @@ export default function LinkForm() {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="text-xl flex items-center gap-2">
-          <Plus size={18} />
+          <Link2 className="h-5 w-5" />
           Add New Link
         </CardTitle>
       </CardHeader>
@@ -115,19 +127,20 @@ export default function LinkForm() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isLoading}
+              className="h-9"
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="url">URL</Label>
             <div className="flex items-center space-x-2">
-              <LinkIcon size={16} className="text-muted-foreground" />
+              <LinkIcon className="h-4 w-4 text-muted-foreground" />
               <Input
                 id="url"
                 placeholder="https://example.com"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 disabled={isLoading}
-                className="flex-1"
+                className="flex-1 h-9"
               />
             </div>
           </div>
@@ -136,11 +149,14 @@ export default function LinkForm() {
           <Button type="submit" disabled={isLoading} className="w-full">
             {isLoading ? (
               <>
-                <Loader2 size={16} className="mr-2 animate-spin" />
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Creating...
               </>
             ) : (
-              "Create Link"
+              <>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Link
+              </>
             )}
           </Button>
         </CardFooter>

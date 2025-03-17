@@ -13,6 +13,8 @@ import {
   GripVertical,
   Eye,
   EyeOff,
+  Copy,
+  Check,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -32,6 +34,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useToast } from "./ui/use-toast";
 
 type Link = {
   id: string;
@@ -82,7 +85,7 @@ function SortableLink({
           {...listeners}
           className="cursor-grab active:cursor-grabbing p-1 text-muted-foreground hover:text-primary"
         >
-          <GripVertical size={16} />
+          <GripVertical className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0 mr-4">
           <h3 className="font-medium truncate">{link.title}</h3>
@@ -92,28 +95,28 @@ function SortableLink({
             rel="noopener noreferrer"
             className="text-sm text-muted-foreground truncate flex items-center hover:text-primary"
           >
-            <ExternalLink size={12} className="mr-1 inline" />
+            <ExternalLink className="h-3 w-3 mr-1 inline" />
             <span className="truncate">{link.url}</span>
           </a>
         </div>
       </div>
       <div className="flex items-center gap-2">
         <div className="flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-1 rounded-full">
-          <BarChart2 size={12} />
+          <BarChart2 className="h-3 w-3" />
           <span>{link.click_count}</span>
         </div>
         <div className="flex items-center gap-1 px-2">
           {togglingId === link.id ? (
-            <Loader2 size={16} className="animate-spin text-muted-foreground" />
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
           ) : (
             <div
               className="flex items-center gap-1.5"
               title={link.active ? "Active" : "Inactive"}
             >
               {link.active ? (
-                <Eye size={16} className="text-primary" />
+                <Eye className="h-4 w-4 text-primary" />
               ) : (
-                <EyeOff size={16} className="text-muted-foreground" />
+                <EyeOff className="h-4 w-4 text-muted-foreground" />
               )}
               <Switch
                 checked={link.active}
@@ -131,9 +134,9 @@ function SortableLink({
           disabled={deletingId === link.id}
         >
           {deletingId === link.id ? (
-            <Loader2 size={16} className="animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <Trash2 size={16} />
+            <Trash2 className="h-4 w-4" />
           )}
         </Button>
       </div>
@@ -148,8 +151,10 @@ export default function LinksList() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [isReordering, setIsReordering] = useState(false);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
   const supabase = createClient();
   const router = useRouter();
+  const { toast } = useToast();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -159,7 +164,7 @@ export default function LinksList() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const fetchLinks = async () => {
@@ -184,6 +189,11 @@ export default function LinksList() {
       setLinks(data || []);
     } catch (err: any) {
       setError(err.message || "Failed to load links");
+      toast({
+        title: "Error",
+        description: "Failed to load links. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -198,7 +208,7 @@ export default function LinksList() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "links" },
-        () => fetchLinks(),
+        () => fetchLinks()
       )
       .subscribe();
 
@@ -225,9 +235,18 @@ export default function LinksList() {
         .eq("user_id", user.id);
 
       if (updateError) throw updateError;
-      // The list will update via the realtime subscription
+
+      toast({
+        title: "Link updated",
+        description: `Link ${active ? "activated" : "deactivated"} successfully.`,
+      });
     } catch (err: any) {
       setError(err.message || "Failed to update link status");
+      toast({
+        title: "Error",
+        description: "Failed to update link status. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setTogglingId(null);
     }
@@ -242,11 +261,38 @@ export default function LinksList() {
         .eq("id", id);
 
       if (deleteError) throw deleteError;
-      // The list will update via the realtime subscription
+
+      toast({
+        title: "Link deleted",
+        description: "Link has been deleted successfully.",
+      });
     } catch (err: any) {
       setError(err.message || "Failed to delete link");
+      toast({
+        title: "Error",
+        description: "Failed to delete link. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleCopyLink = async (url: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedId(id);
+      toast({
+        title: "Link copied",
+        description: "Link has been copied to clipboard.",
+      });
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy link. Please try again.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -296,9 +342,17 @@ export default function LinksList() {
       // Now update the local state after database update is successful
       setLinks(reorderedLinks);
 
-      // We'll let the realtime subscription handle any further updates
+      toast({
+        title: "Links reordered",
+        description: "Your links have been reordered successfully.",
+      });
     } catch (err: any) {
       setError(err.message || "Failed to reorder links");
+      toast({
+        title: "Error",
+        description: "Failed to reorder links. Please try again.",
+        variant: "destructive",
+      });
       // Revert to original order by refetching
       fetchLinks();
     } finally {
@@ -326,10 +380,7 @@ export default function LinksList() {
           <span>Your Links</span>
           <div className="flex items-center gap-2">
             {isReordering && (
-              <Loader2
-                size={16}
-                className="animate-spin text-muted-foreground"
-              />
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             )}
             <span className="text-sm font-normal text-muted-foreground">
               {links.length} {links.length === 1 ? "link" : "links"}

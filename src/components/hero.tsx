@@ -10,15 +10,18 @@ import {
 export default function Hero() {
   return (
     <div className="relative overflow-hidden bg-white">
-      {/* Background gradient - futuristic purple and blue neon theme */}
+      {/* Background gradient com efeito mais intenso */}
       <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 opacity-90" />
+      
+      {/* Adicionar efeito de partículas ou linhas */}
+      <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] bg-center opacity-20"></div>
 
-      <div className="relative pt-24 pb-32 sm:pt-32 sm:pb-40">
+      <div className="relative pt-32 pb-40 sm:pt-40 sm:pb-48">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl sm:text-6xl font-bold text-white mb-8 tracking-tight">
+            <h1 className="text-6xl sm:text-7xl font-bold text-white mb-8 tracking-tight">
               One Link for{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 animate-pulse">
                 All Your Content
               </span>
             </h1>

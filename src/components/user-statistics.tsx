@@ -10,6 +10,10 @@ import {
   MousePointerClick,
   Calendar as CalendarIcon,
   ChevronDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  Link as LinkIcon,
+  Clock,
 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
@@ -17,6 +21,7 @@ import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "@/lib/utils";
 import { format, subDays, startOfDay, endOfDay } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 type LinkStat = {
   id: string;
@@ -36,6 +41,38 @@ type DateFilter = {
   range: () => DateRange;
 };
 
+const dateFilters: DateFilter[] = [
+  {
+    label: "Last 7 days",
+    value: "7",
+    range: () => ({
+      from: startOfDay(subDays(new Date(), 6)),
+      to: endOfDay(new Date()),
+    }),
+  },
+  {
+    label: "Last 30 days",
+    value: "30",
+    range: () => ({
+      from: startOfDay(subDays(new Date(), 29)),
+      to: endOfDay(new Date()),
+    }),
+  },
+  {
+    label: "Last 90 days",
+    value: "90",
+    range: () => ({
+      from: startOfDay(subDays(new Date(), 89)),
+      to: endOfDay(new Date()),
+    }),
+  },
+  {
+    label: "All time",
+    value: "0",
+    range: () => ({ from: undefined, to: undefined }),
+  },
+];
+
 export default function UserStatistics() {
   const [stats, setStats] = useState<LinkStat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,41 +83,12 @@ export default function UserStatistics() {
     to: undefined,
   });
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<string>("all_time");
+  const [selectedFilter, setSelectedFilter] = useState<string>("7");
   const supabase = createClient();
-
-  const dateFilters: DateFilter[] = [
-    {
-      label: "All Time",
-      value: "all_time",
-      range: () => ({ from: undefined, to: undefined }),
-    },
-    {
-      label: "Last 7 Days",
-      value: "last_7_days",
-      range: () => ({
-        from: startOfDay(subDays(new Date(), 6)),
-        to: endOfDay(new Date()),
-      }),
-    },
-    {
-      label: "Last 30 Days",
-      value: "last_30_days",
-      range: () => ({
-        from: startOfDay(subDays(new Date(), 29)),
-        to: endOfDay(new Date()),
-      }),
-    },
-    {
-      label: "Custom Range",
-      value: "custom",
-      range: () => dateRange,
-    },
-  ];
 
   const applyDateFilter = (filter: string) => {
     setSelectedFilter(filter);
-    if (filter !== "custom") {
+    if (filter !== "0") {
       const newRange = dateFilters.find((f) => f.value === filter)?.range() || {
         from: undefined,
         to: undefined,
@@ -88,9 +96,9 @@ export default function UserStatistics() {
       setDateRange(newRange);
     }
     fetchStats(
-      filter === "custom"
+      filter === "0"
         ? dateRange
-        : dateFilters.find((f) => f.value === filter)?.range(),
+        : dateFilters.find((f) => f.value === filter)?.range()
     );
   };
 
@@ -123,7 +131,7 @@ export default function UserStatistics() {
 
       setStats(data || []);
       setTotalClicks(
-        data?.reduce((sum, link) => sum + link.click_count, 0) || 0,
+        data?.reduce((sum, link) => sum + link.click_count, 0) || 0
       );
     } catch (err: any) {
       setError(err.message || "Failed to load statistics");
@@ -141,8 +149,7 @@ export default function UserStatistics() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "links" },
-        () =>
-          fetchStats(dateRange.from && dateRange.to ? dateRange : undefined),
+        () => fetchStats(dateRange.from && dateRange.to ? dateRange : undefined)
       )
       .subscribe();
 
@@ -178,7 +185,7 @@ export default function UserStatistics() {
 
           <div className="flex flex-col sm:flex-row gap-2">
             <div className="flex gap-2">
-              {dateFilters.slice(0, 3).map((filter) => (
+              {dateFilters.slice(0, 4).map((filter) => (
                 <Button
                   key={filter.value}
                   variant={
@@ -196,18 +203,18 @@ export default function UserStatistics() {
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
-                  variant={selectedFilter === "custom" ? "default" : "outline"}
+                  variant={selectedFilter === "0" ? "default" : "outline"}
                   size="sm"
                   className={cn(
                     "justify-start text-xs h-8 font-normal",
-                    !dateRange.from && "text-muted-foreground",
+                    !dateRange.from && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="mr-2 h-3 w-3" />
                   {dateRange.from && dateRange.to ? (
                     <>
-                      {format(dateRange.from, "LLL dd, y")} -{" "}
-                      {format(dateRange.to, "LLL dd, y")}
+                      {format(dateRange.from, "LLL dd, yyyy", { locale: ptBR })}{" "}
+                      - {format(dateRange.to, "LLL dd, yyyy", { locale: ptBR })}
                     </>
                   ) : (
                     <span>Custom Range</span>
@@ -231,7 +238,7 @@ export default function UserStatistics() {
                         to: endOfDay(range.to),
                       };
                       setDateRange(newRange);
-                      setSelectedFilter("custom");
+                      setSelectedFilter("0");
                       fetchStats(newRange);
                       setIsCalendarOpen(false);
                     } else {
@@ -292,10 +299,10 @@ export default function UserStatistics() {
 
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Clicks by Link</h3>
-          {dateRange.from && dateRange.to && selectedFilter !== "all_time" && (
+          {dateRange.from && dateRange.to && selectedFilter !== "0" && (
             <Badge variant="outline" className="text-xs">
-              {format(dateRange.from, "MMM d, yyyy")} -{" "}
-              {format(dateRange.to, "MMM d, yyyy")}
+              {format(dateRange.from, "MMM d, yyyy", { locale: ptBR })} -{" "}
+              {format(dateRange.to, "MMM d, yyyy", { locale: ptBR })}
             </Badge>
           )}
         </div>

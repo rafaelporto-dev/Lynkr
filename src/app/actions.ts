@@ -16,7 +16,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "Email, password, and username are required",
+      "Email, password, and username are required"
     );
   }
 
@@ -26,7 +26,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "Username can only contain letters, numbers, underscores and hyphens",
+      "Username can only contain letters, numbers, underscores and hyphens"
     );
   }
 
@@ -41,7 +41,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/sign-up",
-      "This username is already taken. Please choose another one.",
+      "This username is already taken. Please choose another one."
     );
   }
 
@@ -96,7 +96,7 @@ export const signUpAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     "/sign-up",
-    "Thanks for signing up! Please check your email for a verification link.",
+    "Thanks for signing up! Please check your email for a verification link."
   );
 };
 
@@ -132,7 +132,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
     return encodedRedirect(
       "error",
       "/forgot-password",
-      "Could not reset password",
+      "Could not reset password"
     );
   }
 
@@ -143,7 +143,7 @@ export const forgotPasswordAction = async (formData: FormData) => {
   return encodedRedirect(
     "success",
     "/forgot-password",
-    "Check your email for a link to reset your password.",
+    "Check your email for a link to reset your password."
   );
 };
 
@@ -157,7 +157,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/protected/reset-password",
-      "Password and confirm password are required",
+      "Password and confirm password are required"
     );
   }
 
@@ -165,7 +165,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/dashboard/reset-password",
-      "Passwords do not match",
+      "Passwords do not match"
     );
   }
 
@@ -177,7 +177,7 @@ export const resetPasswordAction = async (formData: FormData) => {
     encodedRedirect(
       "error",
       "/dashboard/reset-password",
-      "Password update failed",
+      "Password update failed"
     );
   }
 
@@ -240,4 +240,49 @@ export const enableFreePlan = async (userId: string) => {
   });
 
   return !error;
+};
+
+export const deleteAccountAction = async () => {
+  const supabase = await createClient();
+
+  try {
+    // First, delete all user data from tables
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return encodedRedirect("error", "/dashboard", "User not found");
+    }
+
+    // Delete links
+    await supabase.from("links").delete().eq("user_id", user.id);
+
+    // Delete profile
+    await supabase.from("profiles").delete().eq("id", user.id);
+
+    // Delete user data
+    await supabase.from("users").delete().eq("user_id", user.id);
+
+    // Call Edge Function to delete auth account
+    const { error: functionError } = await supabase.functions.invoke(
+      "delete-account",
+      {
+        body: { userId: user.id },
+      }
+    );
+
+    if (functionError) throw functionError;
+
+    // Sign out after deleting account
+    await supabase.auth.signOut();
+
+    return encodedRedirect("success", "/", "Account deleted successfully");
+  } catch (error: any) {
+    return encodedRedirect(
+      "error",
+      "/dashboard",
+      error.message || "Error deleting account"
+    );
+  }
 };
