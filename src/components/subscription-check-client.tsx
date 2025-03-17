@@ -48,11 +48,11 @@ export function SubscriptionCheckClient({
         // Check subscription status
         const { data: profileData } = await supabase
           .from("profiles")
-          .select("is_subscribed")
+          .select("has_free_plan")
           .eq("id", userData.user.id)
           .single();
 
-        if (profileData?.is_subscribed) {
+        if (profileData?.has_free_plan) {
           setIsAllowed(true);
         } else {
           router.push(redirectTo);
