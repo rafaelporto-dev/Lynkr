@@ -13,21 +13,21 @@ import {
 import { Button } from "./ui/button";
 import {
   UserCircle,
-  Home,
-  Trash2,
-  Settings,
-  LogOut,
   Link as LinkIcon,
   BarChart2,
   Globe,
+  Settings,
+  LogOut,
+  Trash2,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { deleteAccountAction } from "@/app/actions";
 import { cn } from "@/lib/utils";
 
 export default function DashboardNavbar() {
   const supabase = createClient();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleDeleteAccount = async () => {
     if (
@@ -44,6 +44,8 @@ export default function DashboardNavbar() {
     }
   };
 
+  const isActive = (path: string) => pathname === path;
+
   return (
     <nav className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
@@ -59,30 +61,36 @@ export default function DashboardNavbar() {
             {/* Navigation */}
             <div className="hidden md:flex items-center gap-1">
               <Link
-                href="/dashboard"
+                href="/dashboard/links"
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground"
+                  isActive("/dashboard/links")
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <LinkIcon className="h-4 w-4" />
                 Links
               </Link>
               <Link
-                href="/dashboard?tab=analytics"
+                href="/dashboard/analytics"
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground"
+                  isActive("/dashboard/analytics")
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <BarChart2 className="h-4 w-4" />
                 Analytics
               </Link>
               <Link
-                href="/dashboard?tab=domains"
+                href="/dashboard/domains"
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground"
+                  isActive("/dashboard/domains")
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <Globe className="h-4 w-4" />
@@ -108,7 +116,7 @@ export default function DashboardNavbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/dashboard?tab=profile"
+                    href="/dashboard/profile"
                     className="flex items-center gap-2"
                   >
                     <UserCircle className="h-4 w-4" />
@@ -117,7 +125,7 @@ export default function DashboardNavbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/dashboard?tab=settings"
+                    href="/dashboard/settings"
                     className="flex items-center gap-2"
                   >
                     <Settings className="h-4 w-4" />
