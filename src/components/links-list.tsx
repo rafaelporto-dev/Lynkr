@@ -45,6 +45,7 @@ type Link = {
   click_count: number;
   active: boolean;
   display_order: number;
+  thumbnail_url?: string | null;
 };
 
 function SortableLink({
@@ -89,6 +90,19 @@ function SortableLink({
         >
           <GripVertical className="h-4 w-4" />
         </div>
+        {link.thumbnail_url && (
+          <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0 border bg-muted/30">
+            <img
+              src={link.thumbnail_url}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                // Hide the image if it fails to load
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
+        )}
         <div className="flex-1 min-w-0 mr-4">
           <h3 className="font-medium truncate">{link.title}</h3>
           <a

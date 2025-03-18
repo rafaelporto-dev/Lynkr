@@ -11,7 +11,9 @@ import { Card } from "./ui/card";
 import ProfileQRCode from "./profile-qr-code";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-type Link = Database["public"]["Tables"]["links"]["Row"];
+type Link = Database["public"]["Tables"]["links"]["Row"] & {
+  thumbnail_url?: string | null;
+};
 
 // Define theme configurations matching those in profile-editor.tsx
 const themes = [
@@ -196,13 +198,27 @@ export default function UserProfilePage({ username }: { username: string }) {
                 className="block w-full"
               >
                 <Card
-                  className={`w-full ${themeConfig.cardBg} hover:bg-gradient-to-r hover:${themeConfig.buttonGradient} ${themeConfig.borderColor} shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")} hover:shadow-${themeConfig.borderColor.replace("border-", "")} transition-all duration-300`}
+                  className={`w-full ${themeConfig.cardBg} hover:bg-gradient-to-r hover:${themeConfig.buttonGradient} ${themeConfig.borderColor} shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")} hover:shadow-${themeConfig.borderColor.replace("border-", "")} transition-all duration-300 overflow-hidden`}
                 >
+                  {link.thumbnail_url && (
+                    <div className="w-full h-32 overflow-hidden">
+                      <img
+                        src={link.thumbnail_url}
+                        alt=""
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                        onError={(e) => {
+                          // Hide the image container if it fails to load
+                          (
+                            e.target as HTMLImageElement
+                          ).parentElement!.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center">
-                      {link.icon ? (
+                      {link.icon && !link.thumbnail_url ? (
                         <div className="mr-3 text-purple-400">
-                          {/* We would render the icon here if we had an icon system */}
                           <div className="w-6 h-6 flex items-center justify-center bg-purple-500/20 rounded-full">
                             {link.icon}
                           </div>

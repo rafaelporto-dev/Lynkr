@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "../../supabase/client";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -12,18 +12,75 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { LinkIcon, Plus, Loader2, Link2 } from "lucide-react";
+import { LinkIcon, Plus, Loader2, Link2, Image } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
+import { Skeleton } from "./ui/skeleton";
 
 export default function LinkForm() {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [isFetchingPreview, setIsFetchingPreview] = useState(false);
+  const [previewTitle, setPreviewTitle] = useState("");
   const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchLinkPreview = async () => {
+      if (!url || !isValidUrl(url)) return;
+
+      setIsFetchingPreview(true);
+      try {
+        const response = await supabase.functions.invoke(
+          "supabase-functions-fetch-link-preview",
+          {
+            body: { url },
+          },
+        );
+
+        if (response.error) throw new Error(response.error.message);
+
+        if (response.data) {
+          setThumbnailUrl(response.data.thumbnailUrl || null);
+          // If user hasn't entered a title yet, suggest the one from preview
+          if (!title && response.data.title) {
+            setPreviewTitle(response.data.title);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching link preview:", error);
+      } finally {
+        setIsFetchingPreview(false);
+      }
+    };
+
+    // Debounce the preview fetch to avoid too many requests
+    const timeoutId = setTimeout(() => {
+      fetchLinkPreview();
+    }, 800);
+
+    return () => clearTimeout(timeoutId);
+  }, [url, title]);
+
+  const isValidUrl = (urlString: string): boolean => {
+    try {
+      new URL(urlString);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const handleUsePreviewTitle = () => {
+    if (previewTitle) {
+      setTitle(previewTitle);
+      setPreviewTitle("");
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +134,7 @@ export default function LinkForm() {
         display_order: nextOrder,
         active: true,
         click_count: 0,
+        thumbnail_url: thumbnailUrl,
       });
 
       if (insertError) {
@@ -86,6 +144,8 @@ export default function LinkForm() {
       // Reset form and refresh
       setTitle("");
       setUrl("");
+      setThumbnailUrl(null);
+      setPreviewTitle("");
       router.refresh();
 
       toast({
@@ -121,14 +181,31 @@ export default function LinkForm() {
           )}
           <div className="space-y-2">
             <Label htmlFor="title">Link Title</Label>
-            <Input
-              id="title"
-              placeholder="My Website"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={isLoading}
-              className="h-9"
-            />
+            <div className="relative">
+              <Input
+                id="title"
+                placeholder="My Website"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                disabled={isLoading}
+                className="h-9"
+              />
+              {previewTitle && (
+                <div className="mt-1 text-xs flex items-center gap-1">
+                  <span className="text-muted-foreground">Suggested:</span>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="h-auto p-0 text-xs text-primary"
+                    onClick={handleUsePreviewTitle}
+                  >
+                    {previewTitle.length > 40
+                      ? `${previewTitle.substring(0, 40)}...`
+                      : previewTitle}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="url">URL</Label>
@@ -144,6 +221,36 @@ export default function LinkForm() {
               />
             </div>
           </div>
+
+          {/* Link Preview */}
+          {(isFetchingPreview || thumbnailUrl) && (
+            <div className="mt-4 border rounded-md p-3 bg-muted/30">
+              <div className="flex items-center gap-2 mb-2 text-sm font-medium">
+                <Image className="h-4 w-4" />
+                <span>Link Preview</span>
+              </div>
+
+              {isFetchingPreview ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-[100px] w-full rounded-md" />
+                  <Skeleton className="h-4 w-3/4 rounded-md" />
+                </div>
+              ) : thumbnailUrl ? (
+                <div className="relative overflow-hidden rounded-md bg-muted/50">
+                  <img
+                    src={thumbnailUrl}
+                    alt="Link preview"
+                    className="w-full h-[120px] object-cover"
+                    onError={(e) => {
+                      // Hide the image if it fails to load
+                      (e.target as HTMLImageElement).style.display = "none";
+                      setThumbnailUrl(null);
+                    }}
+                  />
+                </div>
+              ) : null}
+            </div>
+          )}
         </CardContent>
         <CardFooter>
           <Button type="submit" disabled={isLoading} className="w-full">
