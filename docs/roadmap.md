@@ -14,14 +14,14 @@ This document tracks planned and completed features for the Lynkr platform. Mark
 
 ## Analytics & Insights
 
-- [ ] Basic link click tracking
-- [ ] Visit analytics dashboard
-- [ ] Traffic source tracking
+- [x] Basic link click tracking
+- [x] Visit analytics dashboard
+- [x] Traffic source tracking
 - [ ] Heatmaps for click analysis
 - [ ] Geographic analytics
 - [ ] Device and browser analytics
 - [ ] Time-based analytics (hourly, daily, weekly)
-- [ ] Custom date range reports
+- [x] Custom date range reports
 - [ ] Data export (CSV, PDF)
 - [ ] Real-time analytics dashboard
 
@@ -30,8 +30,8 @@ This document tracks planned and completed features for the Lynkr platform. Mark
 - [x] Multiple theme options
 - [x] Custom background support
 - [x] Font selection
-- [ ] Drag-and-drop link reordering
-- [ ] Button style customization
+- [x] Drag-and-drop link reordering
+- [x] Button style customization
 - [ ] Custom CSS injection
 - [ ] Custom animations and transitions
 - [ ] Custom meta tags and favicon

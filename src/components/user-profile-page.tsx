@@ -277,10 +277,64 @@ export default function UserProfilePage({ username }: { username: string }) {
   }, [username, supabase]);
 
   // Track link clicks
-  const handleLinkClick = async (linkId: string) => {
-    // Update click count in the database
-    await supabase.rpc("increment_link_click", { link_id: linkId });
-  };
+  async function handleLinkClick(linkId: string) {
+    try {
+      // Capturar informações de origem
+      const referrer = document.referrer || "direct";
+      const utmSource = new URLSearchParams(window.location.search).get(
+        "utm_source"
+      );
+      const utmMedium = new URLSearchParams(window.location.search).get(
+        "utm_medium"
+      );
+      const utmCampaign = new URLSearchParams(window.location.search).get(
+        "utm_campaign"
+      );
+
+      // Determinar a origem com base nos parâmetros UTM ou referenciador
+      let source = "direct";
+      if (utmSource) {
+        source = utmSource;
+      } else if (referrer) {
+        try {
+          // Extrair o domínio do referenciador
+          const referrerUrl = new URL(referrer);
+          source = referrerUrl.hostname;
+
+          // Identificar origens comuns de redes sociais
+          if (source.includes("facebook.com")) source = "facebook";
+          if (source.includes("instagram.com")) source = "instagram";
+          if (source.includes("twitter.com") || source.includes("x.com"))
+            source = "twitter";
+          if (source.includes("linkedin.com")) source = "linkedin";
+          if (source.includes("youtube.com")) source = "youtube";
+          if (source.includes("google.com")) source = "google";
+          if (source.includes("bing.com")) source = "bing";
+        } catch (e) {
+          // URL inválido, manter como referrer bruto
+          source = referrer;
+        }
+      }
+
+      // Enviar dados para o banco usando a tabela clicks existente
+      const { error } = await supabase.from("clicks").insert([
+        {
+          link_id: linkId,
+          referrer,
+          source,
+          utm_source: utmSource || null,
+          utm_medium: utmMedium || null,
+          utm_campaign: utmCampaign || null,
+        },
+      ]);
+
+      if (error) {
+        console.error("Error recording click", error);
+      }
+    } catch (err) {
+      console.error("Failed to record click", err);
+    }
+  }
 
   if (loading) {
     return (
