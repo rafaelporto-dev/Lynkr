@@ -274,23 +274,33 @@ export default function ProfileQRCode({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <QrCode className="h-4 w-4" />
-          QR Code
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1 sm:gap-2 px-2 sm:px-3 py-1 h-auto text-xs sm:text-sm"
+        >
+          <QrCode className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline">QR Code</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Your Profile QR Code</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="w-[90vw] max-w-md p-4 sm:p-6">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-lg sm:text-xl">
+            Your Profile QR Code
+          </DialogTitle>
+          <DialogDescription className="text-xs sm:text-sm">
             Scan this QR code to visit your profile at {profileUrl}
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="view" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="view">View</TabsTrigger>
-            <TabsTrigger value="customize">Customize</TabsTrigger>
+        <Tabs defaultValue="view" className="w-full mt-2">
+          <TabsList className="grid w-full grid-cols-2 h-9">
+            <TabsTrigger value="view" className="text-xs sm:text-sm py-1">
+              View
+            </TabsTrigger>
+            <TabsTrigger value="customize" className="text-xs sm:text-sm py-1">
+              Customize
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="view" className="pt-4">
@@ -307,24 +317,66 @@ export default function ProfileQRCode({
                 bgColor={selectedColor.bgColor}
               />
             </div>
+
+            {/* Mobile quick actions */}
+            <div className="flex gap-2 justify-center mt-4 sm:hidden">
+              <Button
+                variant="outline"
+                onClick={copyQRCodeToClipboard}
+                size="sm"
+                className="h-8 px-2 text-xs"
+              >
+                <Copy className="h-3 w-3 mr-1" />
+                Copy
+              </Button>
+              <Button
+                variant="outline"
+                onClick={shareQRCode}
+                size="sm"
+                className="h-8 px-2 text-xs"
+              >
+                <Share2 className="h-3 w-3 mr-1" />
+                Share
+              </Button>
+              <Button
+                onClick={downloadQRCode}
+                size="sm"
+                className="h-8 px-2 text-xs bg-purple-600 hover:bg-purple-700"
+              >
+                <Download className="h-3 w-3 mr-1" />
+                Download
+              </Button>
+            </div>
           </TabsContent>
 
-          <TabsContent value="customize" className="space-y-4 pt-4">
-            <div className="space-y-2">
-              <Label htmlFor="color-select">QR Code Color</Label>
+          <TabsContent
+            value="customize"
+            className="space-y-3 sm:space-y-4 pt-4"
+          >
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="color-select" className="text-xs sm:text-sm">
+                QR Code Color
+              </Label>
               <Select
                 value={selectedColorId}
                 onValueChange={setSelectedColorId}
               >
-                <SelectTrigger id="color-select">
+                <SelectTrigger
+                  id="color-select"
+                  className="h-8 sm:h-10 text-xs sm:text-sm"
+                >
                   <SelectValue placeholder="Select a color" />
                 </SelectTrigger>
                 <SelectContent>
                   {qrCodeColors.map((color) => (
-                    <SelectItem key={color.id} value={color.id}>
+                    <SelectItem
+                      key={color.id}
+                      value={color.id}
+                      className="text-xs sm:text-sm py-1.5"
+                    >
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-4 h-4 rounded-full border border-gray-300"
+                          className="w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-gray-300"
                           style={{ backgroundColor: color.fgColor }}
                         />
                         {color.name}
@@ -335,23 +387,61 @@ export default function ProfileQRCode({
               </Select>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="size-select">Size</Label>
+            <div className="space-y-1 sm:space-y-2">
+              <Label htmlFor="size-select" className="text-xs sm:text-sm">
+                Size
+              </Label>
               <Select value={qrSize} onValueChange={setQrSize}>
-                <SelectTrigger id="size-select">
+                <SelectTrigger
+                  id="size-select"
+                  className="h-8 sm:h-10 text-xs sm:text-sm"
+                >
                   <SelectValue placeholder="QR Code Size" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="150">Small</SelectItem>
-                  <SelectItem value="200">Medium</SelectItem>
-                  <SelectItem value="250">Large</SelectItem>
+                  <SelectItem value="150" className="text-xs sm:text-sm py-1.5">
+                    Small
+                  </SelectItem>
+                  <SelectItem value="200" className="text-xs sm:text-sm py-1.5">
+                    Medium
+                  </SelectItem>
+                  <SelectItem value="250" className="text-xs sm:text-sm py-1.5">
+                    Large
+                  </SelectItem>
+                  <SelectItem value="300" className="text-xs sm:text-sm py-1.5">
+                    Extra Large
+                  </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Preview in customization tab */}
+            <div className="mt-4 border rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
+              <div className="text-xs text-center text-gray-500 mb-3">
+                Preview
+              </div>
+              <div
+                className="flex justify-center"
+                style={{
+                  backgroundColor: selectedColor.bgColor,
+                  borderRadius: "4px",
+                  padding: "8px",
+                }}
+              >
+                <QRCode
+                  value={profileUrl}
+                  size={Math.min(parseInt(qrSize) * 0.6, 150)}
+                  level="H"
+                  fgColor={selectedColor.fgColor}
+                  bgColor={selectedColor.bgColor}
+                />
+              </div>
             </div>
           </TabsContent>
         </Tabs>
 
-        <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+        {/* Desktop footer actions - hidden on mobile */}
+        <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0 mt-4 hidden sm:flex">
           <div className="flex gap-2 flex-1">
             <Button
               variant="outline"

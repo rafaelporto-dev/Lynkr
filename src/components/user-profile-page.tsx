@@ -304,7 +304,7 @@ export default function UserProfilePage({ username }: { username: string }) {
   return (
     <div
       className={cn(
-        `min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-12 px-4 sm:px-6 lg:px-8`,
+        `min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-8 px-4 sm:py-12 sm:px-6 lg:px-8`,
         fontFamily
       )}
       style={backgroundStyle}
@@ -316,8 +316,8 @@ export default function UserProfilePage({ username }: { username: string }) {
 
       <div className="max-w-md mx-auto">
         {/* Profile Header */}
-        <div className="text-center mb-10">
-          <Avatar className="h-24 w-24 mx-auto mb-4 ring-2 ring-purple-500 ring-offset-2 ring-offset-black">
+        <div className="text-center mb-8 sm:mb-10">
+          <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4 ring-2 ring-purple-500 ring-offset-2 ring-offset-black">
             {profile.avatar_url ? (
               <AvatarImage
                 src={profile.avatar_url}
@@ -325,22 +325,26 @@ export default function UserProfilePage({ username }: { username: string }) {
               />
             ) : (
               <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-500">
-                <User className="h-12 w-12 text-white" />
+                <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
               </AvatarFallback>
             )}
           </Avatar>
 
-          <h1 className={`text-2xl font-bold ${textColor} mb-2`}>
+          <h1 className={`text-xl sm:text-2xl font-bold ${textColor} mb-2`}>
             {profile.full_name || profile.username || "User"}
           </h1>
 
           {profile.bio && (
-            <p className={`${textMutedColor} mb-4`}>{profile.bio}</p>
+            <p
+              className={`${textMutedColor} text-sm sm:text-base mb-3 sm:mb-4 max-w-xs mx-auto`}
+            >
+              {profile.bio}
+            </p>
           )}
 
-          <div className="flex items-center gap-2 justify-center">
+          <div className="flex flex-wrap items-center gap-2 justify-center">
             <div
-              className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-4 py-1 text-sm text-white`}
+              className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-3 py-1 text-xs sm:text-sm text-white`}
             >
               @{profile.username || "user"}
             </div>
@@ -353,7 +357,12 @@ export default function UserProfilePage({ username }: { username: string }) {
         </div>
 
         {/* Links */}
-        <div className={layoutStyle}>
+        <div
+          className={cn(
+            layoutStyle,
+            "px-0 sm:px-2" // Adiciona padding apenas em telas maiores
+          )}
+        >
           {links.length === 0 ? (
             <div className={`text-center ${textMutedColor}`}>
               No links added yet
@@ -379,7 +388,7 @@ export default function UserProfilePage({ username }: { username: string }) {
                   )}
                 >
                   {link.thumbnail_url && (
-                    <div className="w-full h-32 overflow-hidden">
+                    <div className="w-full h-24 sm:h-32 overflow-hidden">
                       <img
                         src={link.thumbnail_url}
                         alt=""
@@ -393,20 +402,22 @@ export default function UserProfilePage({ username }: { username: string }) {
                       />
                     </div>
                   )}
-                  <div className="flex items-center justify-between p-4">
+                  <div className="flex items-center justify-between p-3 sm:p-4">
                     <div className="flex items-center">
                       {link.icon && !link.thumbnail_url ? (
-                        <div className="mr-3 text-purple-400">
-                          <div className="w-6 h-6 flex items-center justify-center bg-purple-500/20 rounded-full">
+                        <div className="mr-2 sm:mr-3 text-purple-400">
+                          <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-purple-500/20 rounded-full">
                             {link.icon}
                           </div>
                         </div>
                       ) : null}
-                      <div className={`font-medium ${textColor}`}>
+                      <div
+                        className={`font-medium ${textColor} text-sm sm:text-base line-clamp-1`}
+                      >
                         {link.title}
                       </div>
                     </div>
-                    <ExternalLink className="h-4 w-4 text-purple-400" />
+                    <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400 flex-shrink-0 ml-2" />
                   </div>
                 </Card>
               </a>
@@ -415,7 +426,7 @@ export default function UserProfilePage({ username }: { username: string }) {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center text-xs text-gray-500">
+        <div className="mt-8 sm:mt-12 text-center text-xs text-gray-500">
           <p>Powered by Lynkr</p>
         </div>
       </div>
