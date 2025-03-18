@@ -1,12 +1,21 @@
+"use client";
 import { SubscriptionCheckClient } from "@/components/subscription-check-client";
 import DashboardNavbar from "@/components/dashboard-navbar";
 import LinkForm from "@/components/link-form";
 import LinksList from "@/components/links-list";
-import { InfoIcon, LinkIcon, Palette, ArrowRight } from "lucide-react";
+import { InfoIcon, LinkIcon, Palette, ArrowRight, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import ProfilePreview from "@/components/profile-preview";
+import { useState } from "react";
 
 export default function LinksPage() {
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+
+  if (isPreviewMode) {
+    return <ProfilePreview onClose={() => setIsPreviewMode(false)} />;
+  }
+
   return (
     <SubscriptionCheckClient>
       <DashboardNavbar />
@@ -19,18 +28,28 @@ export default function LinksPage() {
                 <LinkIcon className="h-7 w-7" />
                 Links
               </h1>
-              
-              {/* Botão de Customização de Perfil */}
-              <Link href="/dashboard/personalization">
+
+              <div className="flex items-center gap-3">
+                {/* Botão de Preview do Perfil */}
                 <Button
                   variant="outline"
                   className="flex items-center gap-2"
+                  onClick={() => setIsPreviewMode(true)}
                 >
-                  <Palette className="h-4 w-4" />
-                  Customize Profile
+                  <Eye className="h-4 w-4" />
+                  Preview Profile
                   <ArrowRight className="h-4 w-4 ml-1" />
                 </Button>
-              </Link>
+
+                {/* Botão de Customização de Perfil */}
+                <Link href="/dashboard/personalization">
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    Customize Profile
+                    <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
+                </Link>
+              </div>
             </div>
             <div className="bg-secondary/50 text-sm p-3 px-4 rounded-lg text-muted-foreground flex gap-2 items-center">
               <InfoIcon size="14" />

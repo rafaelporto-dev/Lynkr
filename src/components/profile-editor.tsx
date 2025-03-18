@@ -241,10 +241,6 @@ export default function ProfileEditor() {
   const supabase = createClient();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
   const [profile, setProfile] = useState<{
     id: string;
     username: string | null;
@@ -264,9 +260,14 @@ export default function ProfileEditor() {
   const [isPremium, setIsPremium] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState<File | null>(null);
   const [backgroundPreview, setBackgroundPreview] = useState<string | null>(
-    null,
+    null
   );
   const [uploadingBackground, setUploadingBackground] = useState(false);
+
+  // Verificar o cliente Supabase
+  useEffect(() => {
+    console.log("Supabase client initialized:", !!supabase);
+  }, [supabase]);
 
   useEffect(() => {
     async function getProfile() {
@@ -284,25 +285,41 @@ export default function ProfileEditor() {
             .single();
 
           if (error) throw error;
-          setProfile(data);
+
+          // Inserir valores padrão para propriedades que ainda não existem no banco de dados
+          const profileWithDefaults = {
+            ...data,
+            button_style: data.button_style || "rounded",
+            font_family: data.font_family || "inter",
+            layout: data.layout || "list",
+            background_type: data.background_type || "gradient",
+            background_url: data.background_url || null,
+            custom_css: data.custom_css || null,
+          };
+
+          setProfile(profileWithDefaults);
 
           // Check if user has premium subscription
           setIsPremium(!data.has_free_plan);
 
           // Set background preview if exists
-          if (data.background_url) {
-            setBackgroundPreview(data.background_url);
+          if (profileWithDefaults.background_url) {
+            setBackgroundPreview(profileWithDefaults.background_url);
           }
         }
       } catch (error: any) {
-        setMessage({ type: "error", text: error.message });
+        toast({
+          title: "Error fetching profile",
+          description: error.message,
+          variant: "destructive",
+        });
       } finally {
         setLoading(false);
       }
     }
 
     getProfile();
-  }, []);
+  }, [supabase, toast]);
 
   const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isPremium) {
@@ -365,7 +382,7 @@ export default function ProfileEditor() {
 
       // Update profile state with new background URL
       setProfile((prev) =>
-        prev ? { ...prev, background_url, background_type: "image" } : null,
+        prev ? { ...prev, background_url, background_type: "image" } : null
       );
 
       toast({
@@ -384,7 +401,7 @@ export default function ProfileEditor() {
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setProfile((prev) => (prev ? { ...prev, [name]: value } : null));
@@ -500,29 +517,134 @@ export default function ProfileEditor() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setMessage(null);
+    console.log("Form submitted, profile:", profile);
 
     try {
-      if (!profile) throw new Error("No profile data");
+      if (!profile) {
+        console.error("No profile data available");
+        throw new Error("No profile data");
+      }
+
+      console.log("Profile ID:", profile.id);
+      console.log("Supabase client available:", !!supabase);
+
+      const updateData = {
+        theme: profile.theme || "default",
+        // Use valores padrão para cada propriedade caso ainda não exista no banco
+        button_style: profile.button_style || "rounded",
+        font_family: profile.font_family || "inter",
+        layout: profile.layout || "list",
+        background_type: profile.background_type || "gradient",
+        background_url: profile.background_url || null,
+        custom_css: profile.custom_css || null,
+        updated_at: new Date().toISOString(),
+      };
+
+      console.log("Sending update with data:", updateData);
 
       // Update apenas configurações de personalização
-      const { error } = await supabase
+      const { error, data } = await supabase
+        .from("profiles")
+        .update(updateData)
+        .eq("id", profile.id)
+        .select();
+
+      console.log("Update response:", { error, data });
+
+      if (error) {
+        // Se o erro for relacionado a uma coluna que não existe, continue sem essa coluna
+        if (error.message.includes("background_type")) {
+          console.log("Retrying without background_type");
+          // Tente novamente sem a coluna background_type
+          const { error: retryError, data: retryData } = await supabase
+            .from("profiles")
+            .update({
+              theme: profile.theme || "default",
+              button_style: profile.button_style || "rounded",
+              font_family: profile.font_family || "inter",
+              layout: profile.layout || "list",
+              custom_css: profile.custom_css || null,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", profile.id)
+            .select();
+
+          console.log("Retry response:", { retryError, retryData });
+
+          if (retryError) throw retryError;
+        } else {
+          throw error;
+        }
+      }
+
+      // Recarregar os dados do perfil após a atualização
+      const { data: refreshedProfile, error: refreshError } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", profile.id)
+        .single();
+
+      if (!refreshError && refreshedProfile) {
+        setProfile(refreshedProfile);
+        console.log("Profile refreshed:", refreshedProfile);
+      }
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+    } catch (error: any) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Error updating profile",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Funcão de teste de atualização simples
+  const testUpdate = async () => {
+    console.log("Running test update");
+    setLoading(true);
+
+    try {
+      if (!profile) {
+        console.error("No profile data available for test");
+        return;
+      }
+
+      console.log("Profile ID for test:", profile.id);
+
+      // Atualização simples apenas com o tema
+      const { error, data } = await supabase
         .from("profiles")
         .update({
-          theme: profile.theme,
-          button_style: profile.button_style || "rounded",
-          font_family: profile.font_family || "inter",
-          layout: profile.layout || "list",
-          background_type: profile.background_type || "gradient",
-          custom_css: profile.custom_css,
+          theme: profile.theme || "default",
           updated_at: new Date().toISOString(),
         })
-        .eq("id", profile.id);
+        .eq("id", profile.id)
+        .select();
 
-      if (error) throw error;
-      setMessage({ type: "success", text: "Profile customization updated successfully!" });
+      console.log("Test update response:", { error, data });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Test update successful",
+        description: "Simple update completed successfully",
+      });
     } catch (error: any) {
-      setMessage({ type: "error", text: error.message });
+      console.error("Test update failed:", error);
+      toast({
+        title: "Test update failed",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -559,25 +681,15 @@ export default function ProfileEditor() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {message && (
-            <FormMessage
-              message={{
-                [message.type]: message.text,
-              }}
-            />
-          )}
-
           {!isPremium && (
             <Alert className="bg-amber-500/10 border-amber-500/30 mb-6">
               <div className="flex items-start gap-2">
                 <Info className="h-5 w-5 text-amber-500 mt-0.5" />
                 <AlertDescription className="text-sm">
-                  <span className="font-medium">
-                    You're on the Free plan.
-                  </span>{" "}
-                  Upgrade to Premium to unlock advanced customization
-                  options, including premium themes, custom backgrounds,
-                  advanced button styles, and more.
+                  <span className="font-medium">You're on the Free plan.</span>{" "}
+                  Upgrade to Premium to unlock advanced customization options,
+                  including premium themes, custom backgrounds, advanced button
+                  styles, and more.
                   <div className="mt-2">
                     <Button
                       variant="outline"
@@ -648,7 +760,7 @@ export default function ProfileEditor() {
                           "border rounded-lg p-3 cursor-pointer transition-all",
                           profile.theme === theme.id
                             ? "border-primary ring-2 ring-primary/20"
-                            : "border-muted hover:border-primary/50",
+                            : "border-muted hover:border-primary/50"
                         )}
                         onClick={() => handleThemeChange(theme.id)}
                       >
@@ -678,7 +790,7 @@ export default function ProfileEditor() {
                           profile.theme === theme.id
                             ? "border-primary ring-2 ring-primary/20"
                             : "border-muted hover:border-primary/50",
-                          !isPremium && "opacity-75",
+                          !isPremium && "opacity-75"
                         )}
                         onClick={() => handleThemeChange(theme.id)}
                       >
@@ -729,14 +841,14 @@ export default function ProfileEditor() {
                               "flex flex-col items-center gap-2 rounded-lg border border-muted p-3 hover:border-primary/50 cursor-pointer",
                               profile.button_style === style.id &&
                                 "border-primary ring-2 ring-primary/20",
-                              style.isPremium && !isPremium && "opacity-50",
+                              style.isPremium && !isPremium && "opacity-50"
                             )}
                           >
                             <div
                               className={cn(
                                 "w-full py-2 px-4 text-center text-sm",
                                 style.class,
-                                "bg-gradient-to-r from-purple-600 to-blue-600 text-white",
+                                "bg-gradient-to-r from-purple-600 to-blue-600 text-white"
                               )}
                             >
                               {style.name}
@@ -786,7 +898,7 @@ export default function ProfileEditor() {
                           className={cn(
                             `px-3 py-1.5 text-white text-xs font-medium`,
                             `bg-gradient-to-r ${getCurrentTheme().buttonGradient}`,
-                            getCurrentButtonStyle().class,
+                            getCurrentButtonStyle().class
                           )}
                         >
                           Link 1
@@ -795,7 +907,7 @@ export default function ProfileEditor() {
                           className={cn(
                             `px-3 py-1.5 text-white text-xs font-medium`,
                             `bg-gradient-to-r ${getCurrentTheme().buttonGradient}`,
-                            getCurrentButtonStyle().class,
+                            getCurrentButtonStyle().class
                           )}
                         >
                           Link 2
@@ -833,13 +945,13 @@ export default function ProfileEditor() {
                             "flex flex-col items-center gap-2 rounded-lg border border-muted p-3 hover:border-primary/50 cursor-pointer",
                             profile.font_family === font.id &&
                               "border-primary ring-2 ring-primary/20",
-                            font.isPremium && !isPremium && "opacity-50",
+                            font.isPremium && !isPremium && "opacity-50"
                           )}
                         >
                           <div
                             className={cn(
                               "w-full py-2 px-4 text-center",
-                              font.class,
+                              font.class
                             )}
                           >
                             {font.name}
@@ -927,7 +1039,7 @@ export default function ProfileEditor() {
                             "flex flex-col items-center gap-2 rounded-lg border border-muted p-4 hover:border-primary/50 cursor-pointer",
                             profile.layout === layout.id &&
                               "border-primary ring-2 ring-primary/20",
-                            layout.isPremium && !isPremium && "opacity-50",
+                            layout.isPremium && !isPremium && "opacity-50"
                           )}
                         >
                           <div className="w-full h-24 bg-muted rounded-md flex items-center justify-center">
@@ -1033,7 +1145,7 @@ export default function ProfileEditor() {
                             "flex flex-col items-center gap-2 rounded-lg border border-muted p-3 hover:border-primary/50 cursor-pointer",
                             profile.background_type === bg.id &&
                               "border-primary ring-2 ring-primary/20",
-                            bg.isPremium && !isPremium && "opacity-50",
+                            bg.isPremium && !isPremium && "opacity-50"
                           )}
                         >
                           <div className="w-full h-16 rounded-md flex items-center justify-center">
@@ -1157,7 +1269,7 @@ export default function ProfileEditor() {
                             "relative cursor-pointer px-4 py-2 rounded-md text-sm flex items-center gap-2",
                             isPremium
                               ? "bg-primary hover:bg-primary/90 text-primary-foreground"
-                              : "bg-muted text-muted-foreground cursor-not-allowed",
+                              : "bg-muted text-muted-foreground cursor-not-allowed"
                           )}
                         >
                           <Upload size={16} />
@@ -1234,19 +1346,46 @@ export default function ProfileEditor() {
           </Tabs>
 
           <CardFooter className="px-0 pt-4">
-            <Button type="submit" disabled={loading} className="ml-auto">
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  Save Customization
-                </>
-              )}
-            </Button>
+            <div className="flex gap-3 ml-auto">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={loading}
+                onClick={testUpdate}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Testando...
+                  </>
+                ) : (
+                  <>Teste Simples</>
+                )}
+              </Button>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                onClick={(e) => {
+                  console.log("Save button clicked");
+                  if (!loading) {
+                    handleSubmit(e as unknown as React.FormEvent);
+                  }
+                }}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="mr-2 h-4 w-4" />
+                    Salvar Customização
+                  </>
+                )}
+              </Button>
+            </div>
           </CardFooter>
         </form>
       </CardContent>

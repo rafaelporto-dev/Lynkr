@@ -7,7 +7,7 @@ export default async function UserPage({
 }: {
   params: { username: string };
 }) {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Check if the username exists
   const { data: profile } = await supabase

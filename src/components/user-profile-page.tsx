@@ -9,8 +9,17 @@ import { ExternalLink, User, QrCode } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import ProfileQRCode from "./profile-qr-code";
+import { cn } from "@/lib/utils";
 
-type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
+  button_style?: string;
+  font_family?: string;
+  layout?: string;
+  background_type?: string;
+  background_url?: string | null;
+  custom_css?: string | null;
+};
+
 type Link = Database["public"]["Tables"]["links"]["Row"] & {
   thumbnail_url?: string | null;
 };
@@ -23,6 +32,7 @@ interface Theme {
   buttonGradient: string;
   buttonHoverGradient: string;
   badgeGradient: string;
+  textColor?: string;
 }
 
 const themes: Theme[] = [
@@ -54,6 +64,25 @@ const themes: Theme[] = [
     badgeGradient: "from-blue-500 to-cyan-500",
   },
   {
+    id: "dark",
+    gradient: "from-gray-950 to-gray-900",
+    cardBg: "bg-gray-800/90",
+    borderColor: "border-gray-700/50",
+    buttonGradient: "from-gray-700 to-gray-800",
+    buttonHoverGradient: "from-gray-600 to-gray-700",
+    badgeGradient: "from-gray-600 to-gray-700",
+  },
+  {
+    id: "minimal",
+    gradient: "from-gray-50 to-gray-100",
+    cardBg: "bg-white",
+    borderColor: "border-gray-200",
+    buttonGradient: "from-gray-200 to-gray-300",
+    buttonHoverGradient: "from-gray-300 to-gray-400",
+    badgeGradient: "from-gray-400 to-gray-500",
+    textColor: "text-gray-900",
+  },
+  {
     id: "cyberpunk",
     gradient: "from-purple-900 via-pink-800 to-yellow-900",
     cardBg: "bg-gray-900/90",
@@ -80,18 +109,115 @@ const themes: Theme[] = [
     buttonHoverGradient: "from-green-700 to-emerald-700",
     badgeGradient: "from-green-500 to-emerald-500",
   },
+  {
+    id: "glassmorphism",
+    gradient: "from-blue-500/30 to-purple-500/30",
+    cardBg: "bg-white/10 backdrop-blur-lg",
+    borderColor: "border-white/20",
+    buttonGradient: "from-white/20 to-white/10",
+    buttonHoverGradient: "from-white/30 to-white/20",
+    badgeGradient: "from-white/20 to-white/10",
+  },
+  {
+    id: "neon",
+    gradient: "from-black to-gray-950",
+    cardBg: "bg-black/80",
+    borderColor: "border-purple-500/50",
+    buttonGradient: "from-purple-600 to-blue-600",
+    buttonHoverGradient: "from-purple-700 to-blue-700",
+    badgeGradient: "from-purple-600 to-blue-600",
+  },
 ];
+
+// Button styles definitions
+const buttonStyles = {
+  rounded: "rounded-md",
+  pill: "rounded-full",
+  square: "rounded-none",
+  "3d": "rounded-md shadow-lg transform hover:-translate-y-1",
+  neon: "rounded-md shadow-lg shadow-primary/50",
+  glass: "rounded-md bg-white/10 backdrop-blur-lg border border-white/20",
+};
+
+// Font families
+const fontFamilies = {
+  inter: "font-sans",
+  serif: "font-serif",
+  mono: "font-mono",
+  poppins: "font-poppins",
+  roboto: "font-roboto",
+  playfair: "font-playfair",
+};
+
+// Layout options
+const layoutOptions = {
+  list: "space-y-4",
+  grid: "grid grid-cols-2 gap-4",
+  cards: "grid grid-cols-1 sm:grid-cols-2 gap-4",
+};
 
 export default function UserProfilePage({ username }: { username: string }) {
   const supabase = createClient();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
+  const [customDomain, setCustomDomain] = useState<string | null>(null);
 
   const themeConfig = useMemo(() => {
     const themeId = profile?.theme || "default";
     return themes.find((theme) => theme.id === themeId) || themes[0];
   }, [profile?.theme]);
+
+  // Get button style
+  const buttonStyle = useMemo(() => {
+    const styleId = profile?.button_style || "rounded";
+    return (
+      buttonStyles[styleId as keyof typeof buttonStyles] || buttonStyles.rounded
+    );
+  }, [profile?.button_style]);
+
+  // Get font family
+  const fontFamily = useMemo(() => {
+    const fontId = profile?.font_family || "inter";
+    return (
+      fontFamilies[fontId as keyof typeof fontFamilies] || fontFamilies.inter
+    );
+  }, [profile?.font_family]);
+
+  // Get layout style
+  const layoutStyle = useMemo(() => {
+    const layoutId = profile?.layout || "list";
+    return (
+      layoutOptions[layoutId as keyof typeof layoutOptions] ||
+      layoutOptions.list
+    );
+  }, [profile?.layout]);
+
+  // Determine background style
+  const backgroundStyle = useMemo(() => {
+    if (!profile) return {};
+
+    const backgroundType = profile.background_type || "gradient";
+
+    switch (backgroundType) {
+      case "image":
+        return profile.background_url
+          ? {
+              backgroundImage: `url(${profile.background_url})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }
+          : {};
+      case "solid":
+        // Use a solid color that matches the theme
+        return {};
+      case "gradient":
+      default:
+        // Use the gradient from the theme
+        return {};
+    }
+  }, [profile]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -126,6 +252,20 @@ export default function UserProfilePage({ username }: { username: string }) {
         setLinks(linksData || []);
       }
 
+      // Fetch custom domain if available
+      if (profileData.has_custom_domain) {
+        const { data: domainData, error: domainError } = await supabase
+          .from("custom_domains")
+          .select("domain")
+          .eq("user_id", profileData.id)
+          .eq("verified", true)
+          .single();
+
+        if (!domainError && domainData) {
+          setCustomDomain(domainData.domain);
+        }
+      }
+
       setLoading(false);
     }
 
@@ -156,10 +296,24 @@ export default function UserProfilePage({ username }: { username: string }) {
     );
   }
 
+  // Generate text color class
+  const textColor = themeConfig.textColor || "text-white";
+  const textMutedColor =
+    themeConfig.id === "minimal" ? "text-gray-600" : "text-gray-300";
+
   return (
     <div
-      className={`min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-12 px-4 sm:px-6 lg:px-8`}
+      className={cn(
+        `min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-12 px-4 sm:px-6 lg:px-8`,
+        fontFamily
+      )}
+      style={backgroundStyle}
     >
+      {/* Custom CSS if available */}
+      {profile.custom_css && (
+        <style dangerouslySetInnerHTML={{ __html: profile.custom_css }} />
+      )}
+
       <div className="max-w-md mx-auto">
         {/* Profile Header */}
         <div className="text-center mb-10">
@@ -176,11 +330,13 @@ export default function UserProfilePage({ username }: { username: string }) {
             )}
           </Avatar>
 
-          <h1 className="text-2xl font-bold text-white mb-2">
+          <h1 className={`text-2xl font-bold ${textColor} mb-2`}>
             {profile.full_name || profile.username || "User"}
           </h1>
 
-          {profile.bio && <p className="text-gray-300 mb-4">{profile.bio}</p>}
+          {profile.bio && (
+            <p className={`${textMutedColor} mb-4`}>{profile.bio}</p>
+          )}
 
           <div className="flex items-center gap-2 justify-center">
             <div
@@ -188,14 +344,20 @@ export default function UserProfilePage({ username }: { username: string }) {
             >
               @{profile.username || "user"}
             </div>
-            <ProfileQRCode username={profile.username || ""} />
+            <ProfileQRCode
+              username={profile.username || ""}
+              {...(customDomain ? { customDomain } : {})}
+              profileTheme={profile.theme || undefined}
+            />
           </div>
         </div>
 
         {/* Links */}
-        <div className="space-y-4">
+        <div className={layoutStyle}>
           {links.length === 0 ? (
-            <div className="text-center text-gray-400">No links added yet</div>
+            <div className={`text-center ${textMutedColor}`}>
+              No links added yet
+            </div>
           ) : (
             links.map((link) => (
               <a
@@ -207,7 +369,14 @@ export default function UserProfilePage({ username }: { username: string }) {
                 className="block w-full"
               >
                 <Card
-                  className={`w-full ${themeConfig.cardBg} hover:bg-gradient-to-r hover:${themeConfig.buttonGradient} ${themeConfig.borderColor} shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")} hover:shadow-${themeConfig.borderColor.replace("border-", "")} transition-all duration-300 overflow-hidden`}
+                  className={cn(
+                    `w-full ${themeConfig.cardBg} ${themeConfig.borderColor} overflow-hidden`,
+                    `hover:bg-gradient-to-r hover:${themeConfig.buttonGradient}`,
+                    `shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")}`,
+                    `hover:shadow-${themeConfig.borderColor.replace("border-", "")}`,
+                    `transition-all duration-300`,
+                    buttonStyle
+                  )}
                 >
                   {link.thumbnail_url && (
                     <div className="w-full h-32 overflow-hidden">
@@ -233,7 +402,9 @@ export default function UserProfilePage({ username }: { username: string }) {
                           </div>
                         </div>
                       ) : null}
-                      <div className="text-white font-medium">{link.title}</div>
+                      <div className={`font-medium ${textColor}`}>
+                        {link.title}
+                      </div>
                     </div>
                     <ExternalLink className="h-4 w-4 text-purple-400" />
                   </div>
