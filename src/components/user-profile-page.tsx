@@ -5,9 +5,10 @@ import { createClient } from "../../supabase/client";
 import { Database } from "@/types/database.types";
 import { Avatar } from "./ui/avatar";
 import { AvatarImage, AvatarFallback } from "./ui/avatar";
-import { ExternalLink, User } from "lucide-react";
+import { ExternalLink, User, QrCode } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
+import ProfileQRCode from "./profile-qr-code";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 type Link = Database["public"]["Tables"]["links"]["Row"];
@@ -170,10 +171,13 @@ export default function UserProfilePage({ username }: { username: string }) {
 
           {profile.bio && <p className="text-gray-300 mb-4">{profile.bio}</p>}
 
-          <div
-            className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-4 py-1 text-sm text-white`}
-          >
-            @{profile.username}
+          <div className="flex items-center gap-2 justify-center">
+            <div
+              className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-4 py-1 text-sm text-white`}
+            >
+              @{profile.username}
+            </div>
+            <ProfileQRCode username={profile.username} />
           </div>
         </div>
 
@@ -192,7 +196,7 @@ export default function UserProfilePage({ username }: { username: string }) {
                 className="block w-full"
               >
                 <Card
-                  className={`w-full ${themeConfig.cardBg} hover:bg-gradient-to-r hover:${themeConfig.buttonGradient} ${themeConfig.borderColor} shadow-lg shadow-${themeConfig.borderColor} hover:shadow-${themeConfig.borderColor.replace("border-", "")} transition-all duration-300`}
+                  className={`w-full ${themeConfig.cardBg} hover:bg-gradient-to-r hover:${themeConfig.buttonGradient} ${themeConfig.borderColor} shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")} hover:shadow-${themeConfig.borderColor.replace("border-", "")} transition-all duration-300`}
                 >
                   <div className="flex items-center justify-between p-4">
                     <div className="flex items-center">

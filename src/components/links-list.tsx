@@ -15,7 +15,9 @@ import {
   EyeOff,
   Copy,
   Check,
+  Import,
 } from "lucide-react";
+import SocialMediaImport from "./social-media-import";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -164,7 +166,7 @@ export default function LinksList() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const fetchLinks = async () => {
@@ -208,7 +210,7 @@ export default function LinksList() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "links" },
-        () => fetchLinks()
+        () => fetchLinks(),
       )
       .subscribe();
 
@@ -387,6 +389,9 @@ export default function LinksList() {
             </span>
           </div>
         </CardTitle>
+        <div className="mt-2">
+          <SocialMediaImport />
+        </div>
       </CardHeader>
       <CardContent>
         {error && (
