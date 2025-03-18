@@ -260,11 +260,6 @@ export default function ProfileEditor() {
     background_url?: string | null;
     custom_css?: string | null;
   } | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [cropModalOpen, setCropModalOpen] = useState(false);
-  const [tempImageSrc, setTempImageSrc] = useState<string | null>(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [activeTab, setActiveTab] = useState("theme");
   const [isPremium, setIsPremium] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState<File | null>(null);
@@ -308,20 +303,6 @@ export default function ProfileEditor() {
 
     getProfile();
   }, []);
-
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-
-      // Create a temporary URL for the crop modal
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setTempImageSrc(reader.result as string);
-        setCropModalOpen(true);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isPremium) {
@@ -399,75 +380,6 @@ export default function ProfileEditor() {
       });
     } finally {
       setUploadingBackground(false);
-    }
-  };
-
-  const handleCropComplete = async (croppedImageBlob: Blob) => {
-    // Create a file from the blob
-    const fileExtension = "jpeg";
-    const croppedFile = new File(
-      [croppedImageBlob],
-      `cropped-avatar.${fileExtension}`,
-      { type: `image/${fileExtension}` },
-    );
-
-    setAvatarFile(croppedFile);
-
-    // Create preview URL
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setAvatarPreview(reader.result as string);
-    };
-    reader.readAsDataURL(croppedFile);
-
-    // Upload the cropped image immediately
-    await uploadAvatar(croppedFile);
-  };
-
-  const uploadAvatar = async (file: File) => {
-    if (!profile) return;
-
-    setUploadingAvatar(true);
-    try {
-      const fileExt = file.name.split(".").pop() || "jpeg";
-      const fileName = `${profile.id}-${Date.now()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(fileName, file, { upsert: true });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
-
-      const avatar_url = data.publicUrl;
-
-      // Update profile with new avatar URL
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          avatar_url,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", profile.id);
-
-      if (error) throw error;
-
-      // Update profile state with new avatar URL
-      setProfile((prev) => (prev ? { ...prev, avatar_url } : null));
-
-      toast({
-        title: "Avatar updated",
-        description: "Your profile picture has been updated successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error updating avatar",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setUploadingAvatar(false);
     }
   };
 
@@ -593,12 +505,10 @@ export default function ProfileEditor() {
     try {
       if (!profile) throw new Error("No profile data");
 
-      // Update profile (avatar and background are handled separately)
+      // Update apenas configurações de personalização
       const { error } = await supabase
         .from("profiles")
         .update({
-          full_name: profile.full_name,
-          bio: profile.bio,
           theme: profile.theme,
           button_style: profile.button_style || "rounded",
           font_family: profile.font_family || "inter",
@@ -610,7 +520,7 @@ export default function ProfileEditor() {
         .eq("id", profile.id);
 
       if (error) throw error;
-      setMessage({ type: "success", text: "Profile updated successfully!" });
+      setMessage({ type: "success", text: "Profile customization updated successfully!" });
     } catch (error: any) {
       setMessage({ type: "error", text: error.message });
     } finally {
@@ -642,9 +552,9 @@ export default function ProfileEditor() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Edit Profile</CardTitle>
+        <CardTitle>Customize Profile</CardTitle>
         <CardDescription>
-          Customize how your profile appears to visitors
+          Personalize the appearance of your profile
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -657,133 +567,32 @@ export default function ProfileEditor() {
             />
           )}
 
-          <div className="flex flex-col md:flex-row gap-6">
-            {/* Avatar Section */}
-            <div className="flex flex-col items-center space-y-4">
-              <div className="relative group">
-                <Avatar className="h-24 w-24 border-2 border-primary/20">
-                  <AvatarImage
-                    src={avatarPreview || profile.avatar_url || undefined}
-                    alt={profile.full_name || profile.username || "User"}
-                  />
-                  <AvatarFallback>
-                    <UserCircle className="h-20 w-20 text-muted-foreground" />
-                  </AvatarFallback>
-                </Avatar>
-
-                <Label
-                  htmlFor="avatar"
-                  className="absolute inset-0 flex items-center justify-center bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                >
-                  <Camera size={20} />
-                  <Input
-                    id="avatar"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="sr-only"
-                    disabled={uploadingAvatar}
-                  />
-                </Label>
-
-                {uploadingAvatar && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white rounded-full">
-                    <Loader2 className="h-6 w-6 animate-spin" />
+          {!isPremium && (
+            <Alert className="bg-amber-500/10 border-amber-500/30 mb-6">
+              <div className="flex items-start gap-2">
+                <Info className="h-5 w-5 text-amber-500 mt-0.5" />
+                <AlertDescription className="text-sm">
+                  <span className="font-medium">
+                    You're on the Free plan.
+                  </span>{" "}
+                  Upgrade to Premium to unlock advanced customization
+                  options, including premium themes, custom backgrounds,
+                  advanced button styles, and more.
+                  <div className="mt-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="bg-gradient-to-r from-amber-500 to-yellow-300 text-black border-amber-500 hover:from-amber-600 hover:to-yellow-400"
+                    >
+                      <Crown className="mr-2 h-4 w-4" />
+                      Upgrade to Premium
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                   </div>
-                )}
+                </AlertDescription>
               </div>
-
-              <div className="flex items-center">
-                <Label
-                  htmlFor="avatar-btn"
-                  className="relative cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 rounded-md text-sm flex items-center gap-2"
-                >
-                  <Upload size={16} />
-                  <span>Change Photo</span>
-                  <Input
-                    id="avatar-btn"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarChange}
-                    className="sr-only"
-                    disabled={uploadingAvatar}
-                  />
-                </Label>
-              </div>
-              <p className="text-xs text-muted-foreground text-center max-w-[200px]">
-                Click on the avatar or button to upload a new profile picture
-              </p>
-            </div>
-
-            {/* Profile Details */}
-            <div className="flex-1 space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  name="username"
-                  value={profile.username || ""}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Your unique username cannot be changed
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="full_name">Display Name</Label>
-                <Input
-                  id="full_name"
-                  name="full_name"
-                  value={profile.full_name || ""}
-                  onChange={handleInputChange}
-                  placeholder="Your display name"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
-                <Textarea
-                  id="bio"
-                  name="bio"
-                  value={profile.bio || ""}
-                  onChange={handleInputChange}
-                  placeholder="Tell visitors about yourself"
-                  rows={4}
-                />
-              </div>
-
-              {!isPremium && (
-                <Alert className="bg-amber-500/10 border-amber-500/30 mt-4">
-                  <div className="flex items-start gap-2">
-                    <Info className="h-5 w-5 text-amber-500 mt-0.5" />
-                    <AlertDescription className="text-sm">
-                      <span className="font-medium">
-                        You're on the Free plan.
-                      </span>{" "}
-                      Upgrade to Premium to unlock advanced customization
-                      options, including premium themes, custom backgrounds,
-                      advanced button styles, and more.
-                      <div className="mt-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-gradient-to-r from-amber-500 to-yellow-300 text-black border-amber-500 hover:from-amber-600 hover:to-yellow-400"
-                        >
-                          <Crown className="mr-2 h-4 w-4" />
-                          Upgrade to Premium
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </div>
-                    </AlertDescription>
-                  </div>
-                </Alert>
-              )}
-            </div>
-          </div>
-
-          <Separator className="my-6" />
+            </Alert>
+          )}
 
           {/* Customization Tabs */}
           <Tabs
@@ -1434,26 +1243,13 @@ export default function ProfileEditor() {
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  Save Changes
+                  Save Customization
                 </>
               )}
             </Button>
           </CardFooter>
         </form>
       </CardContent>
-
-      {/* Crop Modal */}
-      {tempImageSrc && (
-        <AvatarCropModal
-          isOpen={cropModalOpen}
-          onClose={() => {
-            setCropModalOpen(false);
-            setTempImageSrc(null);
-          }}
-          imageSrc={tempImageSrc}
-          onCropComplete={handleCropComplete}
-        />
-      )}
     </Card>
   );
 }

@@ -36,7 +36,7 @@ export default function PricingCard({
           "supabase-functions-enable-free-plan",
           {
             body: { user_id: user.id },
-          },
+          }
         );
 
         if (error) {
@@ -70,7 +70,7 @@ export default function PricingCard({
           headers: {
             "X-Customer-Email": user.email || "",
           },
-        },
+        }
       );
 
       if (error) {
@@ -135,25 +135,25 @@ export default function PricingCard({
 
   return (
     <Card
-      className={`w-full max-w-[350px] relative overflow-hidden ${
+      className={`w-full max-w-[350px] relative overflow-hidden backdrop-blur-lg border transform transition-all duration-300 hover:translate-y-[-5px] ${
         item.popular
-          ? "border-2 border-purple-500 bg-gradient-to-b from-gray-900 to-black shadow-xl scale-105"
+          ? "border-indigo-500/50 bg-white/[0.08] shadow-xl shadow-indigo-900/20 scale-105"
           : item.isFree
-            ? "border border-gray-700/50 bg-gray-900/60"
-            : "border border-purple-900/30 bg-gray-900/80"
+            ? "border-white/10 bg-white/[0.04] hover:border-indigo-500/20 hover:shadow-lg hover:shadow-indigo-900/10"
+            : "border-indigo-500/30 bg-white/[0.06] hover:border-indigo-500/40 hover:shadow-lg hover:shadow-indigo-900/10"
       }`}
     >
       {item.popular && (
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-transparent to-blue-900/20 opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 via-transparent to-purple-900/20 opacity-50" />
       )}
       <CardHeader className="relative">
         {item.popular && (
-          <div className="px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-full w-fit mb-4">
+          <div className="px-4 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full w-fit mb-4">
             Most Popular
           </div>
         )}
         {item.isFree && (
-          <div className="px-4 py-1.5 text-sm font-medium text-white bg-gray-700 rounded-full w-fit mb-4">
+          <div className="px-4 py-1.5 text-sm font-medium text-white bg-indigo-900/60 backdrop-blur-sm rounded-full w-fit mb-4">
             Free Forever
           </div>
         )}
@@ -162,10 +162,12 @@ export default function PricingCard({
         </CardTitle>
         <CardDescription className="flex items-baseline gap-2 mt-2">
           {item.isFree ? (
-            <span className="text-4xl font-bold text-white">$0</span>
+            <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 to-white">
+              $0
+            </span>
           ) : (
             <>
-              <span className="text-4xl font-bold text-white">
+              <span className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 to-white">
                 ${item?.amount / 100}
               </span>
               <span className="text-gray-400">/{item?.interval}</span>
@@ -177,9 +179,11 @@ export default function PricingCard({
         <ul className="space-y-3 mt-4">
           {features.map((feature, index) => (
             <li key={index} className="flex items-start gap-2">
-              <Check
-                className={`w-5 h-5 ${item.isFree ? "text-gray-500" : "text-purple-500"} mt-0.5 flex-shrink-0`}
-              />
+              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-900/50 mt-0.5 flex-shrink-0">
+                <Check
+                  className={`w-3 h-3 ${item.popular ? "text-indigo-300" : "text-indigo-400"}`}
+                />
+              </div>
               <span className="text-gray-300">{feature}</span>
             </li>
           ))}
@@ -190,15 +194,19 @@ export default function PricingCard({
           onClick={async () => {
             await handleCheckout(item.id);
           }}
-          className={`w-full py-6 text-lg font-medium ${
+          className={`w-full py-6 text-lg font-medium relative overflow-hidden group ${
             item.popular
-              ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-600/30"
               : item.isFree
-                ? "bg-gray-700 hover:bg-gray-600 text-white"
-                : "bg-gray-800 hover:bg-gray-700 text-white"
+                ? "bg-white/10 hover:bg-white/20 text-white"
+                : "bg-indigo-600/80 hover:bg-indigo-500/80 text-white"
           }`}
         >
-          {item.isFree ? "Start Free" : "Get Started"}
+          <span className="relative z-10">
+            {item.isFree ? "Start Free" : "Get Started"}
+          </span>
+          <span className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+          <span className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 w-0 group-hover:w-full transition-all duration-500 ease-in-out"></span>
         </Button>
       </CardFooter>
     </Card>

@@ -15,29 +15,31 @@ export default function Footer() {
   return (
     <footer className="relative overflow-hidden">
       {/* Blurred background elements */}
-      <div className="absolute inset-0 bg-black/70 border-t border-purple-900/30 -z-10"></div>
-      <div className="absolute -top-40 left-0 w-72 h-72 bg-purple-900/10 rounded-full blur-3xl -z-10 opacity-30"></div>
-      <div className="absolute -bottom-20 right-0 w-72 h-72 bg-purple-900/10 rounded-full blur-3xl -z-10 opacity-30"></div>
+      <div className="absolute inset-0 backdrop-blur-lg bg-black/70 border-t border-white/10 -z-10"></div>
+      <div className="absolute -top-40 left-0 w-72 h-72 bg-indigo-900/20 rounded-full blur-3xl -z-10 opacity-30"></div>
+      <div className="absolute -bottom-20 right-0 w-72 h-72 bg-indigo-900/20 rounded-full blur-3xl -z-10 opacity-30"></div>
 
-      <div className="container mx-auto px-4 py-12">
-        <div className="flex justify-center mb-8">
+      <div className="container mx-auto px-4 py-16">
+        <div className="flex justify-center mb-10">
           <Link href="/" className="group relative flex items-center gap-2">
-            <div className="w-8 h-8 bg-purple-800 rounded-lg flex items-center justify-center">
-              <LinkIcon className="w-4 h-4 text-white" />
+            <div className="w-10 h-10 bg-indigo-800 rounded-lg flex items-center justify-center">
+              <LinkIcon className="w-5 h-5 text-white" />
             </div>
-            <span className="text-2xl font-bold text-white">Lynkr</span>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-200 to-white">
+              Lynkr
+            </span>
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-16">
           {/* Product Column */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Product</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-white mb-5">Product</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   href="#features"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Features
                 </Link>
@@ -45,7 +47,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#pricing"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Pricing
                 </Link>
@@ -53,7 +55,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/dashboard"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Dashboard
                 </Link>
@@ -61,7 +63,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   API
                 </Link>
@@ -71,12 +73,12 @@ export default function Footer() {
 
           {/* Company Column */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Company</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-white mb-5">Company</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   About
                 </Link>
@@ -84,7 +86,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Blog
                 </Link>
@@ -92,7 +94,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Careers
                 </Link>
@@ -100,7 +102,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Press
                 </Link>
@@ -110,12 +112,12 @@ export default function Footer() {
 
           {/* Resources Column */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Resources</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-white mb-5">Resources</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Documentation
                 </Link>
@@ -123,7 +125,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Help Center
                 </Link>
@@ -131,7 +133,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Community
                 </Link>
@@ -139,7 +141,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Status
                 </Link>
@@ -149,12 +151,12 @@ export default function Footer() {
 
           {/* Legal Column */}
           <div>
-            <h3 className="font-semibold text-white mb-4">Legal</h3>
-            <ul className="space-y-2">
+            <h3 className="font-semibold text-white mb-5">Legal</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Privacy
                 </Link>
@@ -162,7 +164,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Terms
                 </Link>
@@ -170,7 +172,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Security
                 </Link>
@@ -178,7 +180,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="text-gray-400 hover:text-purple-400 transition-colors"
+                  className="text-gray-400 hover:text-indigo-400 transition-colors duration-300"
                 >
                   Cookies
                 </Link>
@@ -187,9 +189,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <Separator className="bg-purple-900/30 mb-8" />
+        <Separator className="bg-white/10 mb-10" />
 
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-gray-400 text-sm">
             © {currentYear} Lynkr. All rights reserved.
           </div>
@@ -198,7 +200,7 @@ export default function Footer() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
+              className="rounded-full hover:bg-indigo-900/20 hover:text-indigo-400 transition-all duration-300"
             >
               <Twitter className="h-5 w-5" />
               <span className="sr-only">Twitter</span>
@@ -206,7 +208,7 @@ export default function Footer() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
+              className="rounded-full hover:bg-indigo-900/20 hover:text-indigo-400 transition-all duration-300"
             >
               <Linkedin className="h-5 w-5" />
               <span className="sr-only">LinkedIn</span>
@@ -214,7 +216,7 @@ export default function Footer() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
+              className="rounded-full hover:bg-indigo-900/20 hover:text-indigo-400 transition-all duration-300"
             >
               <Github className="h-5 w-5" />
               <span className="sr-only">GitHub</span>
@@ -222,7 +224,7 @@ export default function Footer() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full hover:bg-purple-900/20 hover:text-purple-400"
+              className="rounded-full hover:bg-indigo-900/20 hover:text-indigo-400 transition-all duration-300"
             >
               <Instagram className="h-5 w-5" />
               <span className="sr-only">Instagram</span>

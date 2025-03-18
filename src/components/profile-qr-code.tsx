@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { QRCode } from "react-qr-code";
+import QRCode from "react-qr-code";
 import { Download, QrCode, Share2 } from "lucide-react";
 import { useToast } from "./ui/use-toast";
 

@@ -2,7 +2,9 @@ import { SubscriptionCheckClient } from "@/components/subscription-check-client"
 import DashboardNavbar from "@/components/dashboard-navbar";
 import LinkForm from "@/components/link-form";
 import LinksList from "@/components/links-list";
-import { InfoIcon, LinkIcon } from "lucide-react";
+import { InfoIcon, LinkIcon, Palette, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function LinksPage() {
   return (
@@ -17,6 +19,18 @@ export default function LinksPage() {
                 <LinkIcon className="h-7 w-7" />
                 Links
               </h1>
+              
+              {/* Botão de Customização de Perfil */}
+              <Link href="/dashboard/personalization">
+                <Button
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Palette className="h-4 w-4" />
+                  Customize Profile
+                  <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </Link>
             </div>
             <div className="bg-secondary/50 text-sm p-3 px-4 rounded-lg text-muted-foreground flex gap-2 items-center">
               <InfoIcon size="14" />

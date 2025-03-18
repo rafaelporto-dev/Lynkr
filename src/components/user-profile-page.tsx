@@ -15,7 +15,17 @@ type Link = Database["public"]["Tables"]["links"]["Row"] & {
   thumbnail_url?: string | null;
 };
 
- = [
+interface Theme {
+  id: string;
+  gradient: string;
+  cardBg: string;
+  borderColor: string;
+  buttonGradient: string;
+  buttonHoverGradient: string;
+  badgeGradient: string;
+}
+
+const themes: Theme[] = [
   {
     id: "default",
     gradient: "from-gray-900 via-purple-950 to-black",
@@ -176,9 +186,9 @@ export default function UserProfilePage({ username }: { username: string }) {
             <div
               className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-4 py-1 text-sm text-white`}
             >
-              @{profile.username}
+              @{profile.username || "user"}
             </div>
-            <ProfileQRCode username={profile.username} />
+            <ProfileQRCode username={profile.username || ""} />
           </div>
         </div>
 
