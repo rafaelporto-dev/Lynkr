@@ -10,6 +10,8 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import ProfileQRCode from "./profile-qr-code";
 import { cn } from "@/lib/utils";
+import { Metadata } from "next";
+import Head from "next/head";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
   button_style?: string;
@@ -302,134 +304,235 @@ export default function UserProfilePage({ username }: { username: string }) {
     themeConfig.id === "minimal" ? "text-gray-600" : "text-gray-300";
 
   return (
-    <div
-      className={cn(
-        `min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-8 px-4 sm:py-12 sm:px-6 lg:px-8`,
-        fontFamily
-      )}
-      style={backgroundStyle}
-    >
-      {/* Custom CSS if available */}
-      {profile.custom_css && (
-        <style dangerouslySetInnerHTML={{ __html: profile.custom_css }} />
-      )}
+    <>
+      <Head>
+        {/* Primary Meta Tags */}
+        <title>
+          {profile.full_name || profile.username || "Profile"} | Lynkr
+        </title>
+        <meta
+          name="title"
+          content={`${profile.full_name || profile.username || "Profile"} | Lynkr`}
+        />
+        <meta
+          name="description"
+          content={
+            profile.bio || `Check out ${profile.username}'s links on Lynkr.`
+          }
+        />
 
-      <div className="max-w-md mx-auto">
-        {/* Profile Header */}
-        <div className="text-center mb-8 sm:mb-10">
-          <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4 ring-2 ring-purple-500 ring-offset-2 ring-offset-black">
-            {profile.avatar_url ? (
-              <AvatarImage
-                src={profile.avatar_url}
-                alt={profile.username || "User"}
-              />
-            ) : (
-              <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-500">
-                <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
-              </AvatarFallback>
-            )}
-          </Avatar>
+        {/* Open Graph / Facebook */}
+        <meta property="og:type" content="profile" />
+        <meta
+          property="og:url"
+          content={
+            customDomain
+              ? `https://${customDomain}`
+              : `https://lynkr.me/${username}`
+          }
+        />
+        <meta
+          property="og:title"
+          content={`${profile.full_name || profile.username || "Profile"} | Lynkr`}
+        />
+        <meta
+          property="og:description"
+          content={
+            profile.bio || `Check out ${profile.username}'s links on Lynkr.`
+          }
+        />
+        {profile.avatar_url && (
+          <meta property="og:image" content={profile.avatar_url} />
+        )}
 
-          <h1 className={`text-xl sm:text-2xl font-bold ${textColor} mb-2`}>
-            {profile.full_name || profile.username || "User"}
-          </h1>
+        {/* Twitter */}
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta
+          property="twitter:url"
+          content={
+            customDomain
+              ? `https://${customDomain}`
+              : `https://lynkr.me/${username}`
+          }
+        />
+        <meta
+          property="twitter:title"
+          content={`${profile.full_name || profile.username || "Profile"} | Lynkr`}
+        />
+        <meta
+          property="twitter:description"
+          content={
+            profile.bio || `Check out ${profile.username}'s links on Lynkr.`
+          }
+        />
+        {profile.avatar_url && (
+          <meta property="twitter:image" content={profile.avatar_url} />
+        )}
 
-          {profile.bio && (
-            <p
-              className={`${textMutedColor} text-sm sm:text-base mb-3 sm:mb-4 max-w-xs mx-auto`}
-            >
-              {profile.bio}
-            </p>
-          )}
+        {/* Canonical URL */}
+        <link
+          rel="canonical"
+          href={
+            customDomain
+              ? `https://${customDomain}`
+              : `https://lynkr.me/${username}`
+          }
+        />
 
-          <div className="flex flex-wrap items-center gap-2 justify-center">
-            <div
-              className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-3 py-1 text-xs sm:text-sm text-white`}
-            >
-              @{profile.username || "user"}
-            </div>
-            <ProfileQRCode
-              username={profile.username || ""}
-              {...(customDomain ? { customDomain } : {})}
-              profileTheme={profile.theme || undefined}
-            />
-          </div>
-        </div>
+        {/* Structured Data - JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ProfilePage",
+              mainEntity: {
+                "@type": "Person",
+                name: profile.full_name || profile.username || "User",
+                url: customDomain
+                  ? `https://${customDomain}`
+                  : `https://lynkr.me/${username}`,
+                ...(profile.avatar_url && { image: profile.avatar_url }),
+                ...(profile.bio && { description: profile.bio }),
+              },
+            }),
+          }}
+        />
+      </Head>
 
-        {/* Links */}
-        <div
-          className={cn(
-            layoutStyle,
-            "px-0 sm:px-2" // Adiciona padding apenas em telas maiores
-          )}
-        >
-          {links.length === 0 ? (
-            <div className={`text-center ${textMutedColor}`}>
-              No links added yet
-            </div>
-          ) : (
-            links.map((link) => (
-              <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => handleLinkClick(link.id)}
-                className="block w-full"
+      <div
+        className={cn(
+          `min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-8 px-4 sm:py-12 sm:px-6 lg:px-8`,
+          fontFamily
+        )}
+        style={backgroundStyle}
+      >
+        {/* Custom CSS if available */}
+        {profile.custom_css && (
+          <style dangerouslySetInnerHTML={{ __html: profile.custom_css }} />
+        )}
+
+        <div className="max-w-md mx-auto">
+          {/* Profile Header */}
+          <header className="text-center mb-8 sm:mb-10">
+            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4 ring-2 ring-purple-500 ring-offset-2 ring-offset-black">
+              {profile.avatar_url ? (
+                <AvatarImage
+                  src={profile.avatar_url}
+                  alt={`${profile.full_name || profile.username || "User"}'s profile picture`}
+                />
+              ) : (
+                <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-500">
+                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                </AvatarFallback>
+              )}
+            </Avatar>
+
+            <h1 className={`text-xl sm:text-2xl font-bold ${textColor} mb-2`}>
+              {profile.full_name || profile.username || "User"}
+            </h1>
+
+            {profile.bio && (
+              <p
+                className={`${textMutedColor} text-sm sm:text-base mb-3 sm:mb-4 max-w-xs mx-auto`}
               >
-                <Card
-                  className={cn(
-                    `w-full ${themeConfig.cardBg} ${themeConfig.borderColor} overflow-hidden`,
-                    `hover:bg-gradient-to-r hover:${themeConfig.buttonGradient}`,
-                    `shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")}`,
-                    `hover:shadow-${themeConfig.borderColor.replace("border-", "")}`,
-                    `transition-all duration-300`,
-                    buttonStyle
-                  )}
-                >
-                  {link.thumbnail_url && (
-                    <div className="w-full h-24 sm:h-32 overflow-hidden">
-                      <img
-                        src={link.thumbnail_url}
-                        alt=""
-                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                        onError={(e) => {
-                          // Hide the image container if it fails to load
-                          (
-                            e.target as HTMLImageElement
-                          ).parentElement!.style.display = "none";
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div className="flex items-center justify-between p-3 sm:p-4">
-                    <div className="flex items-center">
-                      {link.icon && !link.thumbnail_url ? (
-                        <div className="mr-2 sm:mr-3 text-purple-400">
-                          <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-purple-500/20 rounded-full">
-                            {link.icon}
-                          </div>
-                        </div>
-                      ) : null}
-                      <div
-                        className={`font-medium ${textColor} text-sm sm:text-base line-clamp-1`}
-                      >
-                        {link.title}
-                      </div>
-                    </div>
-                    <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400 flex-shrink-0 ml-2" />
-                  </div>
-                </Card>
-              </a>
-            ))
-          )}
-        </div>
+                {profile.bio}
+              </p>
+            )}
 
-        {/* Footer */}
-        <div className="mt-8 sm:mt-12 text-center text-xs text-gray-500">
-          <p>Powered by Lynkr</p>
+            <div className="flex flex-wrap items-center gap-2 justify-center">
+              <div
+                className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-3 py-1 text-xs sm:text-sm text-white`}
+              >
+                @{profile.username || "user"}
+              </div>
+              <ProfileQRCode
+                username={profile.username || ""}
+                {...(customDomain ? { customDomain } : {})}
+                profileTheme={profile.theme || undefined}
+              />
+            </div>
+          </header>
+
+          {/* Links */}
+          <main
+            className={cn(
+              layoutStyle,
+              "px-0 sm:px-2" // Adiciona padding apenas em telas maiores
+            )}
+          >
+            {links.length === 0 ? (
+              <div className={`text-center ${textMutedColor}`}>
+                No links added yet
+              </div>
+            ) : (
+              links.map((link) => (
+                <a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => handleLinkClick(link.id)}
+                  className="block w-full"
+                  aria-label={`Open ${link.title} link`}
+                >
+                  <Card
+                    className={cn(
+                      `w-full ${themeConfig.cardBg} ${themeConfig.borderColor} overflow-hidden`,
+                      `hover:bg-gradient-to-r hover:${themeConfig.buttonGradient}`,
+                      `shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")}`,
+                      `hover:shadow-${themeConfig.borderColor.replace("border-", "")}`,
+                      `transition-all duration-300`,
+                      buttonStyle
+                    )}
+                  >
+                    {link.thumbnail_url && (
+                      <div className="w-full h-24 sm:h-32 overflow-hidden">
+                        <img
+                          src={link.thumbnail_url}
+                          alt={`Thumbnail for ${link.title}`}
+                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                          onError={(e) => {
+                            // Hide the image container if it fails to load
+                            (
+                              e.target as HTMLImageElement
+                            ).parentElement!.style.display = "none";
+                          }}
+                          loading="lazy"
+                          width="400"
+                          height="225"
+                        />
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between p-3 sm:p-4">
+                      <div className="flex items-center">
+                        {link.icon && !link.thumbnail_url ? (
+                          <div className="mr-2 sm:mr-3 text-purple-400">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-purple-500/20 rounded-full">
+                              {link.icon}
+                            </div>
+                          </div>
+                        ) : null}
+                        <div
+                          className={`font-medium ${textColor} text-sm sm:text-base line-clamp-1`}
+                        >
+                          {link.title}
+                        </div>
+                      </div>
+                      <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400 flex-shrink-0 ml-2" />
+                    </div>
+                  </Card>
+                </a>
+              ))
+            )}
+          </main>
+
+          {/* Footer */}
+          <footer className="mt-8 sm:mt-12 text-center text-xs text-gray-500">
+            <p>Powered by Lynkr</p>
+          </footer>
         </div>
       </div>
-    </div>
+    </>
   );
 }

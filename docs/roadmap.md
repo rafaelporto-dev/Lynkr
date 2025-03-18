@@ -10,7 +10,7 @@ This document tracks planned and completed features for the Lynkr platform. Mark
 - [x] QR Code generation and customization
 - [x] Custom domain support
 - [x] Mobile responsive profiles
-- [ ] SEO optimization
+- [x] SEO optimization
 
 ## Analytics & Insights
 
