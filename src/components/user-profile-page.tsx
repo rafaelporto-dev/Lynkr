@@ -15,8 +15,7 @@ type Link = Database["public"]["Tables"]["links"]["Row"] & {
   thumbnail_url?: string | null;
 };
 
-// Define theme configurations matching those in profile-editor.tsx
-const themes = [
+ = [
   {
     id: "default",
     gradient: "from-gray-900 via-purple-950 to-black",
