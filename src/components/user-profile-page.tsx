@@ -12,6 +12,8 @@ import ProfileQRCode from "./profile-qr-code";
 import { cn } from "@/lib/utils";
 import { Metadata } from "next";
 import Head from "next/head";
+import EmbedContent from "./embeds/embed-content";
+import { EmbedContentType, EmbedData } from "@/types/embed.types";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
   button_style?: string;
@@ -24,6 +26,8 @@ type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
 
 type Link = Database["public"]["Tables"]["links"]["Row"] & {
   thumbnail_url?: string | null;
+  content_type?: string | null;
+  embed_data?: EmbedData | null;
 };
 
 interface Theme {
@@ -540,24 +544,49 @@ export default function UserProfilePage({ username }: { username: string }) {
                       buttonStyle
                     )}
                   >
-                    {link.thumbnail_url && (
-                      <div className="w-full h-24 sm:h-32 overflow-hidden">
-                        <img
-                          src={link.thumbnail_url}
-                          alt={`Thumbnail for ${link.title}`}
-                          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-                          onError={(e) => {
-                            // Hide the image container if it fails to load
-                            (
-                              e.target as HTMLImageElement
-                            ).parentElement!.style.display = "none";
+                    {/* Renderiza conteúdo incorporado se disponível */}
+                    {link.content_type &&
+                      link.content_type !== "link" &&
+                      link.embed_data && (
+                        <div
+                          className="embed-container py-2 px-2"
+                          onClick={(e) => {
+                            // Impede que o clique no embed também navegue para o link
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            // Ainda registra o clique para análises
+                            handleLinkClick(link.id);
                           }}
-                          loading="lazy"
-                          width="400"
-                          height="225"
-                        />
-                      </div>
-                    )}
+                        >
+                          <EmbedContent
+                            contentType={link.content_type as EmbedContentType}
+                            embedData={link.embed_data as EmbedData}
+                            className="mb-2"
+                          />
+                        </div>
+                      )}
+
+                    {/* Exibe thumbnail se não houver conteúdo incorporado */}
+                    {(!link.content_type || link.content_type === "link") &&
+                      link.thumbnail_url && (
+                        <div className="w-full h-24 sm:h-32 overflow-hidden">
+                          <img
+                            src={link.thumbnail_url}
+                            alt={`Thumbnail for ${link.title}`}
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                            onError={(e) => {
+                              // Hide the image container if it fails to load
+                              (
+                                e.target as HTMLImageElement
+                              ).parentElement!.style.display = "none";
+                            }}
+                            loading="lazy"
+                            width="400"
+                            height="225"
+                          />
+                        </div>
+                      )}
                     <div className="flex items-center justify-between p-3 sm:p-4">
                       <div className="flex items-center">
                         {link.icon && !link.thumbnail_url ? (

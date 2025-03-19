@@ -54,7 +54,7 @@ This document tracks planned and completed features for the Lynkr platform. Mark
 
 - [ ] Social media integration
 - [ ] Auto-import from social platforms
-- [ ] Content embedding (YouTube, Spotify, etc.)
+- [x] Content embedding (YouTube, Spotify, etc.)
 - [ ] User comments section
 - [ ] Like/reaction system
 - [ ] Newsletter subscription form

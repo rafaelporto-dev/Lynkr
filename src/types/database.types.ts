@@ -56,6 +56,9 @@ export interface Database {
           created_at: string;
           updated_at: string;
           click_count: number;
+          content_type: string | null;
+          embed_data: Json | null;
+          thumbnail_url: string | null;
         };
         Insert: {
           id?: string;
@@ -68,6 +71,9 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           click_count?: number;
+          content_type?: string | null;
+          embed_data?: Json | null;
+          thumbnail_url?: string | null;
         };
         Update: {
           id?: string;
@@ -80,6 +86,9 @@ export interface Database {
           created_at?: string;
           updated_at?: string;
           click_count?: number;
+          content_type?: string | null;
+          embed_data?: Json | null;
+          thumbnail_url?: string | null;
         };
       };
     };

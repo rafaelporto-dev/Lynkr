@@ -16,6 +16,9 @@ import { LinkIcon, Plus, Loader2, Link2, Image } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
 import { Skeleton } from "./ui/skeleton";
+import { extractEmbedData } from "@/lib/embed-utils";
+import { EmbedContentType, EmbedData } from "@/types/embed.types";
+import EmbedContent from "./embeds/embed-content";
 
 export default function LinkForm() {
   const [title, setTitle] = useState("");
@@ -25,6 +28,8 @@ export default function LinkForm() {
   const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
   const [isFetchingPreview, setIsFetchingPreview] = useState(false);
   const [previewTitle, setPreviewTitle] = useState("");
+  const [contentType, setContentType] = useState<EmbedContentType>("link");
+  const [embedData, setEmbedData] = useState<EmbedData | null>(null);
   const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
@@ -33,28 +38,57 @@ export default function LinkForm() {
     const fetchLinkPreview = async () => {
       if (!url || !isValidUrl(url)) return;
 
-      setIsFetchingPreview(true);
-      try {
-        const response = await supabase.functions.invoke(
-          "supabase-functions-fetch-link-preview",
-          {
-            body: { url },
-          },
-        );
+      // Check if URL can be embedded
+      const embedInfo = extractEmbedData(url);
+      setContentType(embedInfo.contentType);
+      setEmbedData(embedInfo.embedData);
 
-        if (response.error) throw new Error(response.error.message);
+      // If not embeddable, fetch a normal preview
+      if (embedInfo.contentType === "link") {
+        setIsFetchingPreview(true);
+        try {
+          const response = await supabase.functions.invoke(
+            "supabase-functions-fetch-link-preview",
+            {
+              body: { url },
+            }
+          );
 
-        if (response.data) {
-          setThumbnailUrl(response.data.thumbnailUrl || null);
-          // If user hasn't entered a title yet, suggest the one from preview
-          if (!title && response.data.title) {
-            setPreviewTitle(response.data.title);
+          if (response.error) throw new Error(response.error.message);
+
+          if (response.data) {
+            setThumbnailUrl(response.data.thumbnailUrl || null);
+            // If user hasn't entered a title yet, suggest the one from preview
+            if (!title && response.data.title) {
+              setPreviewTitle(response.data.title);
+            }
           }
+        } catch (error) {
+          console.error("Error fetching link preview:", error);
+        } finally {
+          setIsFetchingPreview(false);
         }
-      } catch (error) {
-        console.error("Error fetching link preview:", error);
-      } finally {
+      } else {
+        // If embeddable, no need to fetch thumbnails
         setIsFetchingPreview(false);
+        setThumbnailUrl(null);
+
+        // Suggest title based on content type if none exists
+        if (!title) {
+          const suggestionTitles: Record<EmbedContentType, string> = {
+            youtube: "YouTube Video",
+            spotify: "Spotify Music",
+            soundcloud: "SoundCloud Track",
+            vimeo: "Vimeo Video",
+            tiktok: "TikTok Video",
+            instagram: "Instagram Post",
+            twitter: "Tweet",
+            link: "Link",
+          };
+          setPreviewTitle(
+            suggestionTitles[embedInfo.contentType] || "Embedded Content"
+          );
+        }
       }
     };
 
@@ -126,16 +160,23 @@ export default function LinkForm() {
       const nextOrder =
         links && links.length > 0 ? links[0].display_order + 1 : 0;
 
-      // Insert the new link
-      const { error: insertError } = await supabase.from("links").insert({
+      // Prepare link data with content type and embed data for embedded content
+      const linkData = {
         user_id: user.id,
         title: title.trim(),
         url: url.trim(),
         display_order: nextOrder,
         active: true,
         click_count: 0,
-        thumbnail_url: thumbnailUrl,
-      });
+        thumbnail_url: contentType === "link" ? thumbnailUrl : null,
+        content_type: contentType,
+        embed_data: embedData,
+      };
+
+      // Insert the new link
+      const { error: insertError } = await supabase
+        .from("links")
+        .insert(linkData);
 
       if (insertError) {
         throw insertError;
@@ -146,11 +187,16 @@ export default function LinkForm() {
       setUrl("");
       setThumbnailUrl(null);
       setPreviewTitle("");
+      setContentType("link");
+      setEmbedData(null);
       router.refresh();
 
       toast({
         title: "Link created",
-        description: "Your link has been added successfully.",
+        description:
+          contentType === "link"
+            ? "Your link has been added successfully."
+            : "Your embedded content has been added successfully.",
       });
     } catch (err: any) {
       setError(err.message || "Failed to create link");
@@ -222,34 +268,54 @@ export default function LinkForm() {
             </div>
           </div>
 
-          {/* Link Preview */}
-          {(isFetchingPreview || thumbnailUrl) && (
+          {/* Preview Section */}
+          {contentType !== "link" && embedData ? (
             <div className="mt-4 border rounded-md p-3 bg-muted/30">
               <div className="flex items-center gap-2 mb-2 text-sm font-medium">
-                <Image className="h-4 w-4" />
-                <span>Link Preview</span>
+                <LinkIcon className="h-4 w-4" />
+                <span>
+                  Embedded Content -{" "}
+                  {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
+                </span>
               </div>
 
-              {isFetchingPreview ? (
-                <div className="space-y-2">
-                  <Skeleton className="h-[100px] w-full rounded-md" />
-                  <Skeleton className="h-4 w-3/4 rounded-md" />
-                </div>
-              ) : thumbnailUrl ? (
-                <div className="relative overflow-hidden rounded-md bg-muted/50">
-                  <img
-                    src={thumbnailUrl}
-                    alt="Link preview"
-                    className="w-full h-[120px] object-cover"
-                    onError={(e) => {
-                      // Hide the image if it fails to load
-                      (e.target as HTMLImageElement).style.display = "none";
-                      setThumbnailUrl(null);
-                    }}
-                  />
-                </div>
-              ) : null}
+              <div className="embed-preview my-2">
+                <EmbedContent contentType={contentType} embedData={embedData} />
+              </div>
+
+              <p className="text-xs text-muted-foreground mt-2">
+                This content will be embedded directly on your profile.
+              </p>
             </div>
+          ) : (
+            (isFetchingPreview || thumbnailUrl) && (
+              <div className="mt-4 border rounded-md p-3 bg-muted/30">
+                <div className="flex items-center gap-2 mb-2 text-sm font-medium">
+                  <Image className="h-4 w-4" />
+                  <span>Link Preview</span>
+                </div>
+
+                {isFetchingPreview ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-[100px] w-full rounded-md" />
+                    <Skeleton className="h-4 w-3/4 rounded-md" />
+                  </div>
+                ) : thumbnailUrl ? (
+                  <div className="relative overflow-hidden rounded-md bg-muted/50">
+                    <img
+                      src={thumbnailUrl}
+                      alt="Link preview"
+                      className="w-full h-[120px] object-cover"
+                      onError={(e) => {
+                        // Hide the image if it fails to load
+                        (e.target as HTMLImageElement).style.display = "none";
+                        setThumbnailUrl(null);
+                      }}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            )
           )}
         </CardContent>
         <CardFooter>
