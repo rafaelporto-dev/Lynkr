@@ -34,7 +34,7 @@ export default function SpotifyEmbed({
   }
 
   return (
-    <div className={`w-full rounded-md overflow-hidden ${className}`}>
+    <div className={`w-full overflow-hidden ${className}`}>
       <iframe
         src={`${embedUrl}?utm_source=lynkr&theme=${theme}`}
         className="w-full"

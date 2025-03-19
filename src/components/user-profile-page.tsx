@@ -470,6 +470,35 @@ export default function UserProfilePage({ username }: { username: string }) {
           <style dangerouslySetInnerHTML={{ __html: profile.custom_css }} />
         )}
 
+        {/* CSS para evitar que vídeos tenham cantos arredondados extremos */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+            .video-embed-container {
+              border-radius: 8px !important;
+              overflow: hidden;
+            }
+            .video-embed-container iframe,
+            .video-embed-container .video-embed,
+            .video-embed {
+              border-radius: 4px !important;
+            }
+            /* Quando o estilo dos botões for pill, forçar cantos retos para vídeos */
+            .rounded-full .video-embed-container {
+              border-radius: 8px !important;
+            }
+            /* Card personalizado para vídeos, evitando arredondamento extremo */
+            .video-card {
+              border-radius: 12px !important; /* Arredondamento moderado para cards de vídeo */
+            }
+            /* Fix para evitar que o estilo pill afete vídeos incorporados */
+            .rounded-full.video-card {
+              border-radius: 12px !important;
+            }
+          `,
+          }}
+        />
+
         <div className="max-w-md mx-auto">
           {/* Profile Header */}
           <header className="text-center mb-8 sm:mb-10">
@@ -541,7 +570,13 @@ export default function UserProfilePage({ username }: { username: string }) {
                       `shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")}`,
                       `hover:shadow-${themeConfig.borderColor.replace("border-", "")}`,
                       `transition-all duration-300`,
-                      buttonStyle
+                      // Condicional para evitar que o estilo "pill" afete os vídeos
+                      link.content_type &&
+                        ["youtube", "vimeo", "tiktok"].includes(
+                          link.content_type
+                        )
+                        ? "video-card" // Classe personalizada para vídeos
+                        : buttonStyle // Estilo normal para outros tipos de conteúdo
                     )}
                   >
                     {/* Renderiza conteúdo incorporado se disponível */}
@@ -549,7 +584,14 @@ export default function UserProfilePage({ username }: { username: string }) {
                       link.content_type !== "link" &&
                       link.embed_data && (
                         <div
-                          className="embed-container py-2 px-2"
+                          className={`embed-container py-2 px-2 ${
+                            // Evitar arredondamento para conteúdo de vídeo
+                            ["youtube", "vimeo", "tiktok"].includes(
+                              link.content_type
+                            )
+                              ? "video-embed-container overflow-hidden"
+                              : ""
+                          }`}
                           onClick={(e) => {
                             // Impede que o clique no embed também navegue para o link
                             e.preventDefault();
@@ -562,7 +604,14 @@ export default function UserProfilePage({ username }: { username: string }) {
                           <EmbedContent
                             contentType={link.content_type as EmbedContentType}
                             embedData={link.embed_data as EmbedData}
-                            className="mb-2"
+                            className={`mb-2 ${
+                              // Evitar arredondamento para conteúdo de vídeo
+                              ["youtube", "vimeo", "tiktok"].includes(
+                                link.content_type
+                              )
+                                ? "video-embed"
+                                : ""
+                            }`}
                           />
                         </div>
                       )}

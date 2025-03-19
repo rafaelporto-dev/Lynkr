@@ -30,9 +30,7 @@ export default function YouTubeEmbed({
   const embedUrl = `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
 
   return (
-    <div
-      className={`w-full aspect-video rounded-md overflow-hidden ${className}`}
-    >
+    <div className={`w-full aspect-video overflow-hidden ${className}`}>
       <iframe
         src={embedUrl}
         className="w-full h-full"

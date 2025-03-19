@@ -30,7 +30,7 @@ export default function SoundCloudEmbed({
   const embedUrl = `https://w.soundcloud.com/player/?${params.toString()}`;
 
   return (
-    <div className={`w-full rounded-md overflow-hidden ${className}`}>
+    <div className={`w-full overflow-hidden ${className}`}>
       <iframe
         width="100%"
         height={visual ? "300" : "166"}

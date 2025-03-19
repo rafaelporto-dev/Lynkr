@@ -34,9 +34,7 @@ export default function VimeoEmbed({ data, className = "" }: VimeoEmbedProps) {
   const embedUrl = `https://player.vimeo.com/video/${videoId}?${params.toString()}`;
 
   return (
-    <div
-      className={`w-full aspect-video rounded-md overflow-hidden ${className}`}
-    >
+    <div className={`w-full aspect-video overflow-hidden ${className}`}>
       <iframe
         src={embedUrl}
         className="w-full h-full"
