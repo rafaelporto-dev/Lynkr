@@ -32,7 +32,7 @@ This document tracks planned and completed features for the Lynkr platform. Mark
 - [x] Font selection
 - [x] Drag-and-drop link reordering
 - [x] Button style customization
-- [ ] Custom CSS injection
+- [x] Custom CSS injection
 - [ ] Custom animations and transitions
 - [ ] Custom meta tags and favicon
 - [ ] Dark/light mode toggle for visitors
@@ -85,7 +85,6 @@ This document tracks planned and completed features for the Lynkr platform. Mark
 - [ ] SEO tools and recommendations
 - [ ] Social sharing optimizations
 - [ ] Lead capture forms
-- [ ] Email marketing integration
 - [ ] UTM parameter management
 - [ ] Partnership program
 

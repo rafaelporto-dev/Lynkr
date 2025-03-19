@@ -28,7 +28,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   UserCircle,
   Upload,
@@ -44,11 +44,13 @@ import {
   Crown,
   Info,
   ArrowRight,
+  AlertCircle,
 } from "lucide-react";
 import { FormMessage } from "@/components/form-message";
 import AvatarCropModal from "./avatar-crop-modal";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { processUserCSS } from "@/lib/css-sanitizer";
 
 // Free themes
 const freeThemes = [
@@ -240,24 +242,29 @@ const backgroundOptions = [
 export default function ProfileEditor() {
   const supabase = createClient();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [profile, setProfile] = useState<{
     id: string;
-    username: string | null;
-    full_name: string | null;
-    bio: string | null;
-    avatar_url: string | null;
-    theme: string | null;
-    has_free_plan: boolean | null;
-    button_style?: string | null;
-    font_family?: string | null;
-    layout?: string | null;
-    background_type?: string | null;
+    username?: string;
+    full_name?: string;
+    bio?: string;
+    avatar_url?: string;
+    theme?: string;
+    button_style?: string;
+    font_family?: string;
+    layout?: string;
+    background_type?: string;
     background_url?: string | null;
     custom_css?: string | null;
   } | null>(null);
-  const [activeTab, setActiveTab] = useState("theme");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [bgFile, setBgFile] = useState<File | null>(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [tempAvatarUrl, setTempAvatarUrl] = useState<string | null>(null);
+  const [cssError, setCssError] = useState<string | null>(null);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [isPremium, setIsPremium] = useState(false);
+  const [activeTab, setActiveTab] = useState("theme");
   const [backgroundImage, setBackgroundImage] = useState<File | null>(null);
   const [backgroundPreview, setBackgroundPreview] = useState<string | null>(
     null
@@ -271,7 +278,7 @@ export default function ProfileEditor() {
 
   useEffect(() => {
     async function getProfile() {
-      setLoading(true);
+      setIsLoading(true);
       try {
         const {
           data: { user },
@@ -299,9 +306,6 @@ export default function ProfileEditor() {
 
           setProfile(profileWithDefaults);
 
-          // Check if user has premium subscription
-          setIsPremium(!data.has_free_plan);
-
           // Set background preview if exists
           if (profileWithDefaults.background_url) {
             setBackgroundPreview(profileWithDefaults.background_url);
@@ -314,7 +318,7 @@ export default function ProfileEditor() {
           variant: "destructive",
         });
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     }
 
@@ -404,6 +408,19 @@ export default function ProfileEditor() {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
+    // Se for o campo CSS, validar enquanto digita
+    if (name === "custom_css") {
+      // Não validar se estiver vazio
+      if (!value.trim()) {
+        setCssError(null);
+      } else {
+        // Validar CSS enquanto digita
+        const { error } = processUserCSS(value);
+        setCssError(error);
+      }
+    }
+
     setProfile((prev) => (prev ? { ...prev, [name]: value } : null));
   };
 
@@ -516,99 +533,82 @@ export default function ProfileEditor() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
     console.log("Form submitted, profile:", profile);
 
     try {
-      if (!profile) {
-        console.error("No profile data available");
-        throw new Error("No profile data");
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user || !profile) {
+        toast({
+          title: "Authentication error",
+          description: "Please log in again to update your profile.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      console.log("Profile ID:", profile.id);
-      console.log("Supabase client available:", !!supabase);
+      // Process and sanitize custom CSS if present
+      let processedCustomCSS = profile.custom_css || "";
+      let cssValidationError = null;
 
-      const updateData = {
-        theme: profile.theme || "default",
-        // Use valores padrão para cada propriedade caso ainda não exista no banco
-        button_style: profile.button_style || "rounded",
-        font_family: profile.font_family || "inter",
-        layout: profile.layout || "list",
-        background_type: profile.background_type || "gradient",
-        background_url: profile.background_url || null,
-        custom_css: profile.custom_css || null,
-        updated_at: new Date().toISOString(),
-      };
+      if (profile.custom_css && profile.custom_css.trim() !== "") {
+        const { css, error } = processUserCSS(profile.custom_css);
+        processedCustomCSS = css;
+        cssValidationError = error;
 
-      console.log("Sending update with data:", updateData);
-
-      // Update apenas configurações de personalização
-      const { error, data } = await supabase
-        .from("profiles")
-        .update(updateData)
-        .eq("id", profile.id)
-        .select();
-
-      console.log("Update response:", { error, data });
-
-      if (error) {
-        // Se o erro for relacionado a uma coluna que não existe, continue sem essa coluna
-        if (error.message.includes("background_type")) {
-          console.log("Retrying without background_type");
-          // Tente novamente sem a coluna background_type
-          const { error: retryError, data: retryData } = await supabase
-            .from("profiles")
-            .update({
-              theme: profile.theme || "default",
-              button_style: profile.button_style || "rounded",
-              font_family: profile.font_family || "inter",
-              layout: profile.layout || "list",
-              custom_css: profile.custom_css || null,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", profile.id)
-            .select();
-
-          console.log("Retry response:", { retryError, retryData });
-
-          if (retryError) throw retryError;
-        } else {
-          throw error;
+        // Show toast warning if CSS has issues but allow saving
+        if (cssValidationError) {
+          toast({
+            title: "CSS Warning",
+            description: `We've modified your CSS for security: ${cssValidationError}`,
+            variant: "destructive",
+          });
         }
       }
 
-      // Recarregar os dados do perfil após a atualização
-      const { data: refreshedProfile, error: refreshError } = await supabase
+      const { error } = await supabase
         .from("profiles")
-        .select("*")
-        .eq("id", profile.id)
-        .single();
+        .update({
+          username: profile.username,
+          full_name: profile.full_name,
+          bio: profile.bio,
+          avatar_url: profile.avatar_url,
+          theme: profile.theme,
+          button_style: profile.button_style || "rounded",
+          font_family: profile.font_family || "inter",
+          layout: profile.layout || "list",
+          background_type: profile.background_type || "gradient",
+          background_url: profile.background_url,
+          custom_css: processedCustomCSS,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", user.id);
 
-      if (!refreshError && refreshedProfile) {
-        setProfile(refreshedProfile);
-        console.log("Profile refreshed:", refreshedProfile);
-      }
+      if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Profile updated successfully",
+        title: "Profile updated",
+        description: "Your profile has been updated successfully.",
       });
     } catch (error: any) {
-      console.error("Error updating profile:", error);
       toast({
-        title: "Error updating profile",
-        description: error.message,
+        title: "Error",
+        description:
+          error.message || "An error occurred during profile update.",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   // Funcão de teste de atualização simples
   const testUpdate = async () => {
     console.log("Running test update");
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       if (!profile) {
@@ -646,7 +646,7 @@ export default function ProfileEditor() {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -998,11 +998,12 @@ export default function ProfileEditor() {
                     <Textarea
                       id="custom-css"
                       name="custom_css"
+                      placeholder=".my-profile-links { border: 2px solid gold; }"
+                      className="font-mono h-40 resize-y"
                       value={profile.custom_css || ""}
                       onChange={handleInputChange}
-                      placeholder="Add your custom CSS here"
-                      rows={6}
-                      className="font-mono text-sm"
+                      disabled={isLoading}
+                      spellCheck={false}
                     />
                     <p className="text-xs text-muted-foreground">
                       Advanced: Add custom CSS to further customize your profile
@@ -1341,6 +1342,105 @@ export default function ProfileEditor() {
                     </Alert>
                   </div>
                 )}
+
+                {/* Custom CSS Section */}
+                <div className="mt-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-medium">Custom CSS</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Add custom CSS to personalize your profile beyond the
+                        theme options.
+                      </p>
+                    </div>
+                    {!isPremium && (
+                      <Badge
+                        variant="secondary"
+                        className="ml-2 bg-purple-600 text-white"
+                      >
+                        <Crown className="h-3 w-3 mr-1" /> Premium
+                      </Badge>
+                    )}
+                  </div>
+
+                  {isPremium ? (
+                    <div className="space-y-4">
+                      <Alert className="bg-amber-500/10 text-amber-600 border-amber-200 dark:border-amber-800/30">
+                        <AlertDescription className="flex items-center text-sm">
+                          <Info className="h-4 w-4 mr-2" />
+                          Custom CSS gives you full control over your profile's
+                          appearance. Only add CSS you understand as invalid
+                          code may break your profile's layout.
+                        </AlertDescription>
+                      </Alert>
+
+                      <div>
+                        <Label htmlFor="custom-css" className="mb-2 block">
+                          CSS Code
+                        </Label>
+                        <Textarea
+                          id="custom-css"
+                          name="custom_css"
+                          placeholder=".my-profile-links { border: 2px solid gold; }"
+                          className="font-mono h-40 resize-y"
+                          value={profile.custom_css || ""}
+                          onChange={handleInputChange}
+                          disabled={isLoading}
+                          spellCheck={false}
+                        />
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Use CSS selectors to target elements in your profile.
+                          We automatically sanitize CSS to prevent harmful code.
+                        </p>
+                      </div>
+
+                      {/* Mostrar mensagem de erro se houver erros de CSS */}
+                      {cssError && (
+                        <Alert variant="destructive" className="mt-4">
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          <AlertTitle>CSS Validation Error</AlertTitle>
+                          <AlertDescription>{cssError}</AlertDescription>
+                        </Alert>
+                      )}
+
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // Reset custom CSS to empty
+                            setProfile((prev) =>
+                              prev ? { ...prev, custom_css: "" } : null
+                            );
+                            // Limpar também os erros de CSS
+                            setCssError(null);
+                          }}
+                          disabled={!profile.custom_css}
+                        >
+                          Clear CSS
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
+                      <Lock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                      <h4 className="font-medium mb-2">Premium Feature</h4>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Unlock custom CSS to completely customize your profile's
+                        appearance.
+                      </p>
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="animate-pulse bg-purple-600 hover:bg-purple-700"
+                      >
+                        Upgrade to Premium{" "}
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </TabsContent>
           </Tabs>
@@ -1350,10 +1450,10 @@ export default function ProfileEditor() {
               <Button
                 type="button"
                 variant="outline"
-                disabled={loading}
+                disabled={isLoading}
                 onClick={testUpdate}
               >
-                {loading ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Testando...
@@ -1365,15 +1465,15 @@ export default function ProfileEditor() {
 
               <Button
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
                 onClick={(e) => {
                   console.log("Save button clicked");
-                  if (!loading) {
+                  if (!isLoading) {
                     handleSubmit(e as unknown as React.FormEvent);
                   }
                 }}
               >
-                {loading ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Salvando...
