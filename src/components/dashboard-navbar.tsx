@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "../../supabase/client";
 import {
@@ -16,7 +17,6 @@ import {
   Link as LinkIcon,
   BarChart2,
   Globe,
-  Settings,
   LogOut,
   Trash2,
 } from "lucide-react";
@@ -28,11 +28,36 @@ export default function DashboardNavbar() {
   const supabase = createClient();
   const router = useRouter();
   const pathname = usePathname();
+  const [userData, setUserData] = useState<{
+    name?: string;
+    email?: string;
+    username?: string;
+  }>({});
+
+  useEffect(() => {
+    const getUserData = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUserData({
+          email: user.email,
+          name:
+            user.user_metadata?.full_name ||
+            user.email?.split("@")[0] ||
+            "Usuário",
+          username: user.user_metadata?.username || "",
+        });
+      }
+    };
+
+    getUserData();
+  }, [supabase.auth]);
 
   const handleDeleteAccount = async () => {
     if (
       !confirm(
-        "Are you sure you want to delete your account? This action cannot be undone."
+        "Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita."
       )
     ) {
       return;
@@ -58,7 +83,7 @@ export default function DashboardNavbar() {
               </span>
             </Link>
 
-            {/* Navigation */}
+            {/* Navigation - apenas páginas existentes */}
             <div className="hidden md:flex items-center gap-1">
               <Link
                 href="/dashboard/links"
@@ -111,8 +136,22 @@ export default function DashboardNavbar() {
                   <UserCircle className="h-6 w-6" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {userData.name}
+                    </p>
+                    {userData.username && (
+                      <p className="text-xs leading-none text-muted-foreground">
+                        @{userData.username}
+                      </p>
+                    )}
+                    <p className="text-xs leading-none text-muted-foreground">
+                      {userData.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link
@@ -120,16 +159,7 @@ export default function DashboardNavbar() {
                     className="flex items-center gap-2"
                   >
                     <UserCircle className="h-4 w-4" />
-                    Profile
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link
-                    href="/dashboard/settings"
-                    className="flex items-center gap-2"
-                  >
-                    <Settings className="h-4 w-4" />
-                    Settings
+                    Perfil
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -141,7 +171,7 @@ export default function DashboardNavbar() {
                   className="flex items-center gap-2"
                 >
                   <LogOut className="h-4 w-4" />
-                  Sign Out
+                  Sair
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -149,7 +179,7 @@ export default function DashboardNavbar() {
                   className="flex items-center gap-2 text-destructive focus:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
-                  Delete Account
+                  Excluir Conta
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
