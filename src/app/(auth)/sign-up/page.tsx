@@ -8,9 +8,11 @@ import { signUpAction } from "@/app/actions";
 import Navbar from "@/components/navbar";
 
 export default async function Signup(props: {
-  searchParams: Promise<Message>;
+  searchParams: Promise<Message & { username?: string }>;
 }) {
   const searchParams = await props.searchParams;
+  const username = searchParams.username || "";
+
   if ("message" in searchParams) {
     return (
       <div className="flex h-screen w-full flex-1 items-center justify-center p-4 sm:max-w-md">
@@ -93,6 +95,7 @@ export default async function Signup(props: {
                       pattern="^[a-zA-Z0-9_-]+$"
                       title="Username can only contain letters, numbers, underscores and hyphens"
                       className="w-full pl-24 bg-gray-900/70 border-white/10 focus:border-indigo-500 focus:ring-indigo-500/30 transition-all duration-300 text-gray-200"
+                      defaultValue={username}
                     />
                     <div className="absolute inset-0 rounded-md border border-indigo-500/0 group-focus-within:border-indigo-500/50 pointer-events-none transition-all duration-300"></div>
                   </div>

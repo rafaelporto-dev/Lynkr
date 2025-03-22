@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import UsernameChecker from "./username-checker";
 
 export default function Hero() {
   return (
@@ -41,31 +42,8 @@ export default function Hero() {
             in one beautiful, customizable profile.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
-            <Button
-              asChild
-              size="lg"
-              className="w-full sm:w-auto relative overflow-hidden bg-indigo-600 hover:bg-indigo-500 text-white py-6 px-8 rounded-md font-medium transition-all duration-300 shadow-lg shadow-indigo-600/30 group"
-            >
-              <Link href="/sign-up">
-                <span className="relative z-10 flex items-center justify-center">
-                  Create Your Lynkr
-                  <ArrowUpRight className="ml-2 w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" />
-                </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-indigo-700 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
-                <span className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-indigo-400 to-purple-400 w-0 group-hover:w-full transition-all duration-500 ease-in-out"></span>
-              </Link>
-            </Button>
-
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto bg-white/[0.04] backdrop-blur-lg border-white/10 hover:bg-white/[0.08] hover:text-indigo-400 text-white py-6 px-8 rounded-md font-medium transition-all duration-300"
-            >
-              <Link href="#pricing">View Pricing</Link>
-            </Button>
-          </div>
+          {/* Username Checker Component */}
+          <UsernameChecker />
 
           <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-gray-300">
             <div className="flex items-center gap-2">
