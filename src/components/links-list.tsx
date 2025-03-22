@@ -14,6 +14,7 @@ import {
   EyeOff,
   LinkIcon,
   PlusCircle,
+  ShieldAlert,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
@@ -43,6 +44,7 @@ type Link = {
   active: boolean;
   display_order: number;
   thumbnail_url?: string | null;
+  is_adult_content?: boolean;
 };
 
 function SortableLink({
@@ -101,7 +103,15 @@ function SortableLink({
           </div>
         )}
         <div className="flex-1 min-w-0 mr-4">
-          <h3 className="font-medium truncate">{link.title}</h3>
+          <div className="flex items-center">
+            <h3 className="font-medium truncate">{link.title}</h3>
+            {link.is_adult_content && (
+              <div className="inline-flex items-center ml-2 bg-yellow-500/20 text-yellow-500 text-xs px-1.5 py-0.5 rounded-full gap-0.5 font-medium">
+                <ShieldAlert className="h-3 w-3" />
+                <span>18+</span>
+              </div>
+            )}
+          </div>
           <a
             href={link.url}
             target="_blank"

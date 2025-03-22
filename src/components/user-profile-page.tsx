@@ -5,7 +5,7 @@ import { createClient } from "../../supabase/client";
 import { Database } from "@/types/database.types";
 import { Avatar } from "./ui/avatar";
 import { AvatarImage, AvatarFallback } from "./ui/avatar";
-import { ExternalLink, User, QrCode } from "lucide-react";
+import { ExternalLink, User, QrCode, ShieldAlert } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import ProfileQRCode from "./profile-qr-code";
@@ -14,6 +14,7 @@ import { Metadata } from "next";
 import Head from "next/head";
 import EmbedContent from "./embeds/embed-content";
 import { EmbedContentType, EmbedData } from "@/types/embed.types";
+import { AdultContentWarningDialog } from "./adult-content-warning-dialog";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
   button_style?: string;
@@ -28,6 +29,7 @@ type Link = Database["public"]["Tables"]["links"]["Row"] & {
   thumbnail_url?: string | null;
   content_type?: string | null;
   embed_data?: EmbedData | null;
+  is_adult_content?: boolean;
 };
 
 interface Theme {
@@ -168,6 +170,12 @@ export default function UserProfilePage({ username }: { username: string }) {
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
   const [customDomain, setCustomDomain] = useState<string | null>(null);
+  const [showAdultContentWarning, setShowAdultContentWarning] = useState(false);
+  const [pendingLink, setPendingLink] = useState<{
+    id: string;
+    url: string;
+    title: string;
+  } | null>(null);
 
   const themeConfig = useMemo(() => {
     const themeId = profile?.theme || "default";
@@ -281,7 +289,40 @@ export default function UserProfilePage({ username }: { username: string }) {
   }, [username, supabase]);
 
   // Track link clicks
-  async function handleLinkClick(linkId: string) {
+  async function handleLinkClick(
+    linkId: string,
+    isAdultContent: boolean,
+    url: string,
+    title: string
+  ) {
+    // Check if adult content warning should be shown
+    if (isAdultContent) {
+      setPendingLink({ id: linkId, url, title });
+      setShowAdultContentWarning(true);
+      return; // Não continue até que o usuário confirme
+    }
+
+    // Para conteúdo não adulto, continuar normalmente
+    trackLinkClick(linkId, url);
+  }
+
+  // Função para processar a confirmação
+  const handleConfirmAdultContent = () => {
+    if (pendingLink) {
+      trackLinkClick(pendingLink.id, pendingLink.url);
+    }
+    setShowAdultContentWarning(false);
+    setPendingLink(null);
+  };
+
+  // Função para processar o cancelamento
+  const handleCancelAdultContent = () => {
+    setShowAdultContentWarning(false);
+    setPendingLink(null);
+  };
+
+  // Função para registrar o clique do link e abrir o URL
+  const trackLinkClick = async (linkId: string, url: string) => {
     try {
       // Capturar informações de origem
       const referrer = document.referrer || "direct";
@@ -335,10 +376,13 @@ export default function UserProfilePage({ username }: { username: string }) {
       if (error) {
         console.error("Error recording click", error);
       }
+
+      // Abrir o link em uma nova janela
+      window.open(url, "_blank", "noopener,noreferrer");
     } catch (err) {
       console.error("Failed to record click", err);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -556,10 +600,16 @@ export default function UserProfilePage({ username }: { username: string }) {
               links.map((link) => (
                 <a
                   key={link.id}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => handleLinkClick(link.id)}
+                  href="javascript:void(0)"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleLinkClick(
+                      link.id,
+                      !!link.is_adult_content,
+                      link.url,
+                      link.title
+                    );
+                  }}
                   className="block w-full"
                   aria-label={`Open ${link.title} link`}
                 >
@@ -598,7 +648,12 @@ export default function UserProfilePage({ username }: { username: string }) {
                             e.stopPropagation();
 
                             // Ainda registra o clique para análises
-                            handleLinkClick(link.id);
+                            handleLinkClick(
+                              link.id,
+                              !!link.is_adult_content,
+                              link.url,
+                              link.title
+                            );
                           }}
                         >
                           <EmbedContent
@@ -649,6 +704,12 @@ export default function UserProfilePage({ username }: { username: string }) {
                           className={`font-medium ${textColor} text-sm sm:text-base line-clamp-1`}
                         >
                           {link.title}
+                          {link.is_adult_content && (
+                            <div className="inline-flex items-center ml-2 bg-yellow-500/20 text-yellow-500 text-xs px-1.5 py-0.5 rounded-full gap-0.5 font-medium">
+                              <ShieldAlert className="h-3 w-3" />
+                              <span>18+</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400 flex-shrink-0 ml-2" />
@@ -665,6 +726,14 @@ export default function UserProfilePage({ username }: { username: string }) {
           </footer>
         </div>
       </div>
+
+      {/* Dialog for adult content warning */}
+      <AdultContentWarningDialog
+        isOpen={showAdultContentWarning}
+        onConfirm={handleConfirmAdultContent}
+        onCancel={handleCancelAdultContent}
+        linkTitle={pendingLink?.title || ""}
+      />
     </>
   );
 }

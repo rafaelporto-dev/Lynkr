@@ -5,13 +5,21 @@ import { createClient } from "../../supabase/client";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import { LinkIcon, Plus, Loader2, Link2, Image } from "lucide-react";
+import {
+  LinkIcon,
+  Plus,
+  Loader2,
+  Link2,
+  Image,
+  ShieldAlert,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
 import { Skeleton } from "./ui/skeleton";
 import { extractEmbedData } from "@/lib/embed-utils";
 import { EmbedContentType, EmbedData } from "@/types/embed.types";
 import EmbedContent from "./embeds/embed-content";
+import { Checkbox } from "./ui/checkbox";
 
 export default function LinkForm() {
   const [title, setTitle] = useState("");
@@ -23,6 +31,7 @@ export default function LinkForm() {
   const [previewTitle, setPreviewTitle] = useState("");
   const [contentType, setContentType] = useState<EmbedContentType>("link");
   const [embedData, setEmbedData] = useState<EmbedData | null>(null);
+  const [isAdultContent, setIsAdultContent] = useState(false);
   const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
@@ -164,6 +173,7 @@ export default function LinkForm() {
         thumbnail_url: contentType === "link" ? thumbnailUrl : null,
         content_type: contentType,
         embed_data: embedData,
+        is_adult_content: isAdultContent,
       };
 
       // Insert the new link
@@ -256,6 +266,26 @@ export default function LinkForm() {
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="adult-content"
+          checked={isAdultContent}
+          onCheckedChange={(checked) => setIsAdultContent(checked === true)}
+        />
+        <div>
+          <Label
+            htmlFor="adult-content"
+            className="flex items-center gap-1.5 text-sm font-medium cursor-pointer"
+          >
+            <ShieldAlert className="h-4 w-4 text-yellow-500" />
+            <span>This link contains adult content (18+)</span>
+          </Label>
+          <p className="text-xs text-muted-foreground mt-1">
+            A warning message will be shown before viewers can access this link
+          </p>
         </div>
       </div>
 

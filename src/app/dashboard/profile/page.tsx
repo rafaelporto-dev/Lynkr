@@ -1,6 +1,4 @@
 "use client";
-import { SubscriptionCheckClient } from "@/components/subscription-check-client";
-import DashboardNavbar from "@/components/dashboard-navbar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -128,12 +126,12 @@ export default function ProfilePage() {
       // Update profile state with new avatar URL
       setProfile((prev) => (prev ? { ...prev, avatar_url } : null));
       toast({
-        title: "Avatar updated",
-        description: "Your profile picture has been updated successfully.",
+        title: "Photo updated",
+        description: "Your profile photo has been updated successfully.",
       });
     } catch (error: any) {
       toast({
-        title: "Error updating avatar",
+        title: "Error updating photo",
         description: error.message,
         variant: "destructive",
       });
@@ -154,7 +152,7 @@ export default function ProfilePage() {
     setLoading(true);
     setMessage(null);
     try {
-      if (!profile) throw new Error("No profile data");
+      if (!profile) throw new Error("Profile data not found");
 
       // Update profile (avatar is handled separately)
       const { error } = await supabase
@@ -176,162 +174,157 @@ export default function ProfilePage() {
   };
 
   return (
-    <SubscriptionCheckClient>
-      <DashboardNavbar />
-      <main className="w-full">
-        <div className="container mx-auto px-4 py-8 flex flex-col gap-8">
-          {/* Header Section */}
-          <header className="flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold flex items-center gap-2">
-                <UserCircle className="h-7 w-7" />
-                Profile
-              </h1>
-            </div>
-            <div className="bg-secondary/50 text-sm p-3 px-4 rounded-lg text-muted-foreground flex gap-2 items-center">
-              <InfoIcon size="14" />
-              <span>Manage your profile information</span>
-            </div>
-          </header>
+    <main className="w-full">
+      <div className="container mx-auto px-4 py-8 flex flex-col gap-8">
+        {/* Header Section */}
+        <header className="flex flex-col gap-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <UserCircle className="h-7 w-7" />
+              Profile
+            </h1>
+          </div>
+          <div className="bg-secondary/50 text-sm p-3 px-4 rounded-lg text-muted-foreground flex gap-2 items-center">
+            <InfoIcon size="14" />
+            <span>Manage your profile information</span>
+          </div>
+        </header>
 
-          {/* User Profile Section */}
-          <Card className="w-full">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <div>
-                <CardTitle>Basic Information</CardTitle>
-                <CardDescription>Update your profile details</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {message && (
-                  <FormMessage
-                    message={
-                      message.type === "success"
-                        ? { success: message.text }
-                        : { error: message.text }
-                    }
-                  />
-                )}
-                <div className="flex flex-col md:flex-row gap-6">
-                  {/* Avatar Section */}
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="relative group">
-                      <Avatar className="h-24 w-24 border-2 border-primary/20">
-                        <AvatarImage
-                          src={
-                            avatarPreview || profile?.avatar_url || undefined
-                          }
-                          alt={
-                            profile?.full_name || profile?.username || "User"
-                          }
-                        />
-                        <AvatarFallback>
-                          <UserCircle className="h-20 w-20 text-muted-foreground" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <Label
-                        htmlFor="avatar"
-                        className="absolute inset-0 flex items-center justify-center bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-                      >
-                        <Camera size={20} />
-                        <Input
-                          id="avatar"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleAvatarChange}
-                          className="sr-only"
-                          disabled={uploadingAvatar}
-                        />
-                      </Label>
-                      {uploadingAvatar && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white rounded-full">
-                          <Loader2 className="h-6 w-6 animate-spin" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex items-center">
-                      <Label
-                        htmlFor="avatar-btn"
-                        className="relative cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 rounded-md text-sm flex items-center gap-2"
-                      >
-                        <Upload size={16} />
-                        <span>Change Photo</span>
-                        <Input
-                          id="avatar-btn"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleAvatarChange}
-                          className="sr-only"
-                          disabled={uploadingAvatar}
-                        />
-                      </Label>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center max-w-[200px]">
-                      Click on the avatar or button to upload a new profile
-                      picture
+        {/* User Profile Section */}
+        <Card className="w-full">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <div>
+              <CardTitle>Basic information</CardTitle>
+              <CardDescription>Update your profile details</CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {message && (
+                <FormMessage
+                  message={
+                    message.type === "success"
+                      ? { success: message.text }
+                      : { error: message.text }
+                  }
+                />
+              )}
+              <div className="flex flex-col md:flex-row gap-6">
+                {/* Avatar Section */}
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="relative group">
+                    <Avatar className="h-24 w-24 border-2 border-primary/20">
+                      <AvatarImage
+                        src={avatarPreview || profile?.avatar_url || undefined}
+                        alt={
+                          profile?.full_name || profile?.username || "Usuário"
+                        }
+                      />
+                      <AvatarFallback>
+                        <UserCircle className="h-20 w-20 text-muted-foreground" />
+                      </AvatarFallback>
+                    </Avatar>
+                    <Label
+                      htmlFor="avatar"
+                      className="absolute inset-0 flex items-center justify-center bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                    >
+                      <Camera size={20} />
+                      <Input
+                        id="avatar"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="sr-only"
+                        disabled={uploadingAvatar}
+                      />
+                    </Label>
+                    {uploadingAvatar && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 text-white rounded-full">
+                        <Loader2 className="h-6 w-6 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center">
+                    <Label
+                      htmlFor="avatar-btn"
+                      className="relative cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-2 rounded-md text-sm flex items-center gap-2"
+                    >
+                      <Upload size={16} />
+                      <span>Change photo</span>
+                      <Input
+                        id="avatar-btn"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className="sr-only"
+                        disabled={uploadingAvatar}
+                      />
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center max-w-[200px]">
+                    Click on the avatar or the button to send a new profile
+                    photo
+                  </p>
+                </div>
+
+                {/* Profile Details */}
+                <div className="flex-1 space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      value={profile?.username || ""}
+                      disabled
+                      className="bg-muted"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Your unique username cannot be changed
                     </p>
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="full_name">Display name</Label>
+                    <Input
+                      id="full_name"
+                      name="full_name"
+                      value={profile?.full_name || ""}
+                      onChange={handleInputChange}
+                      placeholder="Your display name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    <Textarea
+                      id="bio"
+                      name="bio"
+                      value={profile?.bio || ""}
+                      onChange={handleInputChange}
+                      placeholder="Tell visitors about yourself"
+                      rows={4}
+                    />
+                  </div>
 
-                  {/* Profile Details */}
-                  <div className="flex-1 space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="username">Username</Label>
-                      <Input
-                        id="username"
-                        name="username"
-                        value={profile?.username || ""}
-                        disabled
-                        className="bg-muted"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Your unique username cannot be changed
-                      </p>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="full_name">Display Name</Label>
-                      <Input
-                        id="full_name"
-                        name="full_name"
-                        value={profile?.full_name || ""}
-                        onChange={handleInputChange}
-                        placeholder="Your display name"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="bio">Bio</Label>
-                      <Textarea
-                        id="bio"
-                        name="bio"
-                        value={profile?.bio || ""}
-                        onChange={handleInputChange}
-                        placeholder="Tell visitors about yourself"
-                        rows={4}
-                      />
-                    </div>
-
-                    <div className="flex justify-between items-center pt-4">
-                      <Button type="submit" disabled={loading}>
-                        {loading ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Saving...
-                          </>
-                        ) : (
-                          <>
-                            <Save className="mr-2 h-4 w-4" />
-                            Save Changes
-                          </>
-                        )}
-                      </Button>
-                    </div>
+                  <div className="flex justify-between items-center pt-4">
+                    <Button type="submit" disabled={loading}>
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save changes
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
       {/* Crop Modal */}
       {tempImageSrc && (
         <AvatarCropModal
@@ -344,6 +337,6 @@ export default function ProfilePage() {
           onCropComplete={handleCropComplete}
         />
       )}
-    </SubscriptionCheckClient>
+    </main>
   );
 }

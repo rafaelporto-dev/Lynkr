@@ -14,11 +14,11 @@ import {
 import { Button } from "./ui/button";
 import {
   UserCircle,
-  Link as LinkIcon,
   BarChart2,
   Globe,
   LogOut,
   Trash2,
+  Home,
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { deleteAccountAction } from "@/app/actions";
@@ -45,7 +45,7 @@ export default function DashboardNavbar() {
           name:
             user.user_metadata?.full_name ||
             user.email?.split("@")[0] ||
-            "Usuário",
+            "User",
           username: user.user_metadata?.username || "",
         });
       }
@@ -57,7 +57,7 @@ export default function DashboardNavbar() {
   const handleDeleteAccount = async () => {
     if (
       !confirm(
-        "Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita."
+        "Are you sure you want to delete your account? This action cannot be undone."
       )
     ) {
       return;
@@ -86,16 +86,16 @@ export default function DashboardNavbar() {
             {/* Navigation - apenas páginas existentes */}
             <div className="hidden md:flex items-center gap-1">
               <Link
-                href="/dashboard/links"
+                href="/dashboard"
                 className={cn(
                   "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                  isActive("/dashboard/links")
+                  isActive("/dashboard")
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-accent hover:text-accent-foreground"
                 )}
               >
-                <LinkIcon className="h-4 w-4" />
-                Links
+                <Home className="h-4 w-4" />
+                Dashboard
               </Link>
               <Link
                 href="/dashboard/analytics"
@@ -159,7 +159,7 @@ export default function DashboardNavbar() {
                     className="flex items-center gap-2"
                   >
                     <UserCircle className="h-4 w-4" />
-                    Perfil
+                    Profile
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -171,7 +171,7 @@ export default function DashboardNavbar() {
                   className="flex items-center gap-2"
                 >
                   <LogOut className="h-4 w-4" />
-                  Sair
+                  Logout
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -179,7 +179,7 @@ export default function DashboardNavbar() {
                   className="flex items-center gap-2 text-destructive focus:text-destructive"
                 >
                   <Trash2 className="h-4 w-4" />
-                  Excluir Conta
+                  Delete Account
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
