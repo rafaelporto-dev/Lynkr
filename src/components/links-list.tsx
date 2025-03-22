@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "../../supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 import {
@@ -13,11 +12,9 @@ import {
   GripVertical,
   Eye,
   EyeOff,
-  Copy,
-  Check,
-  Import,
+  LinkIcon,
+  PlusCircle,
 } from "lucide-react";
-import SocialMediaImport from "./social-media-import";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -80,9 +77,9 @@ function SortableLink({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center justify-between p-3 bg-card border rounded-lg transition-colors ${isDragging ? "shadow-lg opacity-90 border-primary" : link.active ? "hover:bg-accent/5" : "hover:bg-accent/5 bg-muted/20 border-dashed"}`}
+      className={`flex items-center justify-between p-3 bg-card border rounded-lg mb-3 transition-colors ${isDragging ? "shadow-lg opacity-90 border-primary" : link.active ? "hover:bg-accent/5" : "hover:bg-accent/5 bg-muted/20 border-dashed"}`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
         <div
           {...attributes}
           {...listeners}
@@ -91,7 +88,7 @@ function SortableLink({
           <GripVertical className="h-4 w-4" />
         </div>
         {link.thumbnail_url && (
-          <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0 border bg-muted/30">
+          <div className="h-10 w-10 rounded-md overflow-hidden flex-shrink-0 border bg-muted/30">
             <img
               src={link.thumbnail_url}
               alt=""
@@ -111,7 +108,7 @@ function SortableLink({
             rel="noopener noreferrer"
             className="text-sm text-muted-foreground truncate flex items-center hover:text-primary"
           >
-            <ExternalLink className="h-3 w-3 mr-1 inline" />
+            <ExternalLink className="h-3 w-3 mr-1 inline flex-shrink-0" />
             <span className="truncate">{link.url}</span>
           </a>
         </div>
@@ -127,7 +124,7 @@ function SortableLink({
           ) : (
             <div
               className="flex items-center gap-1.5"
-              title={link.active ? "Active" : "Inactive"}
+              title={link.active ? "Ativo" : "Inativo"}
             >
               {link.active ? (
                 <Eye className="h-4 w-4 text-primary" />
@@ -167,7 +164,7 @@ export default function LinksList() {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [isReordering, setIsReordering] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [noLinks, setNoLinks] = useState(false);
   const supabase = createClient();
   const router = useRouter();
   const { toast } = useToast();
@@ -180,7 +177,7 @@ export default function LinksList() {
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const fetchLinks = async () => {
@@ -203,6 +200,7 @@ export default function LinksList() {
 
       if (fetchError) throw fetchError;
       setLinks(data || []);
+      setNoLinks(data?.length === 0);
     } catch (err: any) {
       setError(err.message || "Failed to load links");
       toast({
@@ -224,7 +222,7 @@ export default function LinksList() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "links" },
-        () => fetchLinks(),
+        () => fetchLinks()
       )
       .subscribe();
 
@@ -252,15 +250,21 @@ export default function LinksList() {
 
       if (updateError) throw updateError;
 
+      // Atualize o estado local
+      setLinks(
+        links.map((link) => (link.id === id ? { ...link, active } : link))
+      );
+
       toast({
-        title: "Link updated",
-        description: `Link ${active ? "activated" : "deactivated"} successfully.`,
+        title: active ? "Link activated" : "Link deactivated",
+        description: active
+          ? "Your link is now visible in your profile"
+          : "Your link is now hidden from your profile",
       });
     } catch (err: any) {
-      setError(err.message || "Failed to update link status");
       toast({
         title: "Error",
-        description: "Failed to update link status. Please try again.",
+        description: "Failed to update link status",
         variant: "destructive",
       });
     } finally {
@@ -269,24 +273,38 @@ export default function LinksList() {
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this link?")) return;
+
     try {
       setDeletingId(id);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        throw new Error("You must be logged in to delete links");
+      }
+
       const { error: deleteError } = await supabase
         .from("links")
         .delete()
-        .eq("id", id);
+        .eq("id", id)
+        .eq("user_id", user.id);
 
       if (deleteError) throw deleteError;
 
+      // Atualizar o estado local
+      setLinks(links.filter((link) => link.id !== id));
+      setNoLinks(links.length <= 1);
+
       toast({
         title: "Link deleted",
-        description: "Link has been deleted successfully.",
+        description: "The link has been removed from your profile",
       });
     } catch (err: any) {
-      setError(err.message || "Failed to delete link");
       toast({
         title: "Error",
-        description: "Failed to delete link. Please try again.",
+        description: "Failed to delete link",
         variant: "destructive",
       });
     } finally {
@@ -294,159 +312,127 @@ export default function LinksList() {
     }
   };
 
-  const handleCopyLink = async (url: string, id: string) => {
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopiedId(id);
-      toast({
-        title: "Link copied",
-        description: "Link has been copied to clipboard.",
-      });
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to copy link. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (!over || active.id === over.id) {
-      return;
-    }
-
-    setIsReordering(true);
-
-    try {
-      // Calculate the new order but don't update state yet
+    if (over && active.id !== over.id) {
+      setIsReordering(true);
       const oldIndex = links.findIndex((link) => link.id === active.id);
       const newIndex = links.findIndex((link) => link.id === over.id);
 
-      // Create the reordered array
-      const reorderedLinks = arrayMove([...links], oldIndex, newIndex);
+      try {
+        // Reordenar localmente primeiro para uma resposta imediata da UI
+        const newLinksOrder = arrayMove(links, oldIndex, newIndex);
+        setLinks(newLinksOrder);
 
-      // Get the user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+        // Atualize todos os links com novos valores de ordem
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (!user) {
-        throw new Error("You must be logged in to reorder links");
+        if (!user) {
+          throw new Error("You must be logged in to reorder links");
+        }
+
+        // Atualizar o banco de dados
+        for (let i = 0; i < newLinksOrder.length; i++) {
+          const { error: updateError } = await supabase
+            .from("links")
+            .update({ display_order: i })
+            .eq("id", newLinksOrder[i].id)
+            .eq("user_id", user.id);
+
+          if (updateError) throw updateError;
+        }
+
+        toast({
+          title: "Links reordered",
+          description: "The order of your links has been updated successfully",
+        });
+      } catch (err: any) {
+        toast({
+          title: "Error",
+          description: "Failed to reorder links",
+          variant: "destructive",
+        });
+        // Recarregar a lista para garantir a sincronização com o servidor
+        fetchLinks();
+      } finally {
+        setIsReordering(false);
       }
-
-      // Update the display_order in the database using the reordered array
-      const updatedLinks = reorderedLinks.map((link, index) => ({
-        id: link.id,
-        display_order: index,
-      }));
-
-      // Use a transaction to update all links at once
-      for (const link of updatedLinks) {
-        const { error: updateError } = await supabase
-          .from("links")
-          .update({ display_order: link.display_order })
-          .eq("id", link.id)
-          .eq("user_id", user.id);
-
-        if (updateError) throw updateError;
-      }
-
-      // Now update the local state after database update is successful
-      setLinks(reorderedLinks);
-
-      toast({
-        title: "Links reordered",
-        description: "Your links have been reordered successfully.",
-      });
-    } catch (err: any) {
-      setError(err.message || "Failed to reorder links");
-      toast({
-        title: "Error",
-        description: "Failed to reorder links. Please try again.",
-        variant: "destructive",
-      });
-      // Revert to original order by refetching
-      fetchLinks();
-    } finally {
-      setIsReordering(false);
     }
   };
 
-  if (isLoading && links.length === 0) {
+  if (isLoading) {
     return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Your Links</CardTitle>
-        </CardHeader>
-        <CardContent className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-destructive/10 p-4 rounded-md text-destructive">
+        {error}
+      </div>
+    );
+  }
+
+  if (noLinks) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 gap-4 text-center">
+        <div className="h-12 w-12 rounded-full bg-muted/30 flex items-center justify-center">
+          <LinkIcon className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <div>
+          <h3 className="text-lg font-medium">No links yet</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Add your first link to start customizing your profile
+          </p>
+        </div>
+        <Button
+          className="mt-2"
+          onClick={() => router.push("/dashboard?add=true")}
+        >
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Add your first link
+        </Button>
+      </div>
     );
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Your Links</span>
-          <div className="flex items-center gap-2">
-            {isReordering && (
-              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-            )}
-            <span className="text-sm font-normal text-muted-foreground">
-              {links.length} {links.length === 1 ? "link" : "links"}
-            </span>
-          </div>
-        </CardTitle>
-        <div className="mt-2">
-          <SocialMediaImport />
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext
+        items={links.map((link) => link.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-1">
+          {links.map((link) => (
+            <SortableLink
+              key={link.id}
+              link={link}
+              onDelete={handleDelete}
+              deletingId={deletingId}
+              onToggleActive={handleToggleActive}
+              togglingId={togglingId}
+            />
+          ))}
         </div>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md mb-4">
-            {error}
-          </div>
-        )}
-
-        {links.length === 0 && !isLoading ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>You haven't created any links yet.</p>
-            <p className="text-sm mt-1">
-              Add your first link using the form above.
-            </p>
-          </div>
-        ) : (
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={links.map((link) => link.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              <div className="space-y-3">
-                {links.map((link) => (
-                  <SortableLink
-                    key={link.id}
-                    link={link}
-                    onDelete={handleDelete}
-                    deletingId={deletingId}
-                    onToggleActive={handleToggleActive}
-                    togglingId={togglingId}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
-        )}
-      </CardContent>
-    </Card>
+      </SortableContext>
+      {isReordering && (
+        <div className="mt-4 flex items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-primary mr-2" />
+          <span className="text-sm text-muted-foreground">
+            Saving new order...
+          </span>
+        </div>
+      )}
+    </DndContext>
   );
 }

@@ -79,7 +79,7 @@ export default function UsernameChecker() {
           <h3 className="text-xl font-semibold text-white">
             Choose your username
           </h3>
-          <p className="text-gray-300 text-sm mt-1">
+          <p className="text-gray-300 text-sm mt-1">    
             Check the availability of your username
           </p>
         </div>

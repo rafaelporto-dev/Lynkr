@@ -5,13 +5,6 @@ import { createClient } from "../../supabase/client";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
 import { LinkIcon, Plus, Loader2, Link2, Image } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "./ui/use-toast";
@@ -211,129 +204,105 @@ export default function LinkForm() {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Link2 className="h-5 w-5" />
-          Add New Link
-        </CardTitle>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          {error && (
-            <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
-              {error}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {error && (
+        <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-md">
+          {error}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="title">Link title</Label>
+        <div className="relative">
+          <Input
+            id="title"
+            placeholder="My Website"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={isLoading}
+            className="h-9"
+          />
+          {previewTitle && (
+            <div className="mt-1 text-xs flex items-center gap-1">
+              <span className="text-muted-foreground">Suggestion:</span>
+              <Button
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-xs text-primary"
+                onClick={handleUsePreviewTitle}
+              >
+                {previewTitle.length > 40
+                  ? `${previewTitle.substring(0, 40)}...`
+                  : previewTitle}
+              </Button>
             </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="title">Link Title</Label>
-            <div className="relative">
-              <Input
-                id="title"
-                placeholder="My Website"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                disabled={isLoading}
-                className="h-9"
-              />
-              {previewTitle && (
-                <div className="mt-1 text-xs flex items-center gap-1">
-                  <span className="text-muted-foreground">Suggested:</span>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="h-auto p-0 text-xs text-primary"
-                    onClick={handleUsePreviewTitle}
-                  >
-                    {previewTitle.length > 40
-                      ? `${previewTitle.substring(0, 40)}...`
-                      : previewTitle}
-                  </Button>
-                </div>
-              )}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="url">URL</Label>
+        <div className="relative">
+          <Input
+            id="url"
+            placeholder="https://example.com"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            disabled={isLoading}
+            className="h-9"
+          />
+          {isFetchingPreview && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="url">URL</Label>
-            <div className="flex items-center space-x-2">
-              <LinkIcon className="h-4 w-4 text-muted-foreground" />
-              <Input
-                id="url"
-                placeholder="https://example.com"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                disabled={isLoading}
-                className="flex-1 h-9"
-              />
-            </div>
-          </div>
-
-          {/* Preview Section */}
-          {contentType !== "link" && embedData ? (
-            <div className="mt-4 border rounded-md p-3 bg-muted/30">
-              <div className="flex items-center gap-2 mb-2 text-sm font-medium">
-                <LinkIcon className="h-4 w-4" />
-                <span>
-                  Embedded Content -{" "}
-                  {contentType.charAt(0).toUpperCase() + contentType.slice(1)}
-                </span>
-              </div>
-
-              <div className="embed-preview my-2">
-                <EmbedContent contentType={contentType} embedData={embedData} />
-              </div>
-
-              <p className="text-xs text-muted-foreground mt-2">
-                This content will be embedded directly on your profile.
-              </p>
-            </div>
-          ) : (
-            (isFetchingPreview || thumbnailUrl) && (
-              <div className="mt-4 border rounded-md p-3 bg-muted/30">
-                <div className="flex items-center gap-2 mb-2 text-sm font-medium">
-                  <Image className="h-4 w-4" />
-                  <span>Link Preview</span>
-                </div>
-
-                {isFetchingPreview ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-[100px] w-full rounded-md" />
-                    <Skeleton className="h-4 w-3/4 rounded-md" />
-                  </div>
-                ) : thumbnailUrl ? (
-                  <div className="relative overflow-hidden rounded-md bg-muted/50">
-                    <img
-                      src={thumbnailUrl}
-                      alt="Link preview"
-                      className="w-full h-[120px] object-cover"
-                      onError={(e) => {
-                        // Hide the image if it fails to load
-                        (e.target as HTMLImageElement).style.display = "none";
-                        setThumbnailUrl(null);
-                      }}
-                    />
-                  </div>
-                ) : null}
-              </div>
-            )
           )}
-        </CardContent>
-        <CardFooter>
-          <Button type="submit" disabled={isLoading} className="w-full">
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating...
-              </>
-            ) : (
-              <>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Link
-              </>
-            )}
-          </Button>
-        </CardFooter>
-      </form>
-    </Card>
+        </div>
+      </div>
+
+      {contentType !== "link" && url && isValidUrl(url) && (
+        <div className="border rounded-md p-2 bg-muted/30">
+          <div className="text-xs text-muted-foreground pb-2">
+            Preview of embedded content:
+          </div>
+          <div className="w-full h-24 bg-muted/30 rounded-md overflow-hidden flex items-center justify-center text-muted-foreground text-xs">
+            {contentType} will be embedded
+          </div>
+        </div>
+      )}
+
+      {contentType === "link" && thumbnailUrl && (
+        <div className="flex gap-2 items-center">
+          <div className="h-12 w-12 rounded-md overflow-hidden border bg-muted/30">
+            <img
+              src={thumbnailUrl}
+              alt=""
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Available thumbnail
+          </div>
+        </div>
+      )}
+
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isLoading || isFetchingPreview}
+      >
+        {isLoading ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving...
+          </>
+        ) : (
+          <>
+            <Plus className="h-4 w-4 mr-2" /> Add Link
+          </>
+        )}
+      </Button>
+    </form>
   );
 }
