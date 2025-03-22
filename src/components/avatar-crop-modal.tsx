@@ -28,7 +28,7 @@ interface AvatarCropModalProps {
 function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,
-  aspect: number,
+  aspect: number
 ) {
   return centerCrop(
     makeAspectCrop(
@@ -38,10 +38,10 @@ function centerAspectCrop(
       },
       aspect,
       mediaWidth,
-      mediaHeight,
+      mediaHeight
     ),
     mediaWidth,
-    mediaHeight,
+    mediaHeight
   );
 }
 
@@ -71,7 +71,7 @@ export default function AvatarCropModal({
     try {
       const croppedImageBlob = await getCroppedImg(
         imgRef.current,
-        completedCrop,
+        completedCrop
       );
       onCropComplete(croppedImageBlob);
     } catch (error) {
@@ -85,7 +85,7 @@ export default function AvatarCropModal({
   // Function to create a cropped image
   function getCroppedImg(
     image: HTMLImageElement,
-    pixelCrop: PixelCrop,
+    pixelCrop: PixelCrop
   ): Promise<Blob> {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -108,7 +108,7 @@ export default function AvatarCropModal({
       0,
       0,
       pixelCrop.width,
-      pixelCrop.height,
+      pixelCrop.height
     );
 
     // Convert the canvas to a blob
@@ -122,7 +122,7 @@ export default function AvatarCropModal({
           resolve(blob);
         },
         "image/jpeg",
-        0.95,
+        0.95
       ); // JPEG at 95% quality
     });
   }
@@ -131,7 +131,7 @@ export default function AvatarCropModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Crop Your Profile Picture</DialogTitle>
+          <DialogTitle>Recortar Foto de Perfil</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center justify-center py-4">
           <div className="max-h-[400px] overflow-auto">
@@ -146,29 +146,29 @@ export default function AvatarCropModal({
               <img
                 ref={imgRef}
                 src={imageSrc}
-                alt="Crop preview"
+                alt="Pré-visualização"
                 onLoad={onImageLoad}
                 className="max-w-full"
               />
             </ReactCrop>
           </div>
           <p className="text-xs text-muted-foreground mt-2">
-            Drag to adjust. The image will be cropped as a circle for your
-            profile picture.
+            Arraste para ajustar. A imagem será recortada em formato circular
+            para sua foto de perfil.
           </p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={isProcessing}>
-            Cancel
+            Cancelar
           </Button>
           <Button onClick={handleCropComplete} disabled={isProcessing}>
             {isProcessing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
+                Processando...
               </>
             ) : (
-              "Apply"
+              "Aplicar"
             )}
           </Button>
         </DialogFooter>
