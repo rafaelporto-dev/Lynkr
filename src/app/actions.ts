@@ -193,18 +193,24 @@ export const signOutAction = async () => {
 export const checkUserSubscription = async (userId: string) => {
   const supabase = await createClient();
 
-  // First check if the user has the free plan enabled
+  // Primeiro verificamos se o usuário existe
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("has_free_plan")
     .eq("id", userId)
     .single();
 
-  if (!profileError && profile?.has_free_plan) {
+  if (profileError) {
+    // Se não conseguimos obter o perfil, retornamos false (não tem acesso)
+    return false;
+  }
+
+  // Se o usuário não está no plano gratuito, ele tem acesso premium
+  if (profile && profile.has_free_plan === false) {
     return true;
   }
 
-  // Check for subscriptions with valid statuses (active, trialing, etc.)
+  // Verificamos assinaturas com status válidos (active, trialing, etc.)
   const { data: subscription, error } = await supabase
     .from("subscriptions")
     .select("*")
@@ -212,22 +218,18 @@ export const checkUserSubscription = async (userId: string) => {
     .in("status", ["active", "trialing", "paid"])
     .single();
 
-  if (error) {
-    // Also check if there's any subscription at all as a fallback
-    const { data: anySubscription, error: anyError } = await supabase
-      .from("subscriptions")
-      .select("*")
-      .eq("user_id", userId)
-      .single();
-
-    if (anyError) {
-      return false;
-    }
-
-    return !!anySubscription;
+  // Se tem uma assinatura válida, tem acesso premium
+  if (!error && subscription) {
+    return true;
   }
 
-  return !!subscription;
+  // Se o usuário está no plano gratuito, ele também tem acesso ao dashboard
+  if (profile && profile.has_free_plan === true) {
+    return true;
+  }
+
+  // Por padrão, não tem acesso
+  return false;
 };
 
 export const enableFreePlan = async (userId: string) => {

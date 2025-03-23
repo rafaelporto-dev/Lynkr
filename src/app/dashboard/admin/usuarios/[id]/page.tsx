@@ -4,6 +4,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -11,8 +12,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserEdit } from "../../components/user-edit";
 import { formatDate } from "@/utils/utils";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Medal, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ChangePlanButton } from "./components/change-plan-button";
 
 export default async function UserDetailPage({
   params,
@@ -113,17 +115,38 @@ export default async function UserDetailPage({
                     : "Nunca"}
                 </p>
               </div>
-              <div className="pt-2">
-                <UserEdit userId={profile.id} />
-              </div>
             </div>
           </CardContent>
+          <CardFooter className="flex justify-between gap-2 flex-wrap">
+            <UserEdit userId={profile.id} />
+            <ChangePlanButton
+              userId={profile.id}
+              currentPlan={profile.has_free_plan ? "free" : "premium"}
+            />
+          </CardFooter>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Perfil</CardTitle>
-            <CardDescription>Dados do perfil público.</CardDescription>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle>Perfil</CardTitle>
+                <CardDescription>Dados do perfil público.</CardDescription>
+              </div>
+              <div>
+                {profile.has_free_plan ? (
+                  <div className="rounded-full bg-muted px-3 py-1 text-xs flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>Plano Gratuito</span>
+                  </div>
+                ) : (
+                  <div className="rounded-full bg-primary/20 text-primary px-3 py-1 text-xs flex items-center gap-1">
+                    <Medal className="h-3 w-3" />
+                    <span>Plano Premium</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
@@ -157,18 +180,17 @@ export default async function UserDetailPage({
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Plano gratuito
-                </p>
-                <p className="text-sm">
-                  {profile.has_free_plan ? "Sim" : "Não"}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">
                   Domínio personalizado
                 </p>
-                <p className="text-sm">
-                  {profile.has_custom_domain ? "Sim" : "Não"}
+                <p className="text-sm flex items-center gap-1">
+                  {profile.has_custom_domain ? (
+                    <>
+                      <BadgeCheck className="h-4 w-4 text-green-500" />{" "}
+                      Permitido
+                    </>
+                  ) : (
+                    "Não permitido"
+                  )}
                 </p>
               </div>
               <div>

@@ -28,6 +28,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { updateUserAction, deleteUserAction } from "../actions";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export function UserEdit({ userId }: { userId: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,6 +44,8 @@ export function UserEdit({ userId }: { userId: string }) {
   const [formData, setFormData] = useState({
     full_name: "",
     username: "",
+    has_free_plan: true,
+    has_custom_domain: false,
   });
   const supabase = createClient();
   const { toast } = useToast();
@@ -56,6 +65,8 @@ export function UserEdit({ userId }: { userId: string }) {
       setFormData({
         full_name: data.full_name || "",
         username: data.username || "",
+        has_free_plan: data.has_free_plan ?? true,
+        has_custom_domain: data.has_custom_domain ?? false,
       });
     } catch (error: any) {
       toast({
@@ -75,6 +86,13 @@ export function UserEdit({ userId }: { userId: string }) {
     });
   };
 
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData({
+      ...formData,
+      [name]: value === "true",
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -84,6 +102,11 @@ export function UserEdit({ userId }: { userId: string }) {
       formDataToSend.append("user_id", userId);
       formDataToSend.append("full_name", formData.full_name);
       formDataToSend.append("username", formData.username);
+      formDataToSend.append("has_free_plan", formData.has_free_plan.toString());
+      formDataToSend.append(
+        "has_custom_domain",
+        formData.has_custom_domain.toString()
+      );
 
       const result = await updateUserAction(formDataToSend);
 
@@ -186,6 +209,48 @@ export function UserEdit({ userId }: { userId: string }) {
                     onChange={handleChange}
                     className="col-span-3"
                   />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="has_free_plan" className="text-right">
+                    Plano
+                  </Label>
+                  <div className="col-span-3">
+                    <Select
+                      value={formData.has_free_plan.toString()}
+                      onValueChange={(value) =>
+                        handleSelectChange("has_free_plan", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o plano" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Gratuito</SelectItem>
+                        <SelectItem value="false">Premium</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="has_custom_domain" className="text-right">
+                    Domínio Personalizado
+                  </Label>
+                  <div className="col-span-3">
+                    <Select
+                      value={formData.has_custom_domain.toString()}
+                      onValueChange={(value) =>
+                        handleSelectChange("has_custom_domain", value)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Domínio Personalizado" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="true">Permitido</SelectItem>
+                        <SelectItem value="false">Não Permitido</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
               <DialogFooter>

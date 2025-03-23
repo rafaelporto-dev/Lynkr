@@ -256,6 +256,7 @@ export default function ProfileEditor() {
     background_type?: string;
     background_url?: string | null;
     custom_css?: string | null;
+    has_free_plan: boolean;
   } | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [bgFile, setBgFile] = useState<File | null>(null);
@@ -293,6 +294,10 @@ export default function ProfileEditor() {
 
           if (error) throw error;
 
+          // Verificar status premium baseado no campo has_free_plan
+          // Se has_free_plan for false, o usuário é premium
+          setIsPremium(data.has_free_plan === false);
+
           // Inserir valores padrão para propriedades que ainda não existem no banco de dados
           const profileWithDefaults = {
             ...data,
@@ -302,6 +307,7 @@ export default function ProfileEditor() {
             background_type: data.background_type || "gradient",
             background_url: data.background_url || null,
             custom_css: data.custom_css || null,
+            has_free_plan: data.has_free_plan,
           };
 
           setProfile(profileWithDefaults);
@@ -326,11 +332,11 @@ export default function ProfileEditor() {
   }, [supabase, toast]);
 
   const handleBackgroundChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isPremium) {
+    if (profile?.has_free_plan) {
       toast({
-        title: "Premium Feature",
+        title: "Recurso Premium",
         description:
-          "Custom background images are available for premium users only.",
+          "Imagens de fundo personalizadas estão disponíveis apenas para usuários premium.",
         variant: "destructive",
       });
       return;
@@ -681,15 +687,17 @@ export default function ProfileEditor() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          {!isPremium && (
+          {profile?.has_free_plan && (
             <Alert className="bg-amber-500/10 border-amber-500/30 mb-6">
               <div className="flex items-start gap-2">
                 <Info className="h-5 w-5 text-amber-500 mt-0.5" />
                 <AlertDescription className="text-sm">
-                  <span className="font-medium">You're on the Free plan.</span>{" "}
-                  Upgrade to Premium to unlock advanced customization options,
-                  including premium themes, custom backgrounds, advanced button
-                  styles, and more.
+                  <span className="font-medium">
+                    Você está no plano gratuito.
+                  </span>{" "}
+                  Faça upgrade para o Premium para desbloquear opções de
+                  personalização avançadas, incluindo temas premium, planos de
+                  fundo personalizados, estilos de botão avançados e muito mais.
                   <div className="mt-2">
                     <Button
                       variant="outline"
@@ -697,7 +705,7 @@ export default function ProfileEditor() {
                       className="bg-gradient-to-r from-amber-500 to-yellow-300 text-black border-amber-500 hover:from-amber-600 hover:to-yellow-400"
                     >
                       <Crown className="mr-2 h-4 w-4" />
-                      Upgrade to Premium
+                      Upgrade para Premium
                       <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
                   </div>
@@ -1347,13 +1355,13 @@ export default function ProfileEditor() {
                 <div className="mt-8">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-medium">Custom CSS</h3>
+                      <h3 className="text-lg font-medium">CSS Personalizado</h3>
                       <p className="text-sm text-muted-foreground">
-                        Add custom CSS to personalize your profile beyond the
-                        theme options.
+                        Adicione CSS personalizado para personalizar seu perfil
+                        além das opções de tema.
                       </p>
                     </div>
-                    {!isPremium && (
+                    {profile?.has_free_plan && (
                       <Badge
                         variant="secondary"
                         className="ml-2 bg-purple-600 text-white"
@@ -1363,20 +1371,21 @@ export default function ProfileEditor() {
                     )}
                   </div>
 
-                  {isPremium ? (
+                  {!profile?.has_free_plan ? (
                     <div className="space-y-4">
                       <Alert className="bg-amber-500/10 text-amber-600 border-amber-200 dark:border-amber-800/30">
                         <AlertDescription className="flex items-center text-sm">
                           <Info className="h-4 w-4 mr-2" />
-                          Custom CSS gives you full control over your profile's
-                          appearance. Only add CSS you understand as invalid
-                          code may break your profile's layout.
+                          CSS personalizado dá a você controle total sobre a
+                          aparência do seu perfil. Adicione apenas CSS que você
+                          entenda, pois código inválido pode quebrar o layout do
+                          seu perfil.
                         </AlertDescription>
                       </Alert>
 
                       <div>
                         <Label htmlFor="custom-css" className="mb-2 block">
-                          CSS Code
+                          Código CSS
                         </Label>
                         <Textarea
                           id="custom-css"
@@ -1389,8 +1398,9 @@ export default function ProfileEditor() {
                           spellCheck={false}
                         />
                         <p className="text-xs text-muted-foreground mt-2">
-                          Use CSS selectors to target elements in your profile.
-                          We automatically sanitize CSS to prevent harmful code.
+                          Use seletores CSS para atingir elementos em seu
+                          perfil. Nós automaticamente sanitizamos o CSS para
+                          prevenir códigos maliciosos.
                         </p>
                       </div>
 
@@ -1398,7 +1408,7 @@ export default function ProfileEditor() {
                       {cssError && (
                         <Alert variant="destructive" className="mt-4">
                           <AlertCircle className="h-4 w-4 mr-2" />
-                          <AlertTitle>CSS Validation Error</AlertTitle>
+                          <AlertTitle>Erro de Validação CSS</AlertTitle>
                           <AlertDescription>{cssError}</AlertDescription>
                         </Alert>
                       )}
@@ -1418,24 +1428,24 @@ export default function ProfileEditor() {
                           }}
                           disabled={!profile.custom_css}
                         >
-                          Clear CSS
+                          Limpar CSS
                         </Button>
                       </div>
                     </div>
                   ) : (
                     <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center">
                       <Lock className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                      <h4 className="font-medium mb-2">Premium Feature</h4>
+                      <h4 className="font-medium mb-2">Recurso Premium</h4>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Unlock custom CSS to completely customize your profile's
-                        appearance.
+                        Desbloqueie CSS personalizado para customizar
+                        completamente a aparência do seu perfil.
                       </p>
                       <Button
                         variant="default"
                         size="sm"
                         className="animate-pulse bg-purple-600 hover:bg-purple-700"
                       >
-                        Upgrade to Premium{" "}
+                        Upgrade para Premium{" "}
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </div>

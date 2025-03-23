@@ -68,25 +68,13 @@ export default function CustomDomainManager() {
           .eq("id", user.id)
           .single();
 
-        // If user has free plan, they can't use custom domains
+        // Se o usuário está no plano gratuito, eles não podem usar domínios personalizados
         if (profile?.has_free_plan) {
           setHasSubscription(false);
           return;
         }
 
-        // Check for active subscription
-        const { data: subscription, error: subError } = await supabase
-          .from("subscriptions")
-          .select("*")
-          .eq("user_id", user.id)
-          .in("status", ["active", "trialing", "paid"])
-          .single();
-
-        if (subError || !subscription) {
-          setHasSubscription(false);
-          return;
-        }
-
+        // Se has_free_plan é false, o usuário tem plano premium
         setHasSubscription(true);
 
         // Load existing custom domain if any
@@ -379,7 +367,7 @@ export default function CustomDomainManager() {
                         size="icon"
                         onClick={() =>
                           copyToClipboard(
-                            `lynkr-verification=${customDomain.verification_code}`,
+                            `lynkr-verification=${customDomain.verification_code}`
                           )
                         }
                       >
