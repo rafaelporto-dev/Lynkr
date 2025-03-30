@@ -75,7 +75,9 @@ export default function UserProfilePage({ username }: { username: string }) {
     title: string;
   } | null>(null);
   const [isPreview, setIsPreview] = useState(false);
-  const [overrideTheme, setOverrideTheme] = useState<ThemeId | null>(null);
+  const [overrideTheme, setOverrideTheme] = useState<ThemeId | undefined>(
+    undefined
+  );
 
   // Verificar se estamos em modo de preview (para o editor)
   useEffect(() => {
@@ -106,13 +108,34 @@ export default function UserProfilePage({ username }: { username: string }) {
 
   const themeTokens = useMemo(() => {
     // Usar tema sobrescrito pela URL se estiver em modo preview
-    const themeId =
-      isPreview && overrideTheme
-        ? overrideTheme
-        : ThemeManager.validateThemeId(profile?.theme);
+    let themeId: string | undefined;
 
-    return ThemeManager.getThemeTokens(themeId);
+    if (isPreview && overrideTheme) {
+      themeId = overrideTheme;
+    } else {
+      // O método validateThemeId espera string | undefined, não aceita null
+      // Portanto, precisamos garantir que o theme seja undefined se for null
+      themeId = profile?.theme || undefined;
+    }
+
+    return ThemeManager.getThemeTokens(ThemeManager.validateThemeId(themeId));
   }, [profile?.theme, isPreview, overrideTheme]);
+
+  // Definindo classes e estilos customizados para componentes da UI
+  const customTheme = useMemo(
+    () => ({
+      // Gradientes e backgrounds usando variáveis CSS
+      badgeGradient: "from-primary to-primary/80",
+      buttonGradient: "bg-primary hover:bg-primary/90",
+
+      // Configurações do card
+      cardBg: "bg-card",
+      borderColor: "border-border",
+      shadowColor: "primary/20",
+      shadowHoverColor: "primary/30",
+    }),
+    [themeTokens]
+  );
 
   // Get button style
   const buttonStyle = useMemo(() => {
@@ -418,45 +441,54 @@ export default function UserProfilePage({ username }: { username: string }) {
       )}
 
       <div
-        className={`min-h-screen bg-theme-background theme-transition ${fontFamily}`}
+        className={cn(
+          `profile-page theme-${ThemeManager.validateThemeId(
+            isPreview && overrideTheme
+              ? overrideTheme
+              : profile?.theme || "light"
+          )}`,
+          fontFamily
+        )}
         style={backgroundStyle}
+        data-theme-id={ThemeManager.validateThemeId(
+          isPreview && overrideTheme ? overrideTheme : profile?.theme || "light"
+        )}
       >
+        {/* Debug info em modo de preview */}
+        {isPreview && (
+          <div className="fixed top-0 left-0 bg-black/80 text-white p-2 text-xs z-50 rounded-br-md">
+            Tema:{" "}
+            {ThemeManager.validateThemeId(
+              overrideTheme || profile?.theme || "light"
+            )}
+          </div>
+        )}
+
         {/* Conteúdo do perfil aqui usando as classes temáticas */}
-        {/* Usar as classes CSS do novo sistema de temas */}
         <div className="max-w-md mx-auto">
           {/* Profile Header */}
           <header className="text-center mb-8 sm:mb-10">
-            <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4 ring-2 ring-purple-500 ring-offset-2 ring-offset-black">
+            <Avatar className="profile-avatar h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4">
               {profile.avatar_url ? (
                 <AvatarImage
                   src={profile.avatar_url}
                   alt={`${profile.full_name || profile.username || "User"}'s profile picture`}
                 />
               ) : (
-                <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-500">
-                  <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  <User className="h-10 w-10 sm:h-12 sm:w-12" />
                 </AvatarFallback>
               )}
             </Avatar>
 
-            <h1 className={`text-xl sm:text-2xl font-bold ${textColor} mb-2`}>
+            <h1 className="profile-title">
               {profile.full_name || profile.username || "User"}
             </h1>
 
-            {profile.bio && (
-              <p
-                className={`${textMutedColor} text-sm sm:text-base mb-3 sm:mb-4 max-w-xs mx-auto`}
-              >
-                {profile.bio}
-              </p>
-            )}
+            {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 
             <div className="flex flex-wrap items-center gap-2 justify-center">
-              <div
-                className={`inline-block bg-gradient-to-r ${themeTokens.colors.badgeGradient} rounded-full px-3 py-1 text-xs sm:text-sm text-white`}
-              >
-                @{profile.username || "user"}
-              </div>
+              <div className="profile-badge">@{profile.username || "user"}</div>
               <ProfileQRCode
                 username={profile.username || ""}
                 {...(customDomain ? { customDomain } : {})}
@@ -465,7 +497,7 @@ export default function UserProfilePage({ username }: { username: string }) {
             </div>
           </header>
 
-          {/* Links */}
+          {/* Links - Atualizar para usar a classe profile-link-button */}
           <main
             className={cn(
               layoutStyle,
@@ -493,20 +525,17 @@ export default function UserProfilePage({ username }: { username: string }) {
                   className="block w-full"
                   aria-label={`Open ${link.title} link`}
                 >
-                  <Card
+                  <div
                     className={cn(
-                      `w-full ${themeTokens.colors.cardBg} ${themeTokens.colors.borderColor} overflow-hidden`,
-                      `hover:bg-gradient-to-r hover:${themeTokens.colors.buttonGradient}`,
-                      `shadow-lg shadow-${themeTokens.colors.borderColor.replace("border-", "")}`,
-                      `hover:shadow-${themeTokens.colors.borderColor.replace("border-", "")}`,
-                      `transition-all duration-300`,
+                      "profile-link-button",
+                      buttonStyle, // Aplica o estilo de botão escolhido
                       // Condicional para evitar que o estilo "pill" afete os vídeos
                       link.content_type &&
                         ["youtube", "vimeo", "tiktok"].includes(
                           link.content_type
                         )
                         ? "video-card" // Classe personalizada para vídeos
-                        : buttonStyle // Estilo normal para outros tipos de conteúdo
+                        : "" // Sem classe extra para outros tipos
                     )}
                   >
                     {/* Renderiza conteúdo incorporado se disponível */}
@@ -514,14 +543,7 @@ export default function UserProfilePage({ username }: { username: string }) {
                       link.content_type !== "link" &&
                       link.embed_data && (
                         <div
-                          className={`embed-container py-2 px-2 ${
-                            // Evitar arredondamento para conteúdo de vídeo
-                            ["youtube", "vimeo", "tiktok"].includes(
-                              link.content_type
-                            )
-                              ? "video-embed-container overflow-hidden"
-                              : ""
-                          }`}
+                          className="video-embed-container w-full"
                           onClick={(e) => {
                             // Impede que o clique no embed também navegue para o link
                             e.preventDefault();
@@ -539,14 +561,7 @@ export default function UserProfilePage({ username }: { username: string }) {
                           <EmbedContent
                             contentType={link.content_type as EmbedContentType}
                             embedData={link.embed_data as EmbedData}
-                            className={`mb-2 ${
-                              // Evitar arredondamento para conteúdo de vídeo
-                              ["youtube", "vimeo", "tiktok"].includes(
-                                link.content_type
-                              )
-                                ? "video-embed"
-                                : ""
-                            }`}
+                            className="video-embed"
                           />
                         </div>
                       )}
@@ -571,37 +586,37 @@ export default function UserProfilePage({ username }: { username: string }) {
                           />
                         </div>
                       )}
-                    <div className="flex items-center justify-between p-3 sm:p-4">
+
+                    {/* Informações do link (título, ícone, etc.) */}
+                    <div className="link-content">
                       <div className="flex items-center">
                         {link.icon && !link.thumbnail_url ? (
-                          <div className="mr-2 sm:mr-3 text-purple-400">
-                            <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-purple-500/20 rounded-full">
+                          <div className="mr-2 sm:mr-3 text-primary/70">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-primary/20 rounded-full">
                               {link.icon}
                             </div>
                           </div>
                         ) : null}
-                        <div
-                          className={`font-medium ${textColor} text-sm sm:text-base line-clamp-1`}
-                        >
+                        <div className="link-title">
                           {link.title}
                           {link.is_adult_content && (
-                            <div className="inline-flex items-center ml-2 bg-yellow-500/20 text-yellow-500 text-xs px-1.5 py-0.5 rounded-full gap-0.5 font-medium">
+                            <div className="inline-flex items-center ml-2 bg-warning/20 text-warning text-xs px-1.5 py-0.5 rounded-full gap-0.5 font-medium">
                               <ShieldAlert className="h-3 w-3" />
                               <span>18+</span>
                             </div>
                           )}
                         </div>
                       </div>
-                      <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400 flex-shrink-0 ml-2" />
+                      <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ml-2 link-icon" />
                     </div>
-                  </Card>
+                  </div>
                 </a>
               ))
             )}
           </main>
 
           {/* Footer */}
-          <footer className="mt-8 sm:mt-12 text-center text-xs text-gray-500">
+          <footer className="mt-8 sm:mt-12 text-center text-xs text-muted-foreground">
             <p>Powered by Lynkr</p>
           </footer>
         </div>

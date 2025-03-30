@@ -70,17 +70,74 @@ export default function ThemeSelectorTab({
   // Atualizar tema atual quando o perfil mudar
   useEffect(() => {
     if (profile?.theme) {
-      setCurrentThemeId(ThemeManager.validateThemeId(profile.theme));
+      const validThemeId = ThemeManager.validateThemeId(profile.theme);
+      setCurrentThemeId(validThemeId);
     }
   }, [profile?.theme]);
 
+  // Aplicar variáveis CSS quando o tema mudar
+  useEffect(() => {
+    // Obter as cores do tema atual
+    const tokens = ThemeManager.getThemeTokens(currentThemeId);
+
+    // Aplicar variáveis CSS diretamente para visualização imediata
+    Object.entries(tokens.colors).forEach(([key, value]) => {
+      document.documentElement.style.setProperty(`--color-${key}`, value);
+    });
+
+    // Atualizar classe do documento para tema escuro/claro
+    const isDarkTheme = [
+      "dark",
+      "midnight",
+      "nord",
+      "neon",
+      "sunset",
+      "glass",
+    ].includes(currentThemeId);
+    if (isDarkTheme) {
+      document.documentElement.classList.add("dark-theme");
+      document.documentElement.classList.remove("light-theme");
+    } else {
+      document.documentElement.classList.add("light-theme");
+      document.documentElement.classList.remove("dark-theme");
+    }
+
+    // Atualizar classe de tema
+    document.documentElement.classList.forEach((className) => {
+      if (className.startsWith("theme-")) {
+        document.documentElement.classList.remove(className);
+      }
+    });
+    document.documentElement.classList.add(`theme-${currentThemeId}`);
+  }, [currentThemeId]);
+
   // Função para salvar o tema selecionado
-  const handleThemeChange = (themeId: string) => {
+  const handleThemeChange = async (themeId: string) => {
     const validThemeId = ThemeManager.validateThemeId(themeId);
     setCurrentThemeId(validThemeId);
 
     // Atualizar o estado do perfil
     onProfileChange({ theme: validThemeId });
+
+    // Atualizar o localStorage para compatibilidade com ThemeProvider
+    localStorage.setItem("userTheme", validThemeId);
+
+    // Tentar salvar o tema diretamente também
+    try {
+      const result = await ThemeManager.saveUserTheme(validThemeId);
+      if (!result.success) {
+        console.error("Erro ao salvar tema:", result.error);
+      }
+    } catch (error) {
+      console.error("Falha ao salvar tema:", error);
+    }
+
+    // Atualizar a URL de preview para mostrar o tema selecionado
+    if (window.location.search.includes("preview=true")) {
+      const url = new URL(window.location.href);
+      url.searchParams.set("theme", validThemeId);
+      window.history.replaceState({}, "", url.toString());
+    }
 
     // Indicador visual de alterações não salvas
     setSaveIndicator("idle");
@@ -99,6 +156,25 @@ export default function ThemeSelectorTab({
 
     try {
       await onSaveProfile();
+
+      // Atualizar o tema no localStorage após salvar
+      localStorage.setItem("userTheme", currentThemeId);
+
+      // Atualizar a visualização do tema
+      document.documentElement.classList.forEach((className) => {
+        if (className.startsWith("theme-")) {
+          document.documentElement.classList.remove(className);
+        }
+      });
+      document.documentElement.classList.add(`theme-${currentThemeId}`);
+
+      // Forçar atualização da URL de preview se estiver nesse modo
+      if (window.location.search.includes("preview=true")) {
+        const url = new URL(window.location.href);
+        url.searchParams.set("theme", currentThemeId);
+        window.history.replaceState({}, "", url.toString());
+      }
+
       setSaveIndicator("saved");
 
       toast({

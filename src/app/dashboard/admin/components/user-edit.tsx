@@ -176,9 +176,9 @@ export function UserEdit({ userId }: { userId: string }) {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Editar Usuário</DialogTitle>
+            <DialogTitle>Edit User</DialogTitle>
             <DialogDescription>
-              Faça alterações nas informações do usuário aqui.
+              Make changes to the user&apos;s information here.
             </DialogDescription>
           </DialogHeader>
           {isLoading && !profile ? (
@@ -188,7 +188,7 @@ export function UserEdit({ userId }: { userId: string }) {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="full_name" className="text-right">
-                    Nome Completo
+                    Full Name
                   </Label>
                   <Input
                     id="full_name"
@@ -212,7 +212,7 @@ export function UserEdit({ userId }: { userId: string }) {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="has_free_plan" className="text-right">
-                    Plano
+                    Plan
                   </Label>
                   <div className="col-span-3">
                     <Select
@@ -222,10 +222,10 @@ export function UserEdit({ userId }: { userId: string }) {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecione o plano" />
+                        <SelectValue placeholder="Select the plan" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Gratuito</SelectItem>
+                        <SelectItem value="true">Free</SelectItem>
                         <SelectItem value="false">Premium</SelectItem>
                       </SelectContent>
                     </Select>
@@ -233,7 +233,7 @@ export function UserEdit({ userId }: { userId: string }) {
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="has_custom_domain" className="text-right">
-                    Domínio Personalizado
+                    Custom Domain
                   </Label>
                   <div className="col-span-3">
                     <Select
@@ -243,11 +243,11 @@ export function UserEdit({ userId }: { userId: string }) {
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Domínio Personalizado" />
+                        <SelectValue placeholder="Custom Domain" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="true">Permitido</SelectItem>
-                        <SelectItem value="false">Não Permitido</SelectItem>
+                        <SelectItem value="true">Allowed</SelectItem>
+                        <SelectItem value="false">Not Allowed</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -260,14 +260,14 @@ export function UserEdit({ userId }: { userId: string }) {
                   onClick={() => setIsOpen(false)}
                   disabled={isLoading}
                 >
-                  <X className="h-4 w-4 mr-1" /> Cancelar
+                  <X className="h-4 w-4 mr-1" /> Cancel
                 </Button>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? (
                     <>Salvando...</>
                   ) : (
                     <>
-                      <Save className="h-4 w-4 mr-1" /> Salvar Alterações
+                      <Save className="h-4 w-4 mr-1" /> Save Changes
                     </>
                   )}
                 </Button>
@@ -283,19 +283,19 @@ export function UserEdit({ userId }: { userId: string }) {
       >
         <AlertDialogTrigger asChild>
           <Button variant="destructive" size="sm">
-            <Trash2 className="h-4 w-4 mr-1" /> Excluir
+            <Trash2 className="h-4 w-4 mr-1" /> Delete
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita. Isso excluirá permanentemente a
-              conta do usuário e todos os dados associados.
+              This action cannot be undone. This will permanently delete the
+              user&apos;s account and all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isLoading}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
@@ -306,11 +306,11 @@ export function UserEdit({ userId }: { userId: string }) {
             >
               <div className="flex items-center space-x-2">
                 {isLoading ? (
-                  <>Excluindo...</>
+                  <>Deleting...</>
                 ) : (
                   <>
                     <AlertTriangle className="h-4 w-4" />
-                    <span>Excluir</span>
+                    <span>Delete</span>
                   </>
                 )}
               </div>

@@ -201,15 +201,44 @@ export const themeVariations: ThemeVariation[] = [
 // Classe ThemeManager para gerenciar temas
 export class ThemeManager {
   /**
-   * Valida um ID de tema e retorna um ID válido
+   * Valida o ID do tema e retorna um ID válido
    * @param themeId ID do tema a ser validado
-   * @returns ID de tema válido (usa 'light' como fallback)
+   * @returns ID de tema válido
    */
   static validateThemeId(themeId?: string): ThemeId {
-    if (!themeId || !Object.keys(baseThemes).includes(themeId)) {
-      return "light";
+    // Limpar e normalizar o themeId caso seja uma string
+    const normalizedThemeId = themeId?.trim().toLowerCase();
+
+    // Verificar se o ID está entre os temas disponíveis
+    if (
+      normalizedThemeId &&
+      Object.keys(baseThemes).includes(normalizedThemeId as ThemeId)
+    ) {
+      return normalizedThemeId as ThemeId;
     }
-    return themeId as ThemeId;
+
+    // Verificar o tema do sistema se disponível
+    if (typeof window !== "undefined") {
+      // Verificar localStorage primeiro para persistência entre páginas
+      const storedTheme = localStorage.getItem("userTheme");
+      if (
+        storedTheme &&
+        Object.keys(baseThemes).includes(storedTheme as ThemeId)
+      ) {
+        return storedTheme as ThemeId;
+      }
+
+      // Se 'system' é o tema armazenado, verificar preferência do sistema
+      if (storedTheme === "system") {
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)"
+        ).matches;
+        return prefersDark ? "dark" : "light";
+      }
+    }
+
+    // Valor padrão - dark para manter consistência com o tema na página de perfil mostrada
+    return "dark";
   }
 
   /**

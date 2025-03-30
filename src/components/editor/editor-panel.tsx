@@ -123,6 +123,11 @@ export default function EditorPanel({
   // Handlers para cada tipo de atualização
   const handleProfileChange = (updatedFields: Partial<Profile>) => {
     debouncedProfileUpdate(updatedFields);
+
+    // Se o tema for alterado, atualizar também o onThemeChange para sincronizar com o preview
+    if (updatedFields.theme) {
+      onThemeChange(updatedFields.theme as ThemeId);
+    }
   };
 
   // Adicionar atalho de teclado para salvar (Ctrl+S ou Cmd+S)

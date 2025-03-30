@@ -74,7 +74,34 @@ export default function ThemePreview({
       return;
     }
 
+    // Chamar a função para mudar o tema
     onThemeChange(preset.themeId);
+
+    // Aplicar as mudanças de tema imediatamente para visualização
+    document.documentElement.classList.forEach((className) => {
+      if (className.startsWith("theme-")) {
+        document.documentElement.classList.remove(className);
+      }
+    });
+
+    document.documentElement.classList.add(`theme-${preset.themeId}`);
+
+    // Verificar se é tema escuro e ajustar o esquema de cores
+    const isDarkTheme = [
+      "dark",
+      "midnight",
+      "nord",
+      "neon",
+      "sunset",
+      "glass",
+    ].includes(preset.themeId);
+    if (isDarkTheme) {
+      document.documentElement.classList.add("dark-theme");
+      document.documentElement.classList.remove("light-theme");
+    } else {
+      document.documentElement.classList.add("light-theme");
+      document.documentElement.classList.remove("dark-theme");
+    }
   };
 
   return (

@@ -168,3 +168,312 @@
 .button-theme:hover {
   background-color: var(--color-buttonBackgroundHover);
 }
+
+/* Melhoria na aplicação de temas para o perfil do usuário */
+@layer components {
+  /* Classe de tema para página de perfil */
+  .profile-page {
+    @apply grid place-items-center;
+    min-height: 100vh;
+    background-color: var(--color-background) !important;
+    padding: 2rem 1rem;
+  }
+
+  /* Botões na página de perfil */
+  .profile-link-button {
+    @apply flex flex-col w-full transition-all duration-300 shadow-sm overflow-hidden;
+    background-color: var(--color-cardBackground) !important;
+    border: 1px solid var(--color-border) !important;
+    margin-bottom: 0.75rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  /* Aplicar estilo específico somente quando a classe de botão é explicitamente aplicada */
+  .profile-link-button.rounded-md {
+    border-radius: 0.375rem !important;
+  }
+
+  .profile-link-button.rounded-full {
+    border-radius: 0.75rem !important;
+  }
+
+  .profile-link-button.rounded-none {
+    border-radius: 0 !important;
+  }
+
+  .profile-link-button:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Estilos para os containers de conteúdo dentro dos botões */
+  .link-content {
+    padding: 0.75rem 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+  }
+
+  .link-title {
+    font-weight: 500 !important;
+    color: var(--color-text) !important;
+    max-width: 80% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  /* Corrigir o comportamento de vídeos em todos os temas */
+  .video-embed-container {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    border-bottom: 1px solid var(--color-border) !important;
+    display: block !important;
+  }
+
+  .video-embed {
+    width: 100% !important;
+    display: block !important;
+  }
+
+  .video-embed iframe {
+    width: 100% !important;
+    border-radius: 0 !important;
+    display: block !important;
+  }
+
+  /* Ícone de link externo */
+  .link-icon {
+    color: var(--color-textMuted) !important;
+    transition: all 0.2s ease;
+  }
+
+  .profile-link-button:hover .link-icon {
+    color: var(--color-primary) !important;
+  }
+
+  /* Avatar do perfil */
+  .profile-avatar {
+    @apply ring-2 ring-offset-2;
+    ring-color: var(--color-primary);
+    ring-offset-color: var(--color-background);
+  }
+
+  /* Badge do username */
+  .profile-badge {
+    @apply rounded-full px-3 py-1 text-xs sm:text-sm;
+    background-color: var(--color-primary) !important;
+    color: var(--color-buttonText) !important;
+  }
+
+  /* Classes utilitárias adicionais para o perfil */
+  .profile-title {
+    @apply text-xl sm:text-2xl font-bold mb-2;
+    color: var(--color-text) !important;
+  }
+
+  .profile-bio {
+    @apply text-sm sm:text-base mb-3 sm:mb-4 max-w-xs mx-auto;
+    color: var(--color-textMuted) !important;
+  }
+
+  /* Classes para cada tema - garantindo que cada tema seja aplicado */
+  .theme-light {
+    --color-primary: #4f46e5;
+    --color-primaryLight: #6366f1;
+    --color-primaryDark: #4338ca;
+    --color-secondary: #ec4899;
+    --color-background: #ffffff;
+    --color-backgroundAccent: #f9fafb;
+    --color-backgroundMuted: #f3f4f6;
+    --color-cardBackground: #ffffff;
+    --color-cardBackgroundHover: #f9fafb;
+    --color-text: #111827;
+    --color-textMuted: #6b7280;
+    --color-textInverted: #ffffff;
+    --color-buttonBackground: #4f46e5;
+    --color-buttonBackgroundHover: #4338ca;
+    --color-buttonText: #ffffff;
+    --color-border: #e5e7eb;
+    --color-borderHover: #d1d5db;
+    --color-borderActive: #4f46e5;
+  }
+
+  .theme-dark {
+    --color-primary: #6366f1;
+    --color-primaryLight: #818cf8;
+    --color-primaryDark: #4f46e5;
+    --color-secondary: #f472b6;
+    --color-background: #111827;
+    --color-backgroundAccent: #1f2937;
+    --color-backgroundMuted: #374151;
+    --color-cardBackground: #1f2937;
+    --color-cardBackgroundHover: #374151;
+    --color-text: #f9fafb;
+    --color-textMuted: #d1d5db;
+    --color-textInverted: #111827;
+    --color-buttonBackground: #6366f1;
+    --color-buttonBackgroundHover: #4f46e5;
+    --color-buttonText: #ffffff;
+    --color-border: #374151;
+    --color-borderHover: #4b5563;
+    --color-borderActive: #6366f1;
+  }
+
+  .theme-nord {
+    --color-primary: #88c0d0;
+    --color-primaryLight: #8fbcbb;
+    --color-primaryDark: #81a1c1;
+    --color-secondary: #b48ead;
+    --color-background: #2e3440;
+    --color-backgroundAccent: #3b4252;
+    --color-backgroundMuted: #434c5e;
+    --color-cardBackground: #3b4252;
+    --color-cardBackgroundHover: #434c5e;
+    --color-text: #eceff4;
+    --color-textMuted: #e5e9f0;
+    --color-textInverted: #2e3440;
+    --color-buttonBackground: #88c0d0;
+    --color-buttonBackgroundHover: #81a1c1;
+    --color-buttonText: #2e3440;
+    --color-border: #434c5e;
+    --color-borderHover: #4c566a;
+    --color-borderActive: #88c0d0;
+  }
+
+  .theme-midnight {
+    --color-primary: #38bdf8;
+    --color-primaryLight: #7dd3fc;
+    --color-primaryDark: #0284c7;
+    --color-secondary: #c084fc;
+    --color-background: #0f172a;
+    --color-backgroundAccent: #1e293b;
+    --color-backgroundMuted: #334155;
+    --color-cardBackground: #1e293b;
+    --color-cardBackgroundHover: #334155;
+    --color-text: #f8fafc;
+    --color-textMuted: #cbd5e1;
+    --color-textInverted: #0f172a;
+    --color-buttonBackground: #38bdf8;
+    --color-buttonBackgroundHover: #0284c7;
+    --color-buttonText: #0f172a;
+    --color-border: #334155;
+    --color-borderHover: #475569;
+    --color-borderActive: #38bdf8;
+  }
+
+  .theme-neon {
+    --color-primary: #00f5d4;
+    --color-primaryLight: #99f6e4;
+    --color-primaryDark: #2dd4bf;
+    --color-secondary: #f471b5;
+    --color-background: #050505;
+    --color-backgroundAccent: #0a0a0a;
+    --color-backgroundMuted: #171717;
+    --color-cardBackground: #171717;
+    --color-cardBackgroundHover: #262626;
+    --color-text: #ffffff;
+    --color-textMuted: #d4d4d4;
+    --color-textInverted: #050505;
+    --color-buttonBackground: #00f5d4;
+    --color-buttonBackgroundHover: #2dd4bf;
+    --color-buttonText: #050505;
+    --color-border: #262626;
+    --color-borderHover: #404040;
+    --color-borderActive: #00f5d4;
+  }
+
+  .theme-sunset {
+    --color-primary: #f97316;
+    --color-primaryLight: #fb923c;
+    --color-primaryDark: #ea580c;
+    --color-secondary: #db2777;
+    --color-background: #1e1b4b;
+    --color-backgroundAccent: #312e81;
+    --color-backgroundMuted: #4338ca;
+    --color-cardBackground: #312e81;
+    --color-cardBackgroundHover: #4338ca;
+    --color-text: #ffffff;
+    --color-textMuted: #e0e7ff;
+    --color-textInverted: #1e1b4b;
+    --color-buttonBackground: #f97316;
+    --color-buttonBackgroundHover: #ea580c;
+    --color-buttonText: #ffffff;
+    --color-border: #4338ca;
+    --color-borderHover: #4f46e5;
+    --color-borderActive: #f97316;
+  }
+
+  .theme-glass {
+    --color-primary: rgba(99, 102, 241, 0.8);
+    --color-primaryLight: rgba(129, 140, 248, 0.8);
+    --color-primaryDark: rgba(79, 70, 229, 0.8);
+    --color-secondary: rgba(244, 114, 182, 0.8);
+    --color-background: rgba(255, 255, 255, 0.1);
+    --color-backgroundAccent: rgba(255, 255, 255, 0.15);
+    --color-backgroundMuted: rgba(255, 255, 255, 0.05);
+    --color-cardBackground: rgba(255, 255, 255, 0.15);
+    --color-cardBackgroundHover: rgba(255, 255, 255, 0.25);
+    --color-text: #ffffff;
+    --color-textMuted: rgba(255, 255, 255, 0.7);
+    --color-textInverted: rgba(17, 24, 39, 0.8);
+    --color-buttonBackground: rgba(99, 102, 241, 0.6);
+    --color-buttonBackgroundHover: rgba(99, 102, 241, 0.8);
+    --color-buttonText: #ffffff;
+    --color-border: rgba(255, 255, 255, 0.2);
+    --color-borderHover: rgba(255, 255, 255, 0.3);
+    --color-borderActive: rgba(99, 102, 241, 0.6);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Adicionar regras para o tema do sistema */
+  .theme-system {
+    /* O tema do sistema usa preferência de cores do usuário */
+    @media (prefers-color-scheme: dark) {
+      --color-primary: #6366f1;
+      --color-primaryLight: #818cf8;
+      --color-primaryDark: #4f46e5;
+      --color-secondary: #f472b6;
+      --color-background: #111827;
+      --color-backgroundAccent: #1f2937;
+      --color-backgroundMuted: #374151;
+      --color-cardBackground: #1f2937;
+      --color-cardBackgroundHover: #374151;
+      --color-text: #f9fafb;
+      --color-textMuted: #d1d5db;
+      --color-textInverted: #111827;
+      --color-buttonBackground: #6366f1;
+      --color-buttonBackgroundHover: #4f46e5;
+      --color-buttonText: #ffffff;
+      --color-border: #374151;
+      --color-borderHover: #4b5563;
+      --color-borderActive: #6366f1;
+    }
+
+    @media (prefers-color-scheme: light) {
+      --color-primary: #4f46e5;
+      --color-primaryLight: #6366f1;
+      --color-primaryDark: #4338ca;
+      --color-secondary: #ec4899;
+      --color-background: #ffffff;
+      --color-backgroundAccent: #f9fafb;
+      --color-backgroundMuted: #f3f4f6;
+      --color-cardBackground: #ffffff;
+      --color-cardBackgroundHover: #f9fafb;
+      --color-text: #111827;
+      --color-textMuted: #6b7280;
+      --color-textInverted: #ffffff;
+      --color-buttonBackground: #4f46e5;
+      --color-buttonBackgroundHover: #4338ca;
+      --color-buttonText: #ffffff;
+      --color-border: #e5e7eb;
+      --color-borderHover: #d1d5db;
+      --color-borderActive: #4f46e5;
+    }
+  }
+}

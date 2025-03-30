@@ -3,11 +3,13 @@
 import { useMemo } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { User, ExternalLink } from "lucide-react";
+import { User, ExternalLink, ShieldAlert, QrCode } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeId } from "@/lib/themes/base-themes";
 import { ThemeManager } from "@/lib/themes/theme-manager";
 import { DesignTokens } from "@/lib/themes/tokens";
+import EmbedContent from "@/components/embeds/embed-content";
+import { EmbedContentType, EmbedData } from "@/types/embed.types";
 
 // Types
 type Profile = {
@@ -52,6 +54,33 @@ type InteractiveGroup = {
   active: boolean;
 };
 
+// Button styles definitions - mesmos do UserProfilePage
+const buttonStyles = {
+  rounded: "rounded-md",
+  pill: "rounded-full",
+  square: "rounded-none",
+  "3d": "rounded-md shadow-lg transform hover:-translate-y-1",
+  neon: "rounded-md shadow-lg shadow-primary/50",
+  glass: "rounded-md bg-white/10 backdrop-blur-lg border border-white/20",
+};
+
+// Font families - mesmos do UserProfilePage
+const fontFamilies = {
+  inter: "font-sans",
+  serif: "font-serif",
+  mono: "font-mono",
+  poppins: "font-poppins",
+  roboto: "font-roboto",
+  playfair: "font-playfair",
+};
+
+// Layout options - mesmos do UserProfilePage
+const layoutOptions = {
+  list: "space-y-4",
+  grid: "grid grid-cols-2 gap-4",
+  cards: "grid grid-cols-1 sm:grid-cols-2 gap-4",
+};
+
 interface InMemoryPreviewProps {
   profile: Profile | null;
   links: Link[];
@@ -67,48 +96,63 @@ export default function InMemoryPreview({
   themeId,
   deviceType = "desktop",
 }: InMemoryPreviewProps) {
-  // Get theme configuration using ThemeManager
+  // Usar os tokens do tema diretamente do ThemeManager
   const themeTokens = useMemo(() => {
     return ThemeManager.getThemeTokens(themeId);
   }, [themeId]);
 
-  // Get layout style based on profile settings and device type
-  const layoutStyle = useMemo(() => {
-    const layout = profile?.layout || "list";
-
-    // For mobile, always use list layout regardless of setting
-    if (deviceType === "mobile") {
-      return "flex flex-col gap-2";
-    }
-
-    switch (layout) {
-      case "grid":
-        return deviceType === "tablet"
-          ? "grid grid-cols-2 gap-2"
-          : "grid grid-cols-2 gap-3";
-      case "compact":
-        return "flex flex-col gap-2";
-      default: // "list"
-        return "flex flex-col gap-3";
-    }
-  }, [profile?.layout, deviceType]);
-
-  // Get button style based on profile settings
+  // Get button style - exatamente como em UserProfilePage
   const buttonStyle = useMemo(() => {
-    const style = profile?.button_style || "rounded";
-    switch (style) {
-      case "pill":
-        return "rounded-full";
-      case "square":
-        return "rounded-none";
-      default: // "rounded"
-        return "rounded-lg";
-    }
+    const styleId = profile?.button_style || "rounded";
+    return (
+      buttonStyles[styleId as keyof typeof buttonStyles] || buttonStyles.rounded
+    );
   }, [profile?.button_style]);
 
-  // Get text colors from theme tokens
-  const textColor = `text-theme-text`;
-  const textMutedColor = `text-theme-muted`;
+  // Get font family - exatamente como em UserProfilePage
+  const fontFamily = useMemo(() => {
+    const fontId = profile?.font_family || "inter";
+    return (
+      fontFamilies[fontId as keyof typeof fontFamilies] || fontFamilies.inter
+    );
+  }, [profile?.font_family]);
+
+  // Get layout style - exatamente como em UserProfilePage
+  const layoutStyle = useMemo(() => {
+    const layoutId = profile?.layout || "list";
+    return (
+      layoutOptions[layoutId as keyof typeof layoutOptions] ||
+      layoutOptions.list
+    );
+  }, [profile?.layout]);
+
+  // Determine background style - exatamente como em UserProfilePage
+  const backgroundStyle = useMemo(() => {
+    if (!profile) return {};
+
+    const backgroundType = profile.background_type || "gradient";
+
+    switch (backgroundType) {
+      case "image":
+        return profile.background_url
+          ? {
+              backgroundImage: `url(${profile.background_url})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }
+          : {};
+      case "solid":
+        return {
+          backgroundColor: themeTokens.colors.background,
+        };
+      case "gradient":
+      default:
+        return {
+          background: themeTokens.effects.gradient.background,
+        };
+    }
+  }, [profile, themeTokens]);
 
   if (!profile) {
     return (
@@ -118,121 +162,143 @@ export default function InMemoryPreview({
     );
   }
 
-  // Filter active links
-  const activeLinks = links.filter((link) => link.active);
-
-  // Adjust padding and spacing based on device type
-  const containerPadding = useMemo(() => {
-    switch (deviceType) {
-      case "mobile":
-        return "py-6 px-3";
-      case "tablet":
-        return "py-7 px-4";
-      default: // desktop
-        return "py-8 px-4";
-    }
-  }, [deviceType]);
-
-  // Usar os tokens para definir gradientes e cores
-  const gradientStyle = {
-    background: themeTokens.effects.gradient.background,
-  };
-
-  const buttonStyles = {
-    background: themeTokens.colors.buttonBackground,
-    color: themeTokens.colors.buttonText,
-  };
+  // Generate text color class - como em UserProfilePage
+  const textColor = "text-theme-text";
+  const textMutedColor = "text-theme-muted";
 
   return (
     <div
-      className={`theme-transition ${containerPadding} overflow-y-auto h-full bg-theme-background`}
-      style={gradientStyle}
+      className={cn(
+        `profile-page theme-${ThemeManager.validateThemeId(themeId)}`,
+        fontFamily
+      )}
+      style={backgroundStyle}
+      data-theme-id={themeId}
     >
-      <div className="max-w-md mx-auto min-h-[150%]">
+      {/* Conteúdo do perfil aqui usando as classes temáticas - EXATAMENTE como no UserProfilePage */}
+      <div className="max-w-md mx-auto">
         {/* Profile Header */}
-        <header
-          className={`text-center ${deviceType === "mobile" ? "mb-6" : deviceType === "tablet" ? "mb-7" : "mb-8"}`}
-        >
-          <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4 ring-2 ring-primary/50 ring-offset-2 ring-offset-background">
+        <header className="text-center mb-8 sm:mb-10">
+          <Avatar className="profile-avatar h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4">
             {profile.avatar_url ? (
               <AvatarImage
                 src={profile.avatar_url}
                 alt={`${profile.full_name || profile.username || "User"}'s profile picture`}
               />
             ) : (
-              <AvatarFallback className="bg-primary">
-                <User className="h-10 w-10 sm:h-12 sm:w-12 text-primary-foreground" />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                <User className="h-10 w-10 sm:h-12 sm:w-12" />
               </AvatarFallback>
             )}
           </Avatar>
 
-          <h1 className={`text-xl sm:text-2xl font-bold ${textColor} mb-2`}>
-            {profile.full_name || profile.username || "Your Name"}
+          <h1 className="profile-title">
+            {profile.full_name || profile.username || "User"}
           </h1>
 
-          {profile.bio && (
-            <p
-              className={`${textMutedColor} text-sm sm:text-base mb-3 sm:mb-4 max-w-xs mx-auto`}
-            >
-              {profile.bio}
-            </p>
-          )}
+          {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 
           <div className="flex flex-wrap items-center gap-2 justify-center">
-            <div className="inline-block px-3 py-1 text-xs sm:text-sm text-primary-foreground bg-primary rounded-full">
-              @{profile.username || "user"}
+            <div className="profile-badge">@{profile.username || "user"}</div>
+            <div className="profile-badge bg-background/20 text-white p-2 rounded-full cursor-pointer">
+              <QrCode className="h-4 w-4" />
             </div>
           </div>
         </header>
 
-        {/* Links */}
-        <main className={cn(layoutStyle, "px-0 sm:px-2")}>
-          {activeLinks.length > 0 ? (
-            activeLinks.map((link) => (
-              <div
-                key={link.id}
-                className={`w-full overflow-hidden ${buttonStyle} transition-all duration-300 transform hover:scale-[1.01] hover:shadow-md`}
-              >
-                <button
-                  className="w-full p-3 sm:p-4 flex items-center justify-between button-theme transition-colors duration-200"
-                  style={buttonStyles}
-                >
-                  <span className="font-medium truncate">{link.title}</span>
-                  <ExternalLink className="h-4 w-4 flex-shrink-0 ml-2" />
-                </button>
-              </div>
-            ))
-          ) : (
-            <div className={`text-center ${textMutedColor} py-8`}>
+        {/* Links - usando EXATAMENTE as mesmas classes que o UserProfilePage */}
+        <main
+          className={cn(
+            layoutStyle,
+            "px-0 sm:px-2" // Adiciona padding apenas em telas maiores
+          )}
+        >
+          {links.length === 0 ? (
+            <div className={`text-center ${textMutedColor}`}>
               No links added yet
             </div>
+          ) : (
+            links
+              .filter((link) => link.active)
+              .map((link) => (
+                <a
+                  key={link.id}
+                  href="javascript:void(0)"
+                  className="block w-full"
+                  aria-label={`Open ${link.title} link`}
+                >
+                  <div
+                    className={cn(
+                      "profile-link-button",
+                      buttonStyle, // Aplica o estilo de botão escolhido
+                      // Condicional para evitar que o estilo "pill" afete os vídeos
+                      link.content_type &&
+                        ["youtube", "vimeo", "tiktok"].includes(
+                          link.content_type
+                        )
+                        ? "video-card" // Classe personalizada para vídeos
+                        : "" // Sem classe extra para outros tipos
+                    )}
+                  >
+                    {/* Renderiza conteúdo incorporado se disponível */}
+                    {link.content_type &&
+                      link.content_type !== "link" &&
+                      link.embed_data && (
+                        <div className="video-embed-container w-full">
+                          <EmbedContent
+                            contentType={link.content_type as EmbedContentType}
+                            embedData={link.embed_data as EmbedData}
+                            className="video-embed"
+                          />
+                        </div>
+                      )}
+
+                    {/* Exibe thumbnail se não houver conteúdo incorporado */}
+                    {(!link.content_type || link.content_type === "link") &&
+                      link.thumbnail_url && (
+                        <div className="w-full h-24 sm:h-32 overflow-hidden">
+                          <img
+                            src={link.thumbnail_url}
+                            alt={`Thumbnail for ${link.title}`}
+                            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                            loading="lazy"
+                            width="400"
+                            height="225"
+                          />
+                        </div>
+                      )}
+
+                    {/* Informações do link (título, ícone, etc.) */}
+                    <div className="link-content">
+                      <div className="flex items-center">
+                        {link.icon && !link.thumbnail_url ? (
+                          <div className="mr-2 sm:mr-3 text-primary/70">
+                            <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-primary/20 rounded-full">
+                              {link.icon}
+                            </div>
+                          </div>
+                        ) : null}
+                        <div className="link-title">
+                          {link.title}
+                          {link.is_adult_content && (
+                            <div className="inline-flex items-center ml-2 bg-warning/20 text-warning text-xs px-1.5 py-0.5 rounded-full gap-0.5 font-medium">
+                              <ShieldAlert className="h-3 w-3" />
+                              <span>18+</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <ExternalLink className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 ml-2 link-icon" />
+                    </div>
+                  </div>
+                </a>
+              ))
           )}
         </main>
 
-        {/* Interactive Groups (simplified) */}
-        {interactiveGroups.filter((group) => group.active).length > 0 && (
-          <div className="mt-8">
-            {interactiveGroups
-              .filter((group) => group.active)
-              .map((group) => (
-                <div
-                  key={group.id}
-                  className={`mb-4 p-4 ${buttonStyle} card-theme`}
-                >
-                  <h3 className={`font-medium ${textColor}`}>{group.title}</h3>
-                  <p className={`text-sm ${textMutedColor}`}>
-                    {group.type === "accordion"
-                      ? "Accordion content"
-                      : "Tab content"}
-                  </p>
-                </div>
-              ))}
-          </div>
-        )}
-
         {/* Footer */}
-        <footer className="mt-10 text-center pb-20">
-          <p className={`text-xs ${textMutedColor}`}>Made with Lynkr</p>
+        <footer className="mt-8 sm:mt-12 text-center text-xs text-muted-foreground">
+          <p>Powered by Lynkr</p>
         </footer>
       </div>
     </div>

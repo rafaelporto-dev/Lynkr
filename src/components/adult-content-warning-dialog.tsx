@@ -13,20 +13,20 @@ import { Button } from "./ui/button";
 import { ShieldAlert } from "lucide-react";
 
 interface AdultContentWarningDialogProps {
-  isOpen: boolean;
+  open: boolean;
   onConfirm: () => void;
   onCancel: () => void;
   linkTitle: string;
 }
 
 export function AdultContentWarningDialog({
-  isOpen,
+  open,
   onConfirm,
   onCancel,
   linkTitle,
 }: AdultContentWarningDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+    <Dialog open={open} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-yellow-100 mb-4">
@@ -37,16 +37,16 @@ export function AdultContentWarningDialog({
           </DialogTitle>
           <DialogDescription className="text-center pt-2">
             The link{" "}
-            <span className="font-medium text-yellow-600">{linkTitle}</span>{" "}
-            may contain adult content.
+            <span className="font-medium text-yellow-600">{linkTitle}</span> may
+            contain adult content.
           </DialogDescription>
         </DialogHeader>
 
         <div className="p-1 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            This content may include sensitive material, such as nudity, violence,
-            or explicit language. You confirm that you are at least 18 years old
-            and wish to continue?
+            This content may include sensitive material, such as nudity,
+            violence, or explicit language. You confirm that you are at least 18
+            years old and wish to continue?
           </p>
         </div>
 

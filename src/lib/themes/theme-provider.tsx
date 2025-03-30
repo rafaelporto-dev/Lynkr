@@ -65,7 +65,19 @@ export default function ThemeProvider({
   useEffect(() => {
     const loadUserTheme = async () => {
       try {
-        // Verificar tema no localStorage primeiro para evitar flash
+        // Primeiro verificar se há parâmetro de tema na URL (para preview)
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          const themeParam = params.get("theme") as ThemeId | null;
+
+          if (themeParam && Object.keys(baseThemes).includes(themeParam)) {
+            setThemeId(themeParam);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        // Verificar tema no localStorage para evitar flash
         const storedTheme = localStorage.getItem("userTheme") as ThemeId | null;
 
         if (storedTheme && Object.keys(baseThemes).includes(storedTheme)) {
