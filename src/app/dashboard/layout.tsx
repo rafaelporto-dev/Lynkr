@@ -8,9 +8,9 @@ export default function DashboardLayout({
 }) {
   return (
     <SubscriptionCheckClient>
-      <div className="min-h-screen bg-background flex flex-col">
+      <div className="h-screen bg-background flex flex-col overflow-hidden">
         <DashboardNavbar />
-        <div className="flex-1">{children}</div>
+        <div className="flex-1 overflow-hidden">{children}</div>
       </div>
     </SubscriptionCheckClient>
   );

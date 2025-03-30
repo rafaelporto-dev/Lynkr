@@ -176,11 +176,42 @@ export default function UserProfilePage({ username }: { username: string }) {
     url: string;
     title: string;
   } | null>(null);
+  const [isPreview, setIsPreview] = useState(false);
+  const [overrideTheme, setOverrideTheme] = useState<string | null>(null);
+
+  // Verificar se estamos em modo de preview (para o editor)
+  useEffect(() => {
+    // Verificar parâmetros de URL para preview e tema
+    const params = new URLSearchParams(window.location.search);
+    const preview = params.get("preview") === "true";
+    const themeParam = params.get("theme");
+
+    setIsPreview(preview);
+    if (themeParam) {
+      setOverrideTheme(themeParam);
+    }
+  }, []);
+
+  // Escutar por mudanças na URL (para atualizar tema em tempo real)
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const params = new URLSearchParams(window.location.search);
+      const themeParam = params.get("theme");
+      if (themeParam) {
+        setOverrideTheme(themeParam);
+      }
+    };
+
+    window.addEventListener("popstate", handleUrlChange);
+    return () => window.removeEventListener("popstate", handleUrlChange);
+  }, []);
 
   const themeConfig = useMemo(() => {
-    const themeId = profile?.theme || "default";
+    // Usar tema sobrescrito pela URL se estiver em modo preview
+    const themeId =
+      isPreview && overrideTheme ? overrideTheme : profile?.theme || "default";
     return themes.find((theme) => theme.id === themeId) || themes[0];
-  }, [profile?.theme]);
+  }, [profile?.theme, isPreview, overrideTheme]);
 
   // Get button style
   const buttonStyle = useMemo(() => {
@@ -295,15 +326,18 @@ export default function UserProfilePage({ username }: { username: string }) {
     url: string,
     title: string
   ) {
-    // Check if adult content warning should be shown
-    if (isAdultContent) {
-      setPendingLink({ id: linkId, url, title });
-      setShowAdultContentWarning(true);
-      return; // Não continue até que o usuário confirme
+    // Em modo preview, não mostrar avisos de conteúdo adulto
+    if (isPreview) {
+      trackLinkClick(linkId, url);
+      return;
     }
 
-    // Para conteúdo não adulto, continuar normalmente
-    trackLinkClick(linkId, url);
+    if (isAdultContent) {
+      setShowAdultContentWarning(true);
+      setPendingLink({ id: linkId, url, title });
+    } else {
+      trackLinkClick(linkId, url);
+    }
   }
 
   // Função para processar a confirmação
@@ -323,68 +357,40 @@ export default function UserProfilePage({ username }: { username: string }) {
 
   // Função para registrar o clique do link e abrir o URL
   const trackLinkClick = async (linkId: string, url: string) => {
+    // Não rastrear cliques em modo de preview
+    if (isPreview) {
+      window.open(url, "_blank");
+      return;
+    }
+
     try {
-      // Capturar informações de origem
-      const referrer = document.referrer || "direct";
-      const utmSource = new URLSearchParams(window.location.search).get(
-        "utm_source"
-      );
-      const utmMedium = new URLSearchParams(window.location.search).get(
-        "utm_medium"
-      );
-      const utmCampaign = new URLSearchParams(window.location.search).get(
-        "utm_campaign"
-      );
+      const { error } = await supabase
+        .from("link_clicks")
+        .insert([{ link_id: linkId }]);
 
-      // Determinar a origem com base nos parâmetros UTM ou referenciador
-      let source = "direct";
-      if (utmSource) {
-        source = utmSource;
-      } else if (referrer) {
-        try {
-          // Extrair o domínio do referenciador
-          const referrerUrl = new URL(referrer);
-          source = referrerUrl.hostname;
+      if (error) throw error;
 
-          // Identificar origens comuns de redes sociais
-          if (source.includes("facebook.com")) source = "facebook";
-          if (source.includes("instagram.com")) source = "instagram";
-          if (source.includes("twitter.com") || source.includes("x.com"))
-            source = "twitter";
-          if (source.includes("linkedin.com")) source = "linkedin";
-          if (source.includes("youtube.com")) source = "youtube";
-          if (source.includes("google.com")) source = "google";
-          if (source.includes("bing.com")) source = "bing";
-        } catch (e) {
-          // URL inválido, manter como referrer bruto
-          source = referrer;
-        }
-      }
-
-      // Enviar dados para o banco usando a tabela clicks existente
-      const { error } = await supabase.from("clicks").insert([
-        {
-          link_id: linkId,
-          referrer,
-          source,
-          utm_source: utmSource || null,
-          utm_medium: utmMedium || null,
-          utm_campaign: utmCampaign || null,
-        },
-      ]);
-
-      if (error) {
-        console.error("Error recording click", error);
-      }
-
-      // Abrir o link em uma nova janela
-      window.open(url, "_blank", "noopener,noreferrer");
-    } catch (err) {
-      console.error("Failed to record click", err);
+      // Abrir o link em uma nova aba
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error tracking link click:", error);
+      // Ainda abrir o link mesmo se o rastreamento falhar
+      window.open(url, "_blank");
     }
   };
 
   if (loading) {
+    // If in preview mode, don't show loading screen
+    if (isPreview) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
+          <div className={`${themeConfig.textColor || "text-white"} text-lg`}>
+            Waiting for profile data...
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
         <div className="animate-pulse text-purple-500">Loading...</div>
