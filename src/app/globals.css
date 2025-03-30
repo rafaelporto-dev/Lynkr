@@ -67,3 +67,104 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Variáveis CSS para o sistema de temas */
+:root {
+  /* Brand colors */
+  --color-primary: #4f46e5;
+  --color-primaryLight: #6366f1;
+  --color-primaryDark: #4338ca;
+  --color-secondary: #ec4899;
+  --color-secondaryLight: #f472b6;
+  --color-secondaryDark: #db2777;
+
+  /* Background colors */
+  --color-background: #ffffff;
+  --color-backgroundAccent: #f9fafb;
+  --color-backgroundMuted: #f3f4f6;
+  --color-cardBackground: #ffffff;
+  --color-cardBackgroundHover: #f9fafb;
+
+  /* Text colors */
+  --color-text: #111827;
+  --color-textMuted: #6b7280;
+  --color-textInverted: #ffffff;
+
+  /* Button colors */
+  --color-buttonBackground: #4f46e5;
+  --color-buttonBackgroundHover: #4338ca;
+  --color-buttonText: #ffffff;
+
+  /* Border colors */
+  --color-border: #e5e7eb;
+  --color-borderHover: #d1d5db;
+  --color-borderActive: #4f46e5;
+
+  /* Accent colors */
+  --color-accent: #8b5cf6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Transições */
+  --theme-transition: 0.3s ease-in-out;
+}
+
+.dark-theme {
+  color-scheme: dark;
+}
+
+.light-theme {
+  color-scheme: light;
+}
+
+/* Utilitários de Tailwind baseados nas variáveis do tema */
+.bg-theme-primary {
+  background-color: var(--color-primary);
+}
+
+.text-theme-primary {
+  color: var(--color-primary);
+}
+
+.border-theme-primary {
+  border-color: var(--color-primary);
+}
+
+.bg-theme-background {
+  background-color: var(--color-background);
+}
+
+.text-theme-text {
+  color: var(--color-text);
+}
+
+.text-theme-muted {
+  color: var(--color-textMuted);
+}
+
+/* Transições para temas */
+.theme-transition {
+  transition:
+    background-color var(--theme-transition),
+    color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition);
+}
+
+/* Utilitários para componentes específicos */
+.card-theme {
+  background-color: var(--color-cardBackground);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.button-theme {
+  background-color: var(--color-buttonBackground);
+  color: var(--color-buttonText);
+}
+
+.button-theme:hover {
+  background-color: var(--color-buttonBackgroundHover);
+}

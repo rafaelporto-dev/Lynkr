@@ -15,6 +15,9 @@ import Head from "next/head";
 import EmbedContent from "./embeds/embed-content";
 import { EmbedContentType, EmbedData } from "@/types/embed.types";
 import { AdultContentWarningDialog } from "./adult-content-warning-dialog";
+import { ThemeId } from "@/lib/themes/base-themes";
+import { ThemeManager } from "@/lib/themes/theme-manager";
+import { DesignTokens } from "@/lib/themes/tokens";
 
 type Profile = Database["public"]["Tables"]["profiles"]["Row"] & {
   button_style?: string;
@@ -31,111 +34,6 @@ type Link = Database["public"]["Tables"]["links"]["Row"] & {
   embed_data?: EmbedData | null;
   is_adult_content?: boolean;
 };
-
-interface Theme {
-  id: string;
-  gradient: string;
-  cardBg: string;
-  borderColor: string;
-  buttonGradient: string;
-  buttonHoverGradient: string;
-  badgeGradient: string;
-  textColor?: string;
-}
-
-const themes: Theme[] = [
-  {
-    id: "default",
-    gradient: "from-gray-900 via-purple-950 to-black",
-    cardBg: "bg-gray-900/80",
-    borderColor: "border-purple-900/30",
-    buttonGradient: "from-purple-600 to-blue-600",
-    buttonHoverGradient: "from-purple-700 to-blue-700",
-    badgeGradient: "from-purple-500 to-blue-500",
-  },
-  {
-    id: "purple",
-    gradient: "from-purple-950 via-purple-900 to-black",
-    cardBg: "bg-purple-950/80",
-    borderColor: "border-purple-500/30",
-    buttonGradient: "from-purple-600 to-fuchsia-600",
-    buttonHoverGradient: "from-purple-700 to-fuchsia-700",
-    badgeGradient: "from-purple-500 to-fuchsia-500",
-  },
-  {
-    id: "blue",
-    gradient: "from-blue-950 via-blue-900 to-black",
-    cardBg: "bg-blue-950/80",
-    borderColor: "border-blue-500/30",
-    buttonGradient: "from-blue-600 to-cyan-600",
-    buttonHoverGradient: "from-blue-700 to-cyan-700",
-    badgeGradient: "from-blue-500 to-cyan-500",
-  },
-  {
-    id: "dark",
-    gradient: "from-gray-950 to-gray-900",
-    cardBg: "bg-gray-800/90",
-    borderColor: "border-gray-700/50",
-    buttonGradient: "from-gray-700 to-gray-800",
-    buttonHoverGradient: "from-gray-600 to-gray-700",
-    badgeGradient: "from-gray-600 to-gray-700",
-  },
-  {
-    id: "minimal",
-    gradient: "from-gray-50 to-gray-100",
-    cardBg: "bg-white",
-    borderColor: "border-gray-200",
-    buttonGradient: "from-gray-200 to-gray-300",
-    buttonHoverGradient: "from-gray-300 to-gray-400",
-    badgeGradient: "from-gray-400 to-gray-500",
-    textColor: "text-gray-900",
-  },
-  {
-    id: "cyberpunk",
-    gradient: "from-purple-900 via-pink-800 to-yellow-900",
-    cardBg: "bg-gray-900/90",
-    borderColor: "border-yellow-500/30",
-    buttonGradient: "from-yellow-500 to-pink-600",
-    buttonHoverGradient: "from-yellow-600 to-pink-700",
-    badgeGradient: "from-yellow-500 to-pink-500",
-  },
-  {
-    id: "synthwave",
-    gradient: "from-indigo-900 via-purple-800 to-pink-800",
-    cardBg: "bg-indigo-950/80",
-    borderColor: "border-pink-500/30",
-    buttonGradient: "from-indigo-600 to-pink-600",
-    buttonHoverGradient: "from-indigo-700 to-pink-700",
-    badgeGradient: "from-indigo-500 to-pink-500",
-  },
-  {
-    id: "matrix",
-    gradient: "from-green-950 via-green-900 to-black",
-    cardBg: "bg-black/90",
-    borderColor: "border-green-500/30",
-    buttonGradient: "from-green-600 to-emerald-600",
-    buttonHoverGradient: "from-green-700 to-emerald-700",
-    badgeGradient: "from-green-500 to-emerald-500",
-  },
-  {
-    id: "glassmorphism",
-    gradient: "from-blue-500/30 to-purple-500/30",
-    cardBg: "bg-white/10 backdrop-blur-lg",
-    borderColor: "border-white/20",
-    buttonGradient: "from-white/20 to-white/10",
-    buttonHoverGradient: "from-white/30 to-white/20",
-    badgeGradient: "from-white/20 to-white/10",
-  },
-  {
-    id: "neon",
-    gradient: "from-black to-gray-950",
-    cardBg: "bg-black/80",
-    borderColor: "border-purple-500/50",
-    buttonGradient: "from-purple-600 to-blue-600",
-    buttonHoverGradient: "from-purple-700 to-blue-700",
-    badgeGradient: "from-purple-600 to-blue-600",
-  },
-];
 
 // Button styles definitions
 const buttonStyles = {
@@ -177,7 +75,7 @@ export default function UserProfilePage({ username }: { username: string }) {
     title: string;
   } | null>(null);
   const [isPreview, setIsPreview] = useState(false);
-  const [overrideTheme, setOverrideTheme] = useState<string | null>(null);
+  const [overrideTheme, setOverrideTheme] = useState<ThemeId | null>(null);
 
   // Verificar se estamos em modo de preview (para o editor)
   useEffect(() => {
@@ -188,7 +86,7 @@ export default function UserProfilePage({ username }: { username: string }) {
 
     setIsPreview(preview);
     if (themeParam) {
-      setOverrideTheme(themeParam);
+      setOverrideTheme(ThemeManager.validateThemeId(themeParam));
     }
   }, []);
 
@@ -198,7 +96,7 @@ export default function UserProfilePage({ username }: { username: string }) {
       const params = new URLSearchParams(window.location.search);
       const themeParam = params.get("theme");
       if (themeParam) {
-        setOverrideTheme(themeParam);
+        setOverrideTheme(ThemeManager.validateThemeId(themeParam));
       }
     };
 
@@ -206,11 +104,14 @@ export default function UserProfilePage({ username }: { username: string }) {
     return () => window.removeEventListener("popstate", handleUrlChange);
   }, []);
 
-  const themeConfig = useMemo(() => {
+  const themeTokens = useMemo(() => {
     // Usar tema sobrescrito pela URL se estiver em modo preview
     const themeId =
-      isPreview && overrideTheme ? overrideTheme : profile?.theme || "default";
-    return themes.find((theme) => theme.id === themeId) || themes[0];
+      isPreview && overrideTheme
+        ? overrideTheme
+        : ThemeManager.validateThemeId(profile?.theme);
+
+    return ThemeManager.getThemeTokens(themeId);
   }, [profile?.theme, isPreview, overrideTheme]);
 
   // Get button style
@@ -255,14 +156,16 @@ export default function UserProfilePage({ username }: { username: string }) {
             }
           : {};
       case "solid":
-        // Use a solid color that matches the theme
-        return {};
+        return {
+          backgroundColor: themeTokens.colors.background,
+        };
       case "gradient":
       default:
-        // Use the gradient from the theme
-        return {};
+        return {
+          background: themeTokens.effects.gradient.background,
+        };
     }
-  }, [profile]);
+  }, [profile, themeTokens]);
 
   useEffect(() => {
     async function loadProfile() {
@@ -383,8 +286,8 @@ export default function UserProfilePage({ username }: { username: string }) {
     // If in preview mode, don't show loading screen
     if (isPreview) {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-          <div className={`${themeConfig.textColor || "text-white"} text-lg`}>
+        <div className="min-h-screen flex items-center justify-center bg-theme-background">
+          <div className="text-theme-text text-lg">
             Waiting for profile data...
           </div>
         </div>
@@ -392,24 +295,23 @@ export default function UserProfilePage({ username }: { username: string }) {
     }
 
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-        <div className="animate-pulse text-purple-500">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-theme-background">
+        <div className="animate-pulse text-primary">Loading...</div>
       </div>
     );
   }
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-black">
-        <div className="text-white">Profile not found</div>
+      <div className="min-h-screen flex items-center justify-center bg-theme-background">
+        <div className="text-theme-text">Profile not found</div>
       </div>
     );
   }
 
   // Generate text color class
-  const textColor = themeConfig.textColor || "text-white";
-  const textMutedColor =
-    themeConfig.id === "minimal" ? "text-gray-600" : "text-gray-300";
+  const textColor = "text-theme-text";
+  const textMutedColor = "text-theme-muted";
 
   return (
     <>
@@ -508,47 +410,19 @@ export default function UserProfilePage({ username }: { username: string }) {
         />
       </Head>
 
+      {/* Aplicar CSS personalizado se disponível */}
+      {profile.custom_css && !isPreview && (
+        <style jsx global>{`
+          ${profile.custom_css}
+        `}</style>
+      )}
+
       <div
-        className={cn(
-          `min-h-screen bg-gradient-to-br ${themeConfig.gradient} py-8 px-4 sm:py-12 sm:px-6 lg:px-8`,
-          fontFamily
-        )}
+        className={`min-h-screen bg-theme-background theme-transition ${fontFamily}`}
         style={backgroundStyle}
       >
-        {/* Custom CSS if available */}
-        {profile.custom_css && (
-          <style dangerouslySetInnerHTML={{ __html: profile.custom_css }} />
-        )}
-
-        {/* CSS para evitar que vídeos tenham cantos arredondados extremos */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-            .video-embed-container {
-              border-radius: 8px !important;
-              overflow: hidden;
-            }
-            .video-embed-container iframe,
-            .video-embed-container .video-embed,
-            .video-embed {
-              border-radius: 4px !important;
-            }
-            /* Quando o estilo dos botões for pill, forçar cantos retos para vídeos */
-            .rounded-full .video-embed-container {
-              border-radius: 8px !important;
-            }
-            /* Card personalizado para vídeos, evitando arredondamento extremo */
-            .video-card {
-              border-radius: 12px !important; /* Arredondamento moderado para cards de vídeo */
-            }
-            /* Fix para evitar que o estilo pill afete vídeos incorporados */
-            .rounded-full.video-card {
-              border-radius: 12px !important;
-            }
-          `,
-          }}
-        />
-
+        {/* Conteúdo do perfil aqui usando as classes temáticas */}
+        {/* Usar as classes CSS do novo sistema de temas */}
         <div className="max-w-md mx-auto">
           {/* Profile Header */}
           <header className="text-center mb-8 sm:mb-10">
@@ -579,7 +453,7 @@ export default function UserProfilePage({ username }: { username: string }) {
 
             <div className="flex flex-wrap items-center gap-2 justify-center">
               <div
-                className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-3 py-1 text-xs sm:text-sm text-white`}
+                className={`inline-block bg-gradient-to-r ${themeTokens.colors.badgeGradient} rounded-full px-3 py-1 text-xs sm:text-sm text-white`}
               >
                 @{profile.username || "user"}
               </div>
@@ -621,10 +495,10 @@ export default function UserProfilePage({ username }: { username: string }) {
                 >
                   <Card
                     className={cn(
-                      `w-full ${themeConfig.cardBg} ${themeConfig.borderColor} overflow-hidden`,
-                      `hover:bg-gradient-to-r hover:${themeConfig.buttonGradient}`,
-                      `shadow-lg shadow-${themeConfig.borderColor.replace("border-", "")}`,
-                      `hover:shadow-${themeConfig.borderColor.replace("border-", "")}`,
+                      `w-full ${themeTokens.colors.cardBg} ${themeTokens.colors.borderColor} overflow-hidden`,
+                      `hover:bg-gradient-to-r hover:${themeTokens.colors.buttonGradient}`,
+                      `shadow-lg shadow-${themeTokens.colors.borderColor.replace("border-", "")}`,
+                      `hover:shadow-${themeTokens.colors.borderColor.replace("border-", "")}`,
                       `transition-all duration-300`,
                       // Condicional para evitar que o estilo "pill" afete os vídeos
                       link.content_type &&
@@ -735,10 +609,10 @@ export default function UserProfilePage({ username }: { username: string }) {
 
       {/* Dialog for adult content warning */}
       <AdultContentWarningDialog
-        isOpen={showAdultContentWarning}
+        open={showAdultContentWarning}
+        linkTitle={pendingLink?.title || ""}
         onConfirm={handleConfirmAdultContent}
         onCancel={handleCancelAdultContent}
-        linkTitle={pendingLink?.title || ""}
       />
     </>
   );

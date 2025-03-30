@@ -5,7 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { previewThemes, ThemeType, getThemeConfig } from "@/lib/theme-config";
+import { ThemeId } from "@/lib/themes/base-themes";
+import { ThemeManager } from "@/lib/themes/theme-manager";
+import { DesignTokens } from "@/lib/themes/tokens";
 
 // Types
 type Profile = {
@@ -54,7 +56,7 @@ interface InMemoryPreviewProps {
   profile: Profile | null;
   links: Link[];
   interactiveGroups: InteractiveGroup[];
-  theme: ThemeType;
+  themeId: ThemeId;
   deviceType?: "mobile" | "tablet" | "desktop";
 }
 
@@ -62,13 +64,13 @@ export default function InMemoryPreview({
   profile,
   links,
   interactiveGroups,
-  theme,
+  themeId,
   deviceType = "desktop",
 }: InMemoryPreviewProps) {
-  // Get theme configuration
-  const themeConfig = useMemo(() => {
-    return getThemeConfig(theme);
-  }, [theme]);
+  // Get theme configuration using ThemeManager
+  const themeTokens = useMemo(() => {
+    return ThemeManager.getThemeTokens(themeId);
+  }, [themeId]);
 
   // Get layout style based on profile settings and device type
   const layoutStyle = useMemo(() => {
@@ -104,9 +106,9 @@ export default function InMemoryPreview({
     }
   }, [profile?.button_style]);
 
-  // Get text colors from theme
-  const textColor = themeConfig.textColor;
-  const textMutedColor = themeConfig.textMutedColor;
+  // Get text colors from theme tokens
+  const textColor = `text-theme-text`;
+  const textMutedColor = `text-theme-muted`;
 
   if (!profile) {
     return (
@@ -131,24 +133,35 @@ export default function InMemoryPreview({
     }
   }, [deviceType]);
 
+  // Usar os tokens para definir gradientes e cores
+  const gradientStyle = {
+    background: themeTokens.effects.gradient.background,
+  };
+
+  const buttonStyles = {
+    background: themeTokens.colors.buttonBackground,
+    color: themeTokens.colors.buttonText,
+  };
+
   return (
     <div
-      className={`bg-gradient-to-br ${themeConfig.gradient} ${containerPadding} overflow-y-auto h-full`}
+      className={`theme-transition ${containerPadding} overflow-y-auto h-full bg-theme-background`}
+      style={gradientStyle}
     >
       <div className="max-w-md mx-auto min-h-[150%]">
         {/* Profile Header */}
         <header
           className={`text-center ${deviceType === "mobile" ? "mb-6" : deviceType === "tablet" ? "mb-7" : "mb-8"}`}
         >
-          <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4 ring-2 ring-purple-500 ring-offset-2 ring-offset-black">
+          <Avatar className="h-20 w-20 sm:h-24 sm:w-24 mx-auto mb-3 sm:mb-4 ring-2 ring-primary/50 ring-offset-2 ring-offset-background">
             {profile.avatar_url ? (
               <AvatarImage
                 src={profile.avatar_url}
                 alt={`${profile.full_name || profile.username || "User"}'s profile picture`}
               />
             ) : (
-              <AvatarFallback className="bg-gradient-to-r from-purple-600 to-blue-500">
-                <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+              <AvatarFallback className="bg-primary">
+                <User className="h-10 w-10 sm:h-12 sm:w-12 text-primary-foreground" />
               </AvatarFallback>
             )}
           </Avatar>
@@ -166,9 +179,7 @@ export default function InMemoryPreview({
           )}
 
           <div className="flex flex-wrap items-center gap-2 justify-center">
-            <div
-              className={`inline-block bg-gradient-to-r ${themeConfig.badgeGradient} rounded-full px-3 py-1 text-xs sm:text-sm text-white`}
-            >
+            <div className="inline-block px-3 py-1 text-xs sm:text-sm text-primary-foreground bg-primary rounded-full">
               @{profile.username || "user"}
             </div>
           </div>
@@ -183,7 +194,8 @@ export default function InMemoryPreview({
                 className={`w-full overflow-hidden ${buttonStyle} transition-all duration-300 transform hover:scale-[1.01] hover:shadow-md`}
               >
                 <button
-                  className={`w-full p-3 sm:p-4 flex items-center justify-between ${themeConfig.buttonStyle} transition-colors duration-200`}
+                  className="w-full p-3 sm:p-4 flex items-center justify-between button-theme transition-colors duration-200"
+                  style={buttonStyles}
                 >
                   <span className="font-medium truncate">{link.title}</span>
                   <ExternalLink className="h-4 w-4 flex-shrink-0 ml-2" />
@@ -205,7 +217,7 @@ export default function InMemoryPreview({
               .map((group) => (
                 <div
                   key={group.id}
-                  className={`mb-4 p-4 ${buttonStyle} ${themeConfig.buttonStyle}`}
+                  className={`mb-4 p-4 ${buttonStyle} card-theme`}
                 >
                   <h3 className={`font-medium ${textColor}`}>{group.title}</h3>
                   <p className={`text-sm ${textMutedColor}`}>

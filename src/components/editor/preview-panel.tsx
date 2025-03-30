@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Monitor, Tablet, RefreshCw } from "lucide-react";
 import InMemoryPreview from "./in-memory-preview";
+import { ThemeId } from "@/lib/themes/base-themes";
 
 // Tipos compartilhados
 type Profile = {
@@ -56,7 +57,8 @@ type PreviewPanelProps = {
   interactiveGroups: InteractiveGroup[];
   deviceType: DeviceType;
   onDeviceTypeChange: (type: DeviceType) => void;
-  theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset";
+  themeId: ThemeId;
+  onThemeChange: (themeId: ThemeId) => void;
 };
 
 export default function PreviewPanel({
@@ -65,7 +67,8 @@ export default function PreviewPanel({
   interactiveGroups,
   deviceType,
   onDeviceTypeChange,
-  theme,
+  themeId,
+  onThemeChange,
 }: PreviewPanelProps) {
   // Estado para controlar o refresh manual (apenas visual)
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -182,7 +185,7 @@ export default function PreviewPanel({
                 profile={profile}
                 links={links}
                 interactiveGroups={interactiveGroups}
-                theme={theme}
+                themeId={themeId}
                 deviceType={deviceType}
               />
             </div>

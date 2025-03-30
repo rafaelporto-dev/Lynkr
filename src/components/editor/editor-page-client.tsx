@@ -9,7 +9,8 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import EditorPanel from "./editor-panel";
-import { ThemeType, validateTheme } from "@/lib/theme-config";
+import { ThemeId } from "@/lib/themes/base-themes";
+import { ThemeManager } from "@/lib/themes/theme-manager";
 import PreviewPanel from "./preview-panel";
 
 // Tipos para propriedades do perfil e links
@@ -79,9 +80,9 @@ export default function EditorPageClient({
   const [deviceType, setDeviceType] = useState<"desktop" | "tablet" | "mobile">(
     "desktop"
   );
-  // Initialize theme from profile data
-  const [theme, setTheme] = useState<ThemeType>(() => {
-    return validateTheme(profile?.theme);
+  // Initialize theme from profile data using the ThemeManager
+  const [themeId, setThemeId] = useState<ThemeId>(() => {
+    return ThemeManager.validateThemeId(profile?.theme);
   });
 
   const supabase = createClient();
@@ -107,7 +108,7 @@ export default function EditorPageClient({
 
           // Update theme if it changed
           if (updatedProfile.theme) {
-            setTheme(validateTheme(updatedProfile.theme));
+            setThemeId(ThemeManager.validateThemeId(updatedProfile.theme));
           }
         }
       )
@@ -199,7 +200,7 @@ export default function EditorPageClient({
 
     // If theme is being updated, also update the global theme state
     if (updatedProfile.theme) {
-      setTheme(validateTheme(updatedProfile.theme));
+      setThemeId(ThemeManager.validateThemeId(updatedProfile.theme));
     }
 
     // Atualizar o estado local imediatamente para refletir na visualização
@@ -249,8 +250,8 @@ export default function EditorPageClient({
             onLinksUpdate={fetchLinks}
             onInteractiveGroupsUpdate={fetchInteractiveGroups}
             saveStatus={saveStatus}
-            theme={theme}
-            onThemeChange={setTheme}
+            themeId={themeId}
+            onThemeChange={setThemeId}
           />
         </ResizablePanel>
 
@@ -263,8 +264,8 @@ export default function EditorPageClient({
             interactiveGroups={interactiveGroups}
             deviceType={deviceType}
             onDeviceTypeChange={setDeviceType}
-            theme={theme}
-            onThemeChange={setTheme}
+            themeId={themeId}
+            onThemeChange={setThemeId}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

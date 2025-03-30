@@ -2,7 +2,7 @@
 
 import { useRef, useCallback, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ThemeType } from "@/lib/theme-config";
+import { ThemeId } from "@/lib/themes/base-themes";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
 import {
@@ -12,10 +12,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import ProfileTab from "./tabs/profile-tab";
-import AppearanceTab from "./tabs/appearance-tab";
 import LinksTab from "./tabs/links-tab";
 import InteractiveTab from "./tabs/interactive-tab";
 import AnalyticsTab from "./tabs/analytics-tab";
+import ThemeSelectorTab from "./tabs/theme-selector-tab";
 import {
   Palette,
   BarChart2,
@@ -79,8 +79,8 @@ type EditorPanelProps = {
   onLinksUpdate: () => Promise<void>;
   onInteractiveGroupsUpdate: () => Promise<void>;
   saveStatus: "saved" | "saving" | "error" | "unsaved";
-  theme: ThemeType;
-  onThemeChange: (theme: ThemeType) => void;
+  themeId: ThemeId;
+  onThemeChange: (themeId: ThemeId) => void;
 };
 
 // Hook customizado para debounce
@@ -112,7 +112,7 @@ export default function EditorPanel({
   onLinksUpdate,
   onInteractiveGroupsUpdate,
   saveStatus,
-  theme,
+  themeId,
   onThemeChange,
 }: EditorPanelProps) {
   // No need for activeTab state as it's handled by the Tabs component
@@ -202,12 +202,9 @@ export default function EditorPanel({
             <UserCircle className="h-4 w-4 mr-2" />
             Profile
           </TabsTrigger>
-          <TabsTrigger
-            value="appearance"
-            className="data-[state=active]:bg-muted"
-          >
+          <TabsTrigger value="theme" className="data-[state=active]:bg-muted">
             <Palette className="h-4 w-4 mr-2" />
-            Appearance
+            Tema
           </TabsTrigger>
           <TabsTrigger value="links" className="data-[state=active]:bg-muted">
             <Link className="h-4 w-4 mr-2" />
@@ -240,14 +237,13 @@ export default function EditorPanel({
             />
           </TabsContent>
           <TabsContent
-            value="appearance"
+            value="theme"
             className="m-0 h-full overflow-y-auto p-4 pb-20"
           >
-            <AppearanceTab
+            <ThemeSelectorTab
               profile={profile}
               onProfileChange={handleProfileChange}
-              theme={theme}
-              onThemeChange={onThemeChange}
+              onSaveProfile={onSaveProfile}
             />
           </TabsContent>
           <TabsContent
