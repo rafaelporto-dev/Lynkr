@@ -1,13 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Smartphone, Monitor, Tablet, RefreshCw } from "lucide-react";
 import InMemoryPreview from "./in-memory-preview";
@@ -64,9 +57,6 @@ type PreviewPanelProps = {
   deviceType: DeviceType;
   onDeviceTypeChange: (type: DeviceType) => void;
   theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset";
-  onThemeChange: (
-    theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
-  ) => void;
 };
 
 export default function PreviewPanel({
@@ -76,7 +66,6 @@ export default function PreviewPanel({
   deviceType,
   onDeviceTypeChange,
   theme,
-  onThemeChange,
 }: PreviewPanelProps) {
   // Estado para controlar o refresh manual (apenas visual)
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -146,22 +135,7 @@ export default function PreviewPanel({
     </div>
   );
 
-  // Seletor de tema claro/escuro
-  const ThemeSelector = () => (
-    <Select value={theme} onValueChange={onThemeChange}>
-      <SelectTrigger className="w-[120px]">
-        <SelectValue placeholder="Theme" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="light">Light</SelectItem>
-        <SelectItem value="dark">Dark</SelectItem>
-        <SelectItem value="system">System</SelectItem>
-        <SelectItem value="midnight">Midnight</SelectItem>
-        <SelectItem value="nord">Nord</SelectItem>
-        <SelectItem value="sunset">Sunset</SelectItem>
-      </SelectContent>
-    </Select>
-  );
+  // Theme selector moved to editor panel
 
   return (
     <div className="h-full flex flex-col bg-secondary/20 p-4 overflow-hidden">
@@ -179,7 +153,7 @@ export default function PreviewPanel({
               className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
             />
           </Button>
-          <ThemeSelector />
+          {/* Theme selector moved to editor panel */}
           <DeviceSelector />
         </div>
       </div>

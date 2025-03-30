@@ -2,6 +2,7 @@
 
 import { useRef, useCallback } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+// Import removed - theme selector moved to appearance tab
 import ProfileTab from "./tabs/profile-tab";
 import AppearanceTab from "./tabs/appearance-tab";
 import LinksTab from "./tabs/links-tab";
@@ -69,6 +70,10 @@ type EditorPanelProps = {
   onLinksUpdate: () => Promise<void>;
   onInteractiveGroupsUpdate: () => Promise<void>;
   saveStatus: "saved" | "saving" | "error";
+  theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset";
+  onThemeChange: (
+    theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
+  ) => void;
 };
 
 // Hook customizado para debounce
@@ -99,6 +104,8 @@ export default function EditorPanel({
   onLinksUpdate,
   onInteractiveGroupsUpdate,
   saveStatus,
+  theme,
+  onThemeChange,
 }: EditorPanelProps) {
   // No need for activeTab state as it's handled by the Tabs component
 
@@ -189,6 +196,8 @@ export default function EditorPanel({
             <AppearanceTab
               profile={profile}
               onProfileChange={handleProfileChange}
+              theme={theme}
+              onThemeChange={onThemeChange}
             />
           </TabsContent>
           <TabsContent

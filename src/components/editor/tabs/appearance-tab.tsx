@@ -51,6 +51,10 @@ type Profile = {
 type AppearanceTabProps = {
   profile: Profile | null;
   onProfileChange: (updatedFields: Partial<Profile>) => void;
+  theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset";
+  onThemeChange: (
+    theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
+  ) => void;
 };
 
 // Opções de aparência atualizadas
@@ -102,9 +106,10 @@ const backgroundTypes = [
 export default function AppearanceTab({
   profile,
   onProfileChange,
+  theme: globalTheme,
+  onThemeChange,
 }: AppearanceTabProps) {
-  // Estado para opções básicas
-  const [theme, setTheme] = useState(profile?.theme || "system");
+  // Estado para opções básicas - usando o tema global agora
   const [buttonStyle, setButtonStyle] = useState(
     profile?.button_style || "default"
   );
@@ -133,7 +138,6 @@ export default function AppearanceTab({
   // Atualizar estados locais quando o perfil mudar
   useEffect(() => {
     if (profile) {
-      setTheme(profile.theme || "system");
       setButtonStyle(profile.button_style || "default");
       setFontFamily(profile.font_family || "inter");
       setLayout(profile.layout || "default");
@@ -227,9 +231,12 @@ export default function AppearanceTab({
     }
   };
 
-  // Manipuladores de mudança para cada opção
+  // Manipulador de mudança para o tema
   const handleThemeChange = (value: string) => {
-    setTheme(value);
+    // Atualiza o tema global e o perfil
+    onThemeChange(
+      value as "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
+    );
     onProfileChange({ theme: value });
   };
 
@@ -339,13 +346,7 @@ export default function AppearanceTab({
           {/* Theme Selection */}
           <div className="space-y-2">
             <Label htmlFor="theme">Theme</Label>
-            <Select
-              value={theme}
-              onValueChange={(value) => {
-                setTheme(value);
-                onProfileChange({ theme: value });
-              }}
-            >
+            <Select value={globalTheme} onValueChange={handleThemeChange}>
               <SelectTrigger id="theme">
                 <SelectValue placeholder="Select a theme" />
               </SelectTrigger>

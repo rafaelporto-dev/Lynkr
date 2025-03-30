@@ -227,6 +227,8 @@ export default function EditorPageClient({
             onLinksUpdate={fetchLinks}
             onInteractiveGroupsUpdate={fetchInteractiveGroups}
             saveStatus={saveStatus}
+            theme={theme}
+            onThemeChange={setTheme}
           />
         </ResizablePanel>
 
