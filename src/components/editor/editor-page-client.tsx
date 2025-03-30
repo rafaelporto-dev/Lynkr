@@ -9,6 +9,7 @@ import {
   ResizableHandle,
 } from "@/components/ui/resizable";
 import EditorPanel from "./editor-panel";
+import { ThemeType, validateTheme } from "@/lib/theme-config";
 import PreviewPanel from "./preview-panel";
 
 // Tipos para propriedades do perfil e links
@@ -72,15 +73,16 @@ export default function EditorPageClient({
   const [interactiveGroups, setInteractiveGroups] = useState<
     InteractiveGroup[]
   >(initialInteractiveGroups);
-  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "error">(
-    "saved"
-  );
+  const [saveStatus, setSaveStatus] = useState<
+    "saved" | "saving" | "error" | "unsaved"
+  >("saved");
   const [deviceType, setDeviceType] = useState<"desktop" | "tablet" | "mobile">(
     "desktop"
   );
-  const [theme, setTheme] = useState<
-    "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
-  >((profile?.theme as any) || "light");
+  // Initialize theme from profile data
+  const [theme, setTheme] = useState<ThemeType>(() => {
+    return validateTheme(profile?.theme);
+  });
 
   const supabase = createClient();
   const { toast } = useToast();
@@ -100,7 +102,13 @@ export default function EditorPageClient({
         },
         (payload) => {
           console.log("Perfil atualizado:", payload);
-          setProfile(payload.new as Profile);
+          const updatedProfile = payload.new as Profile;
+          setProfile(updatedProfile);
+
+          // Update theme if it changed
+          if (updatedProfile.theme) {
+            setTheme(validateTheme(updatedProfile.theme));
+          }
         }
       )
       .subscribe();
@@ -185,8 +193,24 @@ export default function EditorPageClient({
     }
   };
 
-  // Função para atualizar o perfil
-  const updateProfile = async (updatedProfile: Partial<Profile>) => {
+  // Função para atualizar o estado local do perfil (sem salvar no banco)
+  const updateProfileState = (updatedProfile: Partial<Profile>) => {
+    if (!profile?.id) return;
+
+    // If theme is being updated, also update the global theme state
+    if (updatedProfile.theme) {
+      setTheme(validateTheme(updatedProfile.theme));
+    }
+
+    // Atualizar o estado local imediatamente para refletir na visualização
+    setProfile((prev) => (prev ? { ...prev, ...updatedProfile } : null));
+
+    // Marcar que há alterações não salvas
+    setSaveStatus("unsaved");
+  };
+
+  // Função para salvar o perfil no banco de dados
+  const saveProfile = async () => {
     if (!profile?.id) return;
 
     setSaveStatus("saving");
@@ -194,18 +218,15 @@ export default function EditorPageClient({
       const { error } = await supabase
         .from("profiles")
         .update({
-          ...updatedProfile,
+          ...profile,
           updated_at: new Date().toISOString(),
         })
         .eq("id", profile.id);
 
       if (error) throw error;
-
-      // Atualizar o estado local imediatamente para refletir na visualização
-      setProfile((prev) => (prev ? { ...prev, ...updatedProfile } : null));
       setSaveStatus("saved");
     } catch (error: any) {
-      console.error("Erro ao atualizar perfil:", error.message);
+      console.error("Erro ao salvar perfil:", error.message);
       toast({
         title: "Erro ao salvar",
         description: "Não foi possível salvar as alterações no perfil.",
@@ -223,7 +244,8 @@ export default function EditorPageClient({
             profile={profile}
             links={links}
             interactiveGroups={interactiveGroups}
-            onProfileUpdate={updateProfile}
+            onProfileUpdate={updateProfileState}
+            onSaveProfile={saveProfile}
             onLinksUpdate={fetchLinks}
             onInteractiveGroupsUpdate={fetchInteractiveGroups}
             saveStatus={saveStatus}

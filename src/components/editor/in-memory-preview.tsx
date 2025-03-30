@@ -5,58 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { User, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Define theme configurations
-const themes = [
-  {
-    id: "light",
-    gradient: "from-gray-100 to-white",
-    textColor: "text-gray-900",
-    textMutedColor: "text-gray-600",
-    buttonStyle: "bg-gray-200 hover:bg-gray-300 text-gray-900",
-    badgeGradient: "from-indigo-500 to-purple-500",
-  },
-  {
-    id: "dark",
-    gradient: "from-gray-900 to-black",
-    textColor: "text-white",
-    textMutedColor: "text-gray-300",
-    buttonStyle: "bg-gray-800 hover:bg-gray-700 text-white",
-    badgeGradient: "from-indigo-500 to-purple-500",
-  },
-  {
-    id: "system",
-    gradient: "from-gray-900 to-black",
-    textColor: "text-white",
-    textMutedColor: "text-gray-300",
-    buttonStyle: "bg-gray-800 hover:bg-gray-700 text-white",
-    badgeGradient: "from-indigo-500 to-purple-500",
-  },
-  {
-    id: "midnight",
-    gradient: "from-blue-900 via-indigo-900 to-purple-900",
-    textColor: "text-white",
-    textMutedColor: "text-blue-200",
-    buttonStyle: "bg-indigo-800 hover:bg-indigo-700 text-white",
-    badgeGradient: "from-blue-500 to-purple-500",
-  },
-  {
-    id: "nord",
-    gradient: "from-slate-800 to-slate-900",
-    textColor: "text-slate-100",
-    textMutedColor: "text-slate-300",
-    buttonStyle: "bg-slate-700 hover:bg-slate-600 text-slate-100",
-    badgeGradient: "from-cyan-500 to-blue-500",
-  },
-  {
-    id: "sunset",
-    gradient: "from-orange-900 via-red-800 to-pink-900",
-    textColor: "text-orange-50",
-    textMutedColor: "text-orange-200",
-    buttonStyle: "bg-red-800 hover:bg-red-700 text-white",
-    badgeGradient: "from-yellow-500 to-red-500",
-  },
-];
+import { previewThemes, ThemeType, getThemeConfig } from "@/lib/theme-config";
 
 // Types
 type Profile = {
@@ -105,7 +54,7 @@ interface InMemoryPreviewProps {
   profile: Profile | null;
   links: Link[];
   interactiveGroups: InteractiveGroup[];
-  theme: string;
+  theme: ThemeType;
   deviceType?: "mobile" | "tablet" | "desktop";
 }
 
@@ -118,7 +67,7 @@ export default function InMemoryPreview({
 }: InMemoryPreviewProps) {
   // Get theme configuration
   const themeConfig = useMemo(() => {
-    return themes.find((t) => t.id === theme) || themes[0];
+    return getThemeConfig(theme);
   }, [theme]);
 
   // Get layout style based on profile settings and device type

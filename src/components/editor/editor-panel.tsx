@@ -1,8 +1,16 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// Import removed - theme selector moved to appearance tab
+import { ThemeType } from "@/lib/theme-config";
+import { Button } from "@/components/ui/button";
+import { Save } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import ProfileTab from "./tabs/profile-tab";
 import AppearanceTab from "./tabs/appearance-tab";
 import LinksTab from "./tabs/links-tab";
@@ -66,14 +74,13 @@ type EditorPanelProps = {
   profile: Profile | null;
   links: Link[];
   interactiveGroups: InteractiveGroup[];
-  onProfileUpdate: (updatedProfile: Partial<Profile>) => Promise<void>;
+  onProfileUpdate: (updatedProfile: Partial<Profile>) => void;
+  onSaveProfile: () => Promise<void>;
   onLinksUpdate: () => Promise<void>;
   onInteractiveGroupsUpdate: () => Promise<void>;
-  saveStatus: "saved" | "saving" | "error";
-  theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset";
-  onThemeChange: (
-    theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
-  ) => void;
+  saveStatus: "saved" | "saving" | "error" | "unsaved";
+  theme: ThemeType;
+  onThemeChange: (theme: ThemeType) => void;
 };
 
 // Hook customizado para debounce
@@ -101,6 +108,7 @@ export default function EditorPanel({
   links,
   interactiveGroups,
   onProfileUpdate,
+  onSaveProfile,
   onLinksUpdate,
   onInteractiveGroupsUpdate,
   saveStatus,
@@ -110,36 +118,78 @@ export default function EditorPanel({
   // No need for activeTab state as it's handled by the Tabs component
 
   // Função debounced para atualizar o perfil
-  const debouncedProfileUpdate = useDebounce(onProfileUpdate, 800);
+  const debouncedProfileUpdate = useDebounce(onProfileUpdate, 300);
 
   // Handlers para cada tipo de atualização
   const handleProfileChange = (updatedFields: Partial<Profile>) => {
     debouncedProfileUpdate(updatedFields);
   };
 
+  // Adicionar atalho de teclado para salvar (Ctrl+S ou Cmd+S)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault(); // Prevenir o comportamento padrão do navegador
+        if (saveStatus === "unsaved") {
+          onSaveProfile();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onSaveProfile, saveStatus]);
+
   return (
     <div className="h-full flex flex-col bg-background overflow-hidden">
       <div className="flex items-center justify-between p-4 border-b">
         <h2 className="text-2xl font-bold">Editor</h2>
-        <div className="flex items-center gap-2">
-          {saveStatus === "saving" && (
-            <span className="text-muted-foreground text-sm flex items-center">
-              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-              Saving...
-            </span>
-          )}
-          {saveStatus === "saved" && (
-            <span className="text-green-500 text-sm flex items-center">
-              <Check className="h-3 w-3 mr-1" />
-              Saved
-            </span>
-          )}
-          {saveStatus === "error" && (
-            <span className="text-destructive text-sm flex items-center">
-              <AlertCircle className="h-3 w-3 mr-1" />
-              Error saving
-            </span>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {saveStatus === "saving" && (
+              <span className="text-muted-foreground text-sm flex items-center">
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                Saving...
+              </span>
+            )}
+            {saveStatus === "saved" && (
+              <span className="text-green-500 text-sm flex items-center">
+                <Check className="h-3 w-3 mr-1" />
+                Saved
+              </span>
+            )}
+            {saveStatus === "unsaved" && (
+              <span className="text-amber-500 text-sm flex items-center">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Unsaved changes
+              </span>
+            )}
+            {saveStatus === "error" && (
+              <span className="text-destructive text-sm flex items-center">
+                <AlertCircle className="h-3 w-3 mr-1" />
+                Error saving
+              </span>
+            )}
+          </div>
+
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="sm"
+                  onClick={onSaveProfile}
+                  disabled={saveStatus === "saving" || saveStatus === "saved"}
+                  className="flex items-center gap-1"
+                >
+                  <Save className="h-3.5 w-3.5" />
+                  Save
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Save changes (Ctrl+S)</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 

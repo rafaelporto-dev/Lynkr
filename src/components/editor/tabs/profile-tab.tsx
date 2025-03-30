@@ -107,7 +107,7 @@ export default function ProfileTab({
     return () => clearTimeout(timeoutId);
   }, [username, profile?.id, profile?.username]);
 
-  // Atualizar campos do perfil
+  // Atualizar campos do perfil localmente e notificar o componente pai
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.toLowerCase();
     setUsername(value);

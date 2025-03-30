@@ -25,6 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createClient } from "@supabase/supabase-js";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, Upload, Lock } from "lucide-react";
+import { ThemeType, themeOptions } from "@/lib/theme-config";
 
 // Criando cliente do Supabase no lado do cliente
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -51,21 +52,11 @@ type Profile = {
 type AppearanceTabProps = {
   profile: Profile | null;
   onProfileChange: (updatedFields: Partial<Profile>) => void;
-  theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset";
-  onThemeChange: (
-    theme: "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
-  ) => void;
+  theme: ThemeType;
+  onThemeChange: (theme: ThemeType) => void;
 };
 
-// Opções de aparência atualizadas
-const themes = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" },
-  { value: "midnight", label: "Midnight" },
-  { value: "nord", label: "Nord" },
-  { value: "sunset", label: "Sunset" },
-];
+// Using theme options from shared config
 
 const buttonStyles = [
   { value: "default", label: "Default" },
@@ -234,9 +225,7 @@ export default function AppearanceTab({
   // Manipulador de mudança para o tema
   const handleThemeChange = (value: string) => {
     // Atualiza o tema global e o perfil
-    onThemeChange(
-      value as "light" | "dark" | "system" | "midnight" | "nord" | "sunset"
-    );
+    onThemeChange(value as ThemeType);
     onProfileChange({ theme: value });
   };
 
@@ -351,7 +340,7 @@ export default function AppearanceTab({
                 <SelectValue placeholder="Select a theme" />
               </SelectTrigger>
               <SelectContent>
-                {themes.map((t) => (
+                {themeOptions.map((t) => (
                   <SelectItem key={t.value} value={t.value}>
                     {t.label}
                   </SelectItem>
