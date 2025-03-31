@@ -457,7 +457,7 @@ export default function UserProfilePage({ username }: { username: string }) {
         {/* Debug info em modo de preview */}
         {isPreview && (
           <div className="fixed top-0 left-0 bg-black/80 text-white p-2 text-xs z-50 rounded-br-md">
-            Tema:{" "}
+            Theme:{" "}
             {ThemeManager.validateThemeId(
               overrideTheme || profile?.theme || "light"
             )}
