@@ -178,8 +178,8 @@ export default function ThemeSelectorTab({
       setSaveIndicator("saved");
 
       toast({
-        title: "Tema salvo",
-        description: "As alterações no tema foram salvas com sucesso.",
+        title: "Theme saved",
+        description: "The theme changes have been saved successfully.",
       });
 
       // Resetar o indicador após alguns segundos
@@ -187,12 +187,12 @@ export default function ThemeSelectorTab({
         setSaveIndicator("idle");
       }, 3000);
     } catch (error) {
-      console.error("Erro ao salvar tema:", error);
+      console.error("Error saving theme:", error);
       setSaveIndicator("idle");
 
       toast({
-        title: "Erro ao salvar",
-        description: "Não foi possível salvar as alterações no tema.",
+        title: "Error saving",
+        description: "It was not possible to save the theme changes.",
         variant: "destructive",
       });
     }
@@ -202,9 +202,11 @@ export default function ThemeSelectorTab({
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold mb-1">Personalização do Tema</h2>
+          <h2 className="text-2xl font-bold mb-1">
+            Personalize the theme
+          </h2>
           <p className="text-muted-foreground">
-            Escolha um tema visual para personalizar a aparência do seu perfil
+            Choose a visual theme to personalize the appearance of your profile
           </p>
         </div>
 
@@ -214,13 +216,13 @@ export default function ThemeSelectorTab({
           className="flex items-center gap-2"
         >
           {saveIndicator === "saving" ? (
-            <>Salvando...</>
+            <>Saving...</>
           ) : saveIndicator === "saved" ? (
             <>
-              <Check className="h-4 w-4" /> Salvo
+              <Check className="h-4 w-4" /> Saved
             </>
           ) : (
-            <>Salvar Alterações</>
+            <>Save changes</>
           )}
         </Button>
       </div>
@@ -229,20 +231,20 @@ export default function ThemeSelectorTab({
         <TabsList className="mb-4">
           <TabsTrigger value="select-theme">
             <Palette className="h-4 w-4 mr-2" />
-            Seleção de Tema
+            Theme selection
           </TabsTrigger>
           <TabsTrigger value="advanced-settings">
             <Palette className="h-4 w-4 mr-2" />
-            Configurações Avançadas
+            Advanced settings
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="select-theme">
           <Card>
             <CardHeader>
-              <CardTitle>Escolha o tema do seu perfil</CardTitle>
+              <CardTitle>Choose the theme of your profile</CardTitle>
               <CardDescription>
-                Selecione um tema que combine com sua marca pessoal e estilo
+                Select a theme that combines with your personal brand and style
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -258,9 +260,9 @@ export default function ThemeSelectorTab({
         <TabsContent value="advanced-settings">
           <Card>
             <CardHeader>
-              <CardTitle>Configurações Avançadas</CardTitle>
+              <CardTitle>Advanced settings</CardTitle>
               <CardDescription>
-                Personalize ainda mais seu tema com ajustes avançados
+                Personalize even more your theme with advanced settings
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -268,7 +270,7 @@ export default function ThemeSelectorTab({
               <div className="grid gap-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="theme-variation" className="text-base">
-                    Variação do Tema
+                    Theme variation
                   </Label>
                   <TooltipProvider>
                     <Tooltip>
@@ -277,8 +279,8 @@ export default function ThemeSelectorTab({
                       </TooltipTrigger>
                       <TooltipContent>
                         <p className="w-[220px]">
-                          Aplica ajustes sutis ao tema base, como saturação e
-                          contraste
+                          Apply subtle adjustments to the base theme, such as
+                          saturation and contrast
                         </p>
                       </TooltipContent>
                     </Tooltip>
@@ -289,7 +291,7 @@ export default function ThemeSelectorTab({
                   onValueChange={handleVariationChange}
                 >
                   <SelectTrigger id="theme-variation">
-                    <SelectValue placeholder="Selecione uma variação" />
+                    <SelectValue placeholder="Select a variation" />
                   </SelectTrigger>
                   <SelectContent>
                     {themeVariations.map((variation) => (
@@ -312,29 +314,29 @@ export default function ThemeSelectorTab({
                   <Crown className="h-5 w-5 text-amber-500 mt-0.5" />
                   <div>
                     <h3 className="text-base font-medium mb-1">
-                      Funcionalidades Premium
+                      Premium features
                     </h3>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Desbloqueie recursos avançados de personalização com nosso
-                      plano premium
+                      Unlock advanced customization features with our premium
+                      plan
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Check className="h-4 w-4 text-amber-500" />
-                        <span>CSS personalizado</span>
+                        <span>Custom CSS</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Check className="h-4 w-4 text-amber-500" />
-                        <span>Temas exclusivos</span>
+                        <span>Exclusive themes</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Check className="h-4 w-4 text-amber-500" />
-                        <span>Imagens de fundo</span>
+                        <span>Background images</span>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Check className="h-4 w-4 text-amber-500" />
-                        <span>Gradientes personalizados</span>
+                        <span>Custom gradients</span>
                       </div>
                     </div>
 
@@ -342,7 +344,7 @@ export default function ThemeSelectorTab({
                       variant="outline"
                       className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10 hover:text-amber-600"
                     >
-                      Fazer Upgrade
+                      Upgrade to Premium
                     </Button>
                   </div>
                 </div>

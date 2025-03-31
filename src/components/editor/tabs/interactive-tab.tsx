@@ -155,14 +155,14 @@ export default function InteractiveTab({
       await onInteractiveGroupsUpdate();
 
       toast({
-        title: "Elementos reordenados",
-        description: "A ordem dos elementos interativos foi atualizada",
+        title: "Elements reordered",
+        description: "The order of interactive elements has been updated",
       });
     } catch (error) {
-      console.error("Erro ao atualizar a ordem dos elementos:", error);
+      console.error("Error updating the order of elements:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar a ordem dos elementos",
+        title: "Error",
+        description: "It was not possible to update the order of elements",
         variant: "destructive",
       });
     } finally {
@@ -204,16 +204,16 @@ export default function InteractiveTab({
       await onInteractiveGroupsUpdate();
 
       toast({
-        title: !currentStatus ? "Elemento ativado" : "Elemento desativado",
+        title: !currentStatus ? "Element activated" : "Element deactivated",
         description: !currentStatus
-          ? "O elemento agora está visível no seu perfil"
-          : "O elemento agora está oculto do seu perfil",
+          ? "The element is now visible in your profile"
+          : "The element is now hidden from your profile",
       });
     } catch (error) {
-      console.error("Erro ao atualizar status do elemento:", error);
+      console.error("Error updating the status of the element:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status do elemento",
+        title: "Error",
+        description: "It was not possible to update the status of the element",
         variant: "destructive",
       });
     } finally {
@@ -239,14 +239,14 @@ export default function InteractiveTab({
       await onInteractiveGroupsUpdate();
 
       toast({
-        title: "Elemento excluído",
-        description: "O elemento interativo foi removido com sucesso",
+        title: "Element deleted",
+        description: "The interactive element has been removed successfully",
       });
     } catch (error) {
-      console.error("Erro ao excluir elemento:", error);
+      console.error("Error deleting the element:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível excluir o elemento",
+        title: "Error",
+        description: "It was not possible to delete the element",
         variant: "destructive",
       });
     } finally {
@@ -273,8 +273,8 @@ export default function InteractiveTab({
   const saveGroup = async () => {
     if (!formData.title || !formData.type) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha o título e o tipo do elemento",
+        title: "Required fields",
+        description: "Please fill in the title and type of the element",
         variant: "destructive",
       });
       return;
@@ -283,8 +283,8 @@ export default function InteractiveTab({
     // Verificar se é um usuário premium
     if (!isPremium) {
       toast({
-        title: "Recurso Premium",
-        description: "Elementos interativos são exclusivos para contas premium",
+        title: "Premium feature",
+        description: "Interactive elements are exclusive to premium accounts",
         variant: "destructive",
       });
       return;
@@ -308,8 +308,8 @@ export default function InteractiveTab({
         if (error) throw error;
 
         toast({
-          title: "Elemento atualizado",
-          description: "O elemento interativo foi atualizado com sucesso",
+          title: "Element updated",
+          description: "The interactive element has been updated successfully",
         });
       } else {
         // Adicionar novo grupo
@@ -328,8 +328,8 @@ export default function InteractiveTab({
         if (error) throw error;
 
         toast({
-          title: "Elemento adicionado",
-          description: "O novo elemento interativo foi adicionado com sucesso",
+          title: "Element added",
+          description: "The new interactive element has been added successfully",
         });
       }
 
@@ -344,10 +344,10 @@ export default function InteractiveTab({
       setEditMode({ isEditing: false, groupId: null });
       await onInteractiveGroupsUpdate();
     } catch (error) {
-      console.error("Erro ao salvar elemento:", error);
+      console.error("Error saving the element:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível salvar o elemento interativo",
+        title: "Error",
+        description: "It was not possible to save the interactive element",
         variant: "destructive",
       });
     } finally {
@@ -417,9 +417,8 @@ export default function InteractiveTab({
                   {localGroups.length === 0 ? (
                     <div className="text-center p-6 border border-dashed rounded-lg">
                       <p className="text-muted-foreground">
-                        Você ainda não adicionou nenhum elemento interativo.
-                        Adicione seu primeiro elemento utilizando o botão
-                        abaixo.
+                        You have not added any interactive elements yet. Add
+                        your first element using the button below.
                       </p>
                     </div>
                   ) : (
@@ -458,7 +457,7 @@ export default function InteractiveTab({
                               <p className="text-sm text-muted-foreground">
                                 {interactiveTypes.find(
                                   (t) => t.value === group.type
-                                )?.label || "Elemento interativo"}
+                                )?.label || "Interactive element"}
                               </p>
                             </div>
 
@@ -480,8 +479,8 @@ export default function InteractiveTab({
                                 disabled={isLoading}
                                 aria-label={
                                   group.active
-                                    ? "Desativar elemento"
-                                    : "Ativar elemento"
+                                    ? "Deactivate element"
+                                    : "Activate element"
                                 }
                               />
 
@@ -499,23 +498,23 @@ export default function InteractiveTab({
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>
-                                      Excluir elemento
+                                      Delete element
                                     </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Tem certeza de que deseja excluir o
-                                      elemento "{group.title}"? Esta ação não
-                                      pode ser desfeita.
+                                      Are you sure you want to delete the
+                                      element "{group.title}"? This action cannot
+                                      be undone.
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>
-                                      Cancelar
+                                      Cancel
                                     </AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() => deleteGroup(group.id)}
                                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                     >
-                                      Excluir
+                                      Delete
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -538,7 +537,7 @@ export default function InteractiveTab({
           Elementos utilizados: {localGroups.length}/3
           {hasReachedGroupLimit && (
             <p className="text-amber-500 mt-1">
-              Você atingiu o limite de elementos interativos.
+              You have reached the limit of interactive elements.
             </p>
           )}
         </div>
@@ -559,12 +558,12 @@ export default function InteractiveTab({
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processando...
+                  Processing...
                 </>
               ) : (
                 <>
                   <Plus className="h-4 w-4 mr-2" />
-                  Adicionar Novo Elemento
+                  Add new element
                 </>
               )}
             </Button>
@@ -573,30 +572,30 @@ export default function InteractiveTab({
             <DialogHeader>
               <DialogTitle>
                 {editMode.groupId
-                  ? "Editar Elemento"
-                  : "Adicionar Novo Elemento"}
+                  ? "Edit element"
+                  : "Add new element"}
               </DialogTitle>
               <DialogDescription>
-                Preencha os detalhes do elemento interativo que você deseja
-                adicionar ao seu perfil.
+                Fill in the details of the interactive element you want to add
+                to your profile.
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Título</Label>
+                <Label htmlFor="title">Title</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) =>
                     setFormData({ ...formData, title: e.target.value })
                   }
-                  placeholder="Nome do elemento"
+                  placeholder="Element title"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="type">Tipo de elemento</Label>
+                <Label htmlFor="type">Element type</Label>
                 <Select
                   value={formData.type}
                   onValueChange={(value) =>
@@ -604,7 +603,7 @@ export default function InteractiveTab({
                   }
                 >
                   <SelectTrigger id="type">
-                    <SelectValue placeholder="Selecione o tipo" />
+                    <SelectValue placeholder="Select the type" />
                   </SelectTrigger>
                   <SelectContent>
                     {interactiveTypes.map((option) => (
@@ -627,22 +626,22 @@ export default function InteractiveTab({
                     setFormData({ ...formData, active: checked })
                   }
                 />
-                <Label htmlFor="active">Elemento ativo</Label>
+                <Label htmlFor="active">Active element</Label>
               </div>
             </div>
 
             <DialogFooter>
               <Button variant="outline" onClick={resetForm}>
-                Cancelar
+                Cancel
               </Button>
               <Button type="submit" onClick={saveGroup} disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Salvando...
+                    Saving...
                   </>
                 ) : (
-                  <>Salvar</>
+                  <>Save</>
                 )}
               </Button>
             </DialogFooter>
@@ -656,18 +655,18 @@ export default function InteractiveTab({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Elementos Interativos</CardTitle>
+          <CardTitle>Interactive elements</CardTitle>
           <CardDescription>
-            Adicione enquetes, comentários, galerias e outros elementos
-            interativos ao seu perfil.
+            Add polls, comments, galleries and other interactive elements to
+            your profile.
           </CardDescription>
         </CardHeader>
         <CardContent>{renderContent()}</CardContent>
         {isPremium && (
           <CardFooter className="border-t px-6 py-4">
             <p className="text-xs text-muted-foreground">
-              Arraste e solte para reorganizar seus elementos interativos.
-              Elementos podem ser personalizados pelos visitantes do seu perfil.
+              Drag and drop to rearrange your interactive elements. Elements
+              can be customized by visitors to your profile.
             </p>
           </CardFooter>
         )}

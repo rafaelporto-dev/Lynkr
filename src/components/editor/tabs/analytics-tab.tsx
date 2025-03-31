@@ -99,10 +99,6 @@ const mockData = {
   },
 };
 
-type AnalyticsTabProps = {
-  profile: Profile | null;
-};
-
 export default function AnalyticsTab({ profile }: AnalyticsTabProps) {
   const userId = profile?.id;
   const [timeRange, setTimeRange] = useState<

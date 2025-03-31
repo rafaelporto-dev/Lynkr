@@ -80,7 +80,7 @@ export default function ProfileTab({
 
       // Verificar formato (letras minúsculas, números e underscores)
       if (!/^[a-z0-9_]+$/.test(username)) {
-        setUsernameError("Use apenas letras minúsculas, números e underscores");
+        setUsernameError("Use only lowercase letters, numbers and underscores");
         setIsUsernameAvailable(false);
         return;
       }
@@ -94,12 +94,12 @@ export default function ProfileTab({
         .maybeSingle();
 
       if (error) {
-        console.error("Erro ao verificar nome de usuário:", error);
+        console.error("Error checking username:", error);
         return;
       }
 
       setIsUsernameAvailable(!data);
-      setUsernameError(data ? "Este nome de usuário já está em uso" : "");
+      setUsernameError(data ? "This username is already in use" : "");
     };
 
     // Debounce para não fazer muitas requisições
@@ -143,8 +143,8 @@ export default function ProfileTab({
       // Validação do arquivo
       if (file.size > 2 * 1024 * 1024) {
         toast({
-          title: "Arquivo muito grande",
-          description: "O tamanho máximo permitido é 2MB",
+          title: "File too large",
+          description: "The maximum allowed size is 2MB",
           variant: "destructive",
         });
         return;
@@ -152,8 +152,8 @@ export default function ProfileTab({
 
       if (!file.type.startsWith("image/")) {
         toast({
-          title: "Formato inválido",
-          description: "Por favor, envie apenas arquivos de imagem",
+          title: "Invalid format",
+          description: "Please send only image files",
           variant: "destructive",
         });
         return;
@@ -184,14 +184,14 @@ export default function ProfileTab({
       }
 
       toast({
-        title: "Avatar atualizado",
-        description: "Seu novo avatar foi salvo com sucesso",
+        title: "Avatar updated",
+        description: "Your new avatar has been saved successfully",
       });
     } catch (error) {
-      console.error("Erro ao fazer upload do avatar:", error);
+      console.error("Error uploading the avatar:", error);
       toast({
-        title: "Erro ao salvar imagem",
-        description: "Ocorreu um erro ao enviar o avatar",
+        title: "Error uploading the avatar",
+        description: "An error occurred while sending the avatar",
         variant: "destructive",
       });
     } finally {
@@ -219,10 +219,9 @@ export default function ProfileTab({
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Informações do Perfil</CardTitle>
+          <CardTitle>Profile information</CardTitle>
           <CardDescription>
-            Atualize suas informações pessoais e como você aparece para
-            visitantes.
+            Update your personal information and how you appear to visitors.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -233,9 +232,9 @@ export default function ProfileTab({
               <AvatarFallback>{generateInitials()}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h3 className="text-lg font-medium mb-2">Foto de Perfil</h3>
+              <h3 className="text-lg font-medium mb-2">Profile picture</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                Uma imagem JPG, PNG ou GIF. Tamanho máximo de 2MB.
+                A JPG, PNG or GIF image. Maximum size of 2MB.
               </p>
               <div className="flex gap-2">
                 <Button
@@ -247,12 +246,12 @@ export default function ProfileTab({
                   {uploadingAvatar ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Enviando...
+                      Sending...
                     </>
                   ) : (
                     <>
                       <Upload className="h-4 w-4 mr-2" />
-                      Escolher imagem
+                      Choose image
                     </>
                   )}
                   <input
@@ -273,7 +272,7 @@ export default function ProfileTab({
                     }}
                     disabled={uploadingAvatar}
                   >
-                    Remover
+                    Remove
                   </Button>
                 )}
               </div>
@@ -283,10 +282,10 @@ export default function ProfileTab({
           {/* Informações de perfil */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Nome de usuário</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
-                placeholder="seu-nome-usuario"
+                placeholder="your-username"
                 value={username}
                 onChange={handleUsernameChange}
                 className={!isUsernameAvailable ? "border-destructive" : ""}
@@ -295,43 +294,43 @@ export default function ProfileTab({
                 <p className="text-sm text-destructive">{usernameError}</p>
               )}
               <p className="text-xs text-muted-foreground">
-                Seu URL único:{" "}
+                Your unique URL:{" "}
                 {username
                   ? `${window.location.origin}/${username}`
-                  : "Defina um nome de usuário"}
+                  : "Define a username"}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fullName">Nome completo</Label>
+              <Label htmlFor="fullName">Full name</Label>
               <Input
                 id="fullName"
-                placeholder="Seu nome completo"
+                placeholder="Your full name"
                 value={fullName}
                 onChange={handleFullNameChange}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="bio">Biografia</Label>
+              <Label htmlFor="bio">Biography</Label>
               <Textarea
                 id="bio"
-                placeholder="Conte um pouco sobre você..."
+                placeholder="Tell us a little about yourself..."
                 value={bio}
                 onChange={handleBioChange}
                 className="resize-none"
                 rows={4}
               />
               <p className="text-xs text-muted-foreground text-right">
-                {bio.length}/160 caracteres
+                {bio.length}/160 characters
               </p>
             </div>
           </div>
         </CardContent>
         <CardFooter className="border-t px-6 py-4">
           <p className="text-xs text-muted-foreground">
-            Estas informações serão exibidas publicamente, então tenha cuidado
-            com o que você compartilha.
+            These information will be displayed publicly, so be careful with what
+            you share.
           </p>
         </CardFooter>
       </Card>

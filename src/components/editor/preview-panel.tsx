@@ -180,7 +180,7 @@ export default function PreviewPanel({
             )}
 
             {/* In-memory preview component that updates instantly */}
-            <div className="w-full h-full overflow-hidden">
+            <div className="w-full h-full overflow-auto">
               <InMemoryPreview
                 profile={profile}
                 links={links}

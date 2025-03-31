@@ -177,6 +177,7 @@
     min-height: 100vh;
     background-color: var(--color-background) !important;
     padding: 2rem 1rem;
+    overflow-y: auto; /* Adicionando overflow-y: auto para permitir scroll vertical */
   }
 
   /* Botões na página de perfil */
@@ -186,6 +187,7 @@
     border: 1px solid var(--color-border) !important;
     margin-bottom: 0.75rem !important;
     border-radius: 0.5rem !important;
+    min-height: 3rem !important;
   }
 
   /* Aplicar estilo específico somente quando a classe de botão é explicitamente aplicada */
@@ -215,15 +217,32 @@
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
+    gap: 0.5rem !important;
   }
 
   .link-title {
     font-weight: 500 !important;
     color: var(--color-text) !important;
-    max-width: 80% !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
+    max-width: none !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    padding-right: 0.5rem !important;
+    flex: 1 !important;
+    line-height: 1.4 !important;
+  }
+
+  /* Para links muito longos, manter pelo menos duas linhas */
+  @media (max-width: 640px) {
+    .link-title {
+      font-size: 0.875rem !important;
+      line-height: 1.25 !important;
+    }
+
+    .link-content {
+      padding: 0.625rem 0.875rem !important;
+    }
   }
 
   /* Corrigir o comportamento de vídeos em todos os temas */

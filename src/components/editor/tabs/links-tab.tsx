@@ -105,7 +105,7 @@ type LinksTabProps = {
 
 // Ícones disponíveis
 const iconOptions = [
-  { value: "default", label: "Padrão" },
+  { value: "default", label: "Default" },
   { value: "github", label: "GitHub" },
   { value: "twitter", label: "Twitter" },
   { value: "instagram", label: "Instagram" },
@@ -119,15 +119,15 @@ const iconOptions = [
   { value: "spotify", label: "Spotify" },
   { value: "email", label: "Email" },
   { value: "website", label: "Website" },
-  { value: "custom", label: "Personalizado" },
+  { value: "custom", label: "Custom" },
 ];
 
 // Tipos de conteúdo
 const contentTypes = [
-  { value: "link", label: "Link padrão" },
-  { value: "video", label: "Vídeo incorporado" },
-  { value: "image", label: "Imagem" },
-  { value: "audio", label: "Áudio" },
+  { value: "link", label: "Default link" },
+  { value: "video", label: "Embedded video" },
+  { value: "image", label: "Image" },
+  { value: "audio", label: "Audio" },
 ];
 
 export default function LinksTab({
@@ -180,14 +180,14 @@ export default function LinksTab({
       await onLinksUpdate();
 
       toast({
-        title: "Links reordenados",
-        description: "A ordem dos links foi atualizada com sucesso",
+        title: "Links reordered",
+        description: "The order of links has been updated successfully",
       });
     } catch (error) {
-      console.error("Erro ao atualizar a ordem dos links:", error);
+      console.error("Error updating the order of links:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar a ordem dos links",
+        title: "Error",
+        description: "It was not possible to update the order of links",
         variant: "destructive",
       });
     } finally {
@@ -229,16 +229,16 @@ export default function LinksTab({
       await onLinksUpdate();
 
       toast({
-        title: !currentStatus ? "Link ativado" : "Link desativado",
+        title: !currentStatus ? "Link activated" : "Link deactivated",
         description: !currentStatus
-          ? "O link agora está visível no seu perfil"
-          : "O link agora está oculto do seu perfil",
+          ? "The link is now visible in your profile"
+          : "The link is now hidden from your profile",
       });
     } catch (error) {
-      console.error("Erro ao atualizar status do link:", error);
+      console.error("Error updating the status of the link:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o status do link",
+        title: "Error",
+        description: "It was not possible to update the status of the link",
         variant: "destructive",
       });
     } finally {
@@ -261,14 +261,14 @@ export default function LinksTab({
       await onLinksUpdate();
 
       toast({
-        title: "Link excluído",
-        description: "O link foi removido com sucesso",
+        title: "Link deleted",
+        description: "The link has been removed successfully",
       });
     } catch (error) {
-      console.error("Erro ao excluir link:", error);
+      console.error("Error deleting the link:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível excluir o link",
+        title: "Error",
+        description: "It was not possible to delete the link",
         variant: "destructive",
       });
     } finally {
@@ -299,8 +299,8 @@ export default function LinksTab({
   const saveLink = async () => {
     if (!formData.title || !formData.url) {
       toast({
-        title: "Campos obrigatórios",
-        description: "Por favor, preencha o título e a URL do link",
+        title: "Required fields",
+        description: "Please fill in the title and URL of the link",
         variant: "destructive",
       });
       return;
@@ -311,9 +311,9 @@ export default function LinksTab({
       new URL(formData.url);
     } catch (e) {
       toast({
-        title: "URL inválida",
+        title: "Invalid URL",
         description:
-          "Por favor, insira uma URL válida incluindo http:// ou https://",
+          "Please enter a valid URL including http:// or https://",
         variant: "destructive",
       });
       return;
@@ -337,8 +337,8 @@ export default function LinksTab({
         if (error) throw error;
 
         toast({
-          title: "Link atualizado",
-          description: "O link foi atualizado com sucesso",
+          title: "Link updated",
+          description: "The link has been updated successfully",
         });
       } else {
         // Adicionar novo link
@@ -357,8 +357,8 @@ export default function LinksTab({
         if (error) throw error;
 
         toast({
-          title: "Link adicionado",
-          description: "O novo link foi adicionado com sucesso",
+          title: "Link added",
+          description: "The new link has been added successfully",
         });
       }
 
@@ -375,10 +375,10 @@ export default function LinksTab({
       setEditMode({ isEditing: false, linkId: null });
       await onLinksUpdate();
     } catch (error) {
-      console.error("Erro ao salvar link:", error);
+      console.error("Error saving the link:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível salvar o link",
+        title: "Error",
+        description: "It was not possible to save the link",
         variant: "destructive",
       });
     } finally {
@@ -396,8 +396,8 @@ export default function LinksTab({
     // Verificar se o usuário é premium para thumbnail personalizada
     if (profile.has_free_plan) {
       toast({
-        title: "Recurso Premium",
-        description: "Thumbnails personalizadas são um recurso premium",
+        title: "Premium feature",
+        description: "Custom thumbnails are a premium feature",
         variant: "destructive",
       });
       return;
@@ -409,8 +409,8 @@ export default function LinksTab({
       // Validação do arquivo
       if (file.size > 2 * 1024 * 1024) {
         toast({
-          title: "Arquivo muito grande",
-          description: "O tamanho máximo permitido é 2MB",
+          title: "File too large",
+          description: "The maximum allowed size is 2MB",
           variant: "destructive",
         });
         return;
@@ -418,8 +418,8 @@ export default function LinksTab({
 
       if (!file.type.startsWith("image/")) {
         toast({
-          title: "Formato inválido",
-          description: "Por favor, envie apenas arquivos de imagem",
+          title: "Invalid format",
+          description: "Please send only image files",
           variant: "destructive",
         });
         return;
@@ -453,14 +453,14 @@ export default function LinksTab({
       }
 
       toast({
-        title: "Thumbnail atualizada",
-        description: "Sua nova thumbnail foi salva",
+        title: "Thumbnail updated",
+        description: "Your new thumbnail has been saved",
       });
     } catch (error) {
-      console.error("Erro ao fazer upload da thumbnail:", error);
+      console.error("Error uploading the thumbnail:", error);
       toast({
-        title: "Erro ao salvar imagem",
-        description: "Ocorreu um erro ao enviar a thumbnail",
+        title: "Error uploading the thumbnail",
+        description: "An error occurred while sending the thumbnail",
         variant: "destructive",
       });
     } finally {
@@ -488,9 +488,9 @@ export default function LinksTab({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Gerenciar Links</CardTitle>
+          <CardTitle>Manage links</CardTitle>
           <CardDescription>
-            Adicione, edite e organize os links que aparecerão no seu perfil.
+            Add, edit and organize the links that will appear in your profile.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -507,8 +507,8 @@ export default function LinksTab({
                     {localLinks.length === 0 ? (
                       <div className="text-center p-6 border border-dashed rounded-lg">
                         <p className="text-muted-foreground">
-                          Você ainda não adicionou nenhum link. Adicione seu
-                          primeiro link utilizando o botão abaixo.
+                          You have not added any links yet. Add your first
+                          link using the button below.
                         </p>
                       </div>
                     ) : (
@@ -599,23 +599,23 @@ export default function LinksTab({
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
                                       <AlertDialogTitle>
-                                        Excluir link
+                                        Delete link
                                       </AlertDialogTitle>
                                       <AlertDialogDescription>
-                                        Tem certeza de que deseja excluir o link
-                                        "{link.title}"? Esta ação não pode ser
-                                        desfeita.
+                                        Are you sure you want to delete the link
+                                        "{link.title}"? This action cannot be
+                                        undone.
                                       </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>
-                                        Cancelar
+                                        Cancel
                                       </AlertDialogCancel>
                                       <AlertDialogAction
                                         onClick={() => deleteLink(link.id)}
                                         className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                       >
-                                        Excluir
+                                        Delete
                                       </AlertDialogAction>
                                     </AlertDialogFooter>
                                   </AlertDialogContent>
@@ -639,8 +639,8 @@ export default function LinksTab({
               Links utilizados: {localLinks.length}/10
               {hasReachedLinkLimit && (
                 <p className="text-destructive mt-1">
-                  Você atingiu o limite de links do plano gratuito. Faça upgrade
-                  para adicionar mais links.
+                  You have reached the limit of links for the free plan. Upgrade
+                  to add more links.
                 </p>
               )}
             </div>
@@ -675,24 +675,24 @@ export default function LinksTab({
             <DialogContent className="sm:max-w-md">
               <DialogHeader>
                 <DialogTitle>
-                  {editMode.linkId ? "Editar Link" : "Adicionar Novo Link"}
+                  {editMode.linkId ? "Edit link" : "Add new link"}
                 </DialogTitle>
                 <DialogDescription>
-                  Preencha os detalhes do link que você deseja adicionar ao seu
-                  perfil.
+                  Fill in the details of the link you want to add to your
+                  profile.
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Título</Label>
+                  <Label htmlFor="title">Title</Label>
                   <Input
                     id="title"
                     value={formData.title}
                     onChange={(e) =>
                       setFormData({ ...formData, title: e.target.value })
                     }
-                    placeholder="Nome do link"
+                    placeholder="Link title"
                   />
                 </div>
 
@@ -704,12 +704,12 @@ export default function LinksTab({
                     onChange={(e) =>
                       setFormData({ ...formData, url: e.target.value })
                     }
-                    placeholder="https://exemplo.com"
+                    placeholder="https://example.com"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="icon">Ícone</Label>
+                  <Label htmlFor="icon">Icon</Label>
                   <Select
                     value={formData.icon}
                     onValueChange={(value) =>
@@ -717,7 +717,7 @@ export default function LinksTab({
                     }
                   >
                     <SelectTrigger id="icon">
-                      <SelectValue placeholder="Selecione um ícone" />
+                      <SelectValue placeholder="Select an icon" />
                     </SelectTrigger>
                     <SelectContent>
                       {iconOptions.map((option) => (
@@ -730,7 +730,7 @@ export default function LinksTab({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="contentType">Tipo de conteúdo</Label>
+                  <Label htmlFor="contentType">Content type</Label>
                   <Select
                     value={formData.content_type}
                     onValueChange={(value) =>
@@ -738,7 +738,7 @@ export default function LinksTab({
                     }
                   >
                     <SelectTrigger id="contentType">
-                      <SelectValue placeholder="Selecione o tipo" />
+                      <SelectValue placeholder="Select the type" />
                     </SelectTrigger>
                     <SelectContent>
                       {contentTypes.map((option) => (
@@ -754,7 +754,7 @@ export default function LinksTab({
                 {!profile?.has_free_plan && (
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <Label htmlFor="thumbnail">Thumbnail personalizada</Label>
+                      <Label htmlFor="thumbnail">Custom thumbnail</Label>
                       {formData.thumbnail_url && (
                         <Button
                           variant="ghost"
@@ -767,7 +767,7 @@ export default function LinksTab({
                             })
                           }
                         >
-                          Remover
+                          Remove
                         </Button>
                       )}
                     </div>
@@ -808,7 +808,7 @@ export default function LinksTab({
                       </Button>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Recomendamos imagens de pelo menos 400x225 pixels.
+                      We recommend images of at least 400x225 pixels.
                     </p>
                   </div>
                 )}
@@ -821,7 +821,7 @@ export default function LinksTab({
                       setFormData({ ...formData, active: checked })
                     }
                   />
-                  <Label htmlFor="active">Link ativo</Label>
+                  <Label htmlFor="active">Active link</Label>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -832,22 +832,22 @@ export default function LinksTab({
                       setFormData({ ...formData, is_adult_content: checked })
                     }
                   />
-                  <Label htmlFor="adultContent">Conteúdo adulto (18+)</Label>
+                  <Label htmlFor="adultContent">Adult content (18+)</Label>
                 </div>
               </div>
 
               <DialogFooter>
                 <Button variant="outline" onClick={resetForm}>
-                  Cancelar
+                  Cancel
                 </Button>
                 <Button type="submit" onClick={saveLink} disabled={isLoading}>
                   {isLoading ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Salvando...
+                      Saving...
                     </>
                   ) : (
-                    <>Salvar</>
+                    <>Save</>
                   )}
                 </Button>
               </DialogFooter>
@@ -856,7 +856,7 @@ export default function LinksTab({
         </CardContent>
         <CardFooter className="border-t px-6 py-4 flex justify-between">
           <p className="text-xs text-muted-foreground">
-            Arraste e solte os links para reordenar.
+            Drag and drop to rearrange the links.
           </p>
           {profile?.has_free_plan && (
             <Button
@@ -864,7 +864,7 @@ export default function LinksTab({
               size="sm"
               onClick={() => (window.location.href = "/dashboard/pricing")}
             >
-              Fazer Upgrade para Premium
+              Upgrade to Premium
             </Button>
           )}
         </CardFooter>

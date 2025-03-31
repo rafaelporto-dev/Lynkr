@@ -31,7 +31,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "light",
     name: "Light",
-    description: "Tema claro padrão com cores suaves e modernas",
+    description: "Standard light theme with soft and modern colors",
     category: "light",
     isPremium: false,
     themeId: "light",
@@ -44,7 +44,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "minimal",
     name: "Minimal",
-    description: "Design minimalista com ênfase em espaços em branco",
+    description: "Minimalist design with emphasis on white spaces",
     category: "light",
     isPremium: false,
     themeId: "minimal",
@@ -59,7 +59,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "dark",
     name: "Dark",
-    description: "Tema escuro elegante para reduzir o cansaço visual",
+    description: "Dark elegant theme to reduce visual fatigue",
     category: "dark",
     isPremium: false,
     themeId: "dark",
@@ -72,7 +72,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "midnight",
     name: "Midnight",
-    description: "Tons profundos de azul com acentos vibrantes",
+    description: "Deep blue tones with vibrant accents",
     category: "dark",
     isPremium: false,
     themeId: "midnight",
@@ -85,7 +85,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "nord",
     name: "Nord",
-    description: "Esquema de cores suaves inspirado no Ártico",
+    description: "Soft color scheme inspired by the Arctic",
     category: "dark",
     isPremium: false,
     themeId: "nord",
@@ -100,7 +100,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "neon",
     name: "Neon",
-    description: "Visual futurista com cores neon vibrantes",
+    description: "Futuristic visual with vibrant neon colors",
     category: "special",
     isPremium: true,
     themeId: "neon",
@@ -113,7 +113,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "sunset",
     name: "Sunset",
-    description: "Gradientes inspirados no pôr do sol com tons quentes",
+    description: "Gradients inspired by the sunset with warm tones",
     category: "special",
     isPremium: true,
     themeId: "sunset",
@@ -126,7 +126,7 @@ export const themePresets: ThemePreset[] = [
   {
     id: "glass",
     name: "Glass",
-    description: "Efeito de vidro translúcido com bordas suaves",
+    description: "Translucent glass effect with soft edges",
     category: "special",
     isPremium: true,
     themeId: "glass",
@@ -154,8 +154,8 @@ export interface ThemeVariation {
 export const themeVariations: ThemeVariation[] = [
   {
     id: "default",
-    name: "Padrão",
-    description: "Configuração padrão do tema sem ajustes",
+    name: "Default",
+    description: "Default theme configuration without adjustments",
     colorAdjustments: {
       saturation: 1,
       lightness: 1,
@@ -165,8 +165,8 @@ export const themeVariations: ThemeVariation[] = [
   },
   {
     id: "vibrant",
-    name: "Vibrante",
-    description: "Cores mais saturadas e vibrantes",
+    name: "Vibrant",
+    description: "More saturated and vibrant colors",
     colorAdjustments: {
       saturation: 1.2,
       lightness: 1.05,
@@ -176,8 +176,8 @@ export const themeVariations: ThemeVariation[] = [
   },
   {
     id: "muted",
-    name: "Sóbrio",
-    description: "Cores mais suaves e discretas",
+    name: "Muted",
+    description: "More subtle and discreet colors",
     colorAdjustments: {
       saturation: 0.8,
       lightness: 1.05,
@@ -187,8 +187,8 @@ export const themeVariations: ThemeVariation[] = [
   },
   {
     id: "high-contrast",
-    name: "Alto Contraste",
-    description: "Maximiza a legibilidade com alto contraste",
+    name: "High Contrast",
+    description: "Maximizes readability with high contrast",
     colorAdjustments: {
       saturation: 0.9,
       lightness: 1.1,

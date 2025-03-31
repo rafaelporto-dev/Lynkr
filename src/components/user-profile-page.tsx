@@ -589,15 +589,15 @@ export default function UserProfilePage({ username }: { username: string }) {
 
                     {/* Informações do link (título, ícone, etc.) */}
                     <div className="link-content">
-                      <div className="flex items-center">
+                      <div className="flex items-center flex-1 min-w-0">
                         {link.icon && !link.thumbnail_url ? (
-                          <div className="mr-2 sm:mr-3 text-primary/70">
+                          <div className="mr-2 sm:mr-3 text-primary/70 flex-shrink-0">
                             <div className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-primary/20 rounded-full">
                               {link.icon}
                             </div>
                           </div>
                         ) : null}
-                        <div className="link-title">
+                        <div className="link-title" title={link.title}>
                           {link.title}
                           {link.is_adult_content && (
                             <div className="inline-flex items-center ml-2 bg-warning/20 text-warning text-xs px-1.5 py-0.5 rounded-full gap-0.5 font-medium">

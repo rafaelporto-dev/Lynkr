@@ -67,8 +67,8 @@ export default function ThemePreview({
   const handleThemeSelect = (preset: ThemePreset) => {
     if (!isThemeAvailable(preset)) {
       toast({
-        title: "Tema Premium",
-        description: "Faça upgrade para o plano premium para usar este tema.",
+        title: "Premium Theme",
+        description: "Upgrade to the premium plan to use this theme.",
         variant: "destructive",
       });
       return;
@@ -107,7 +107,7 @@ export default function ThemePreview({
   return (
     <div className="space-y-6">
       <div className="flex flex-col space-y-4">
-        <h3 className="text-lg font-medium">Escolha um tema</h3>
+        <h3 className="text-lg font-medium">Choose a theme</h3>
 
         {/* Filtro por categorias */}
         <Tabs
@@ -116,9 +116,9 @@ export default function ThemePreview({
           className="w-full"
         >
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="light">Claros</TabsTrigger>
-            <TabsTrigger value="dark">Escuros</TabsTrigger>
-            <TabsTrigger value="special">Especiais</TabsTrigger>
+            <TabsTrigger value="light">Light</TabsTrigger>
+            <TabsTrigger value="dark">Dark</TabsTrigger>
+            <TabsTrigger value="special">Special</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -143,7 +143,7 @@ export default function ThemePreview({
             {currentTheme === preset.themeId && (
               <div className="absolute top-2 right-2 z-10">
                 <Badge className="bg-primary">
-                  <Check className="h-3 w-3 mr-1" /> Ativo
+                  <Check className="h-3 w-3 mr-1" /> Active
                 </Badge>
               </div>
             )}
@@ -177,7 +177,7 @@ export default function ThemePreview({
                 <Avatar className="h-10 w-10 border-2 border-primary/20">
                   <AvatarImage
                     src={userProfile?.avatar_url || ""}
-                    alt={userProfile?.full_name || "Usuário"}
+                    alt={userProfile?.full_name || "User"}
                   />
                   <AvatarFallback style={{ color: preset.preview?.textColor }}>
                     <UserCircle />
@@ -188,7 +188,7 @@ export default function ThemePreview({
                     className="font-medium"
                     style={{ color: preset.preview?.textColor }}
                   >
-                    {userProfile?.full_name || "Nome do usuário"}
+                    {userProfile?.full_name || "User name"}
                   </h4>
                   <p
                     className="text-xs opacity-80"
@@ -208,7 +208,7 @@ export default function ThemePreview({
                 }}
               >
                 <ExternalLink className="h-4 w-4" />
-                <span>Link de exemplo</span>
+                <span>Example link</span>
               </button>
 
               {/* Nome do tema */}
@@ -234,8 +234,7 @@ export default function ThemePreview({
         <div className="mt-4 p-4 bg-primary/10 rounded-lg flex items-center space-x-3">
           <Crown className="h-5 w-5 text-amber-500" />
           <p className="text-sm">
-            Faça upgrade para o plano premium para desbloquear todos os temas
-            especiais.
+            Upgrade to the premium plan to unlock all special themes.
           </p>
           <Button variant="outline" size="sm" className="ml-auto">
             Upgrade
