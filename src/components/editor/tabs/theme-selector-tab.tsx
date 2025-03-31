@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import {
   Card,
   CardContent,
@@ -29,6 +28,7 @@ import {
 import ThemePreview from "@/components/editor/theme-preview";
 import { ThemeManager, themeVariations } from "@/lib/themes/theme-manager";
 import { ThemeId } from "@/lib/themes/base-themes";
+import { useToast } from "@/components/ui/use-toast";
 
 type Profile = {
   id: string;
@@ -58,14 +58,11 @@ export default function ThemeSelectorTab({
   onProfileChange,
   onSaveProfile,
 }: ThemeSelectorTabProps) {
+  const { toast } = useToast();
   const [currentThemeId, setCurrentThemeId] = useState<ThemeId>(
     (profile?.theme as ThemeId) || "dark"
   );
   const [selectedVariation, setSelectedVariation] = useState<string>("default");
-  const [saveIndicator, setSaveIndicator] = useState<
-    "idle" | "saving" | "saved"
-  >("idle");
-  const { toast } = useToast();
 
   // Atualizar tema atual quando o perfil mudar
   useEffect(() => {
@@ -138,9 +135,6 @@ export default function ThemeSelectorTab({
       url.searchParams.set("theme", validThemeId);
       window.history.replaceState({}, "", url.toString());
     }
-
-    // Indicador visual de alterações não salvas
-    setSaveIndicator("idle");
   };
 
   // Função para aplicar uma variação ao tema
@@ -150,81 +144,13 @@ export default function ThemeSelectorTab({
     // onProfileChange({ theme_variation: variationId });
   };
 
-  // Função para salvar as alterações de tema
-  const handleSaveTheme = async () => {
-    setSaveIndicator("saving");
-
-    try {
-      await onSaveProfile();
-
-      // Atualizar o tema no localStorage após salvar
-      localStorage.setItem("userTheme", currentThemeId);
-
-      // Atualizar a visualização do tema
-      document.documentElement.classList.forEach((className) => {
-        if (className.startsWith("theme-")) {
-          document.documentElement.classList.remove(className);
-        }
-      });
-      document.documentElement.classList.add(`theme-${currentThemeId}`);
-
-      // Forçar atualização da URL de preview se estiver nesse modo
-      if (window.location.search.includes("preview=true")) {
-        const url = new URL(window.location.href);
-        url.searchParams.set("theme", currentThemeId);
-        window.history.replaceState({}, "", url.toString());
-      }
-
-      setSaveIndicator("saved");
-
-      toast({
-        title: "Theme saved",
-        description: "The theme changes have been saved successfully.",
-      });
-
-      // Resetar o indicador após alguns segundos
-      setTimeout(() => {
-        setSaveIndicator("idle");
-      }, 3000);
-    } catch (error) {
-      console.error("Error saving theme:", error);
-      setSaveIndicator("idle");
-
-      toast({
-        title: "Error saving",
-        description: "It was not possible to save the theme changes.",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold mb-1">
-            Personalize the theme
-          </h2>
-          <p className="text-muted-foreground">
-            Choose a visual theme to personalize the appearance of your profile
-          </p>
-        </div>
-
-        <Button
-          onClick={handleSaveTheme}
-          disabled={saveIndicator === "saving" || saveIndicator === "saved"}
-          className="flex items-center gap-2"
-        >
-          {saveIndicator === "saving" ? (
-            <>Saving...</>
-          ) : saveIndicator === "saved" ? (
-            <>
-              <Check className="h-4 w-4" /> Saved
-            </>
-          ) : (
-            <>Save changes</>
-          )}
-        </Button>
+      <div>
+        <h2 className="text-2xl font-bold mb-1">Personalize the theme</h2>
+        <p className="text-muted-foreground">
+          Choose a visual theme to personalize the appearance of your profile
+        </p>
       </div>
 
       <Tabs defaultValue="select-theme" className="mt-6">
