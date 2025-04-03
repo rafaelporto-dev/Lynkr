@@ -1,6 +1,7 @@
 import { resetPasswordAction } from "@/app/actions";
 import { FormMessage, Message } from "@/components/form-message";
 import Navbar from "@/components/navbar";
+import { PasswordInput } from "@/components/password-input";
 import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,16 +24,20 @@ export default async function ResetPassword(props: {
       <div className="flex flex-1 items-center justify-center px-4 py-12">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold tracking-tight text-white">Reset your password</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-white">
+              Reset your password
+            </h1>
             <p className="mt-2 text-sm text-gray-400">
               Please enter your new password below
             </p>
           </div>
-          
+
           <div className="rounded-xl border border-gray-800 bg-gray-900 p-8">
             <form className="space-y-6">
               <div className="space-y-2 text-center">
-                <h1 className="text-3xl font-semibold tracking-tight text-white">Reset password</h1>
+                <h1 className="text-3xl font-semibold tracking-tight text-white">
+                  Reset password
+                </h1>
                 <p className="text-sm text-gray-300">
                   Please enter your new password below.
                 </p>
@@ -43,27 +48,30 @@ export default async function ResetPassword(props: {
                   <Label htmlFor="password" className="text-sm font-medium">
                     New password
                   </Label>
-                  <Input
+                  <PasswordInput
                     id="password"
-                    type="password"
                     name="password"
                     placeholder="New password"
                     required
                     className="w-full"
+                    iconClassName="text-gray-400 hover:text-gray-600"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-sm font-medium">
+                  <Label
+                    htmlFor="confirmPassword"
+                    className="text-sm font-medium"
+                  >
                     Confirm password
                   </Label>
-                  <Input
+                  <PasswordInput
                     id="confirmPassword"
-                    type="password"
                     name="confirmPassword"
                     placeholder="Confirm password"
                     required
                     className="w-full"
+                    iconClassName="text-gray-400 hover:text-gray-600"
                   />
                 </div>
               </div>

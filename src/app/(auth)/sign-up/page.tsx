@@ -6,6 +6,7 @@ import Link from "next/link";
 import { SmtpMessage } from "../smtp-message";
 import { signUpAction } from "@/app/actions";
 import Navbar from "@/components/navbar";
+import { PasswordInput } from "@/components/password-input";
 
 export default async function Signup(props: {
   searchParams: Promise<Message & { username?: string }>;
@@ -143,28 +144,30 @@ export default async function Signup(props: {
                     Password
                   </Label>
                   <div className="relative group">
-                    <Input
-                      id="password"
-                      type="password"
-                      name="password"
-                      placeholder="Your password"
-                      minLength={6}
-                      required
-                      className="w-full pl-10 bg-gray-900/70 border-white/10 focus:border-indigo-500 focus:ring-indigo-500/30 transition-all duration-300 text-gray-200"
-                    />
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500 group-focus-within:text-indigo-400 transition-colors duration-300">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                        className="w-5 h-5"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                    <div className="relative">
+                      <PasswordInput
+                        id="password"
+                        name="password"
+                        placeholder="Your password"
+                        minLength={6}
+                        required
+                        className="w-full pl-10 bg-gray-900/70 border-white/10 focus:border-indigo-500 focus:ring-indigo-500/30 transition-all duration-300 text-gray-200"
+                        iconClassName="text-gray-400 hover:text-indigo-400"
+                      />
+                      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500 group-focus-within:text-indigo-400 transition-colors duration-300">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </div>
                     </div>
                     <div className="absolute inset-0 rounded-md border border-indigo-500/0 group-focus-within:border-indigo-500/50 pointer-events-none transition-all duration-300"></div>
                   </div>
