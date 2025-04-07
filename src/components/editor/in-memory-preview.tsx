@@ -62,6 +62,7 @@ const buttonStyles = {
   "3d": "rounded-md shadow-lg transform hover:-translate-y-1",
   neon: "rounded-md shadow-lg shadow-primary/50",
   glass: "rounded-md bg-white/10 backdrop-blur-lg border border-white/20",
+  button: "rounded-md", // Estilo para botões com aparência de botão
 };
 
 // Font families - mesmos do UserProfilePage
@@ -225,7 +226,11 @@ export default function InMemoryPreview({
                 <a
                   key={link.id}
                   href="javascript:void(0)"
-                  className="block w-full"
+                  className={cn(
+                    "profile-button-link",
+                    // Adicionar a classe button-style para links que devem ter aparência de botão
+                    profile?.button_style === "button" ? "button-style" : ""
+                  )}
                   aria-label={`Open ${link.title} link`}
                 >
                   <div

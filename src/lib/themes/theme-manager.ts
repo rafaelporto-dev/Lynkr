@@ -36,9 +36,9 @@ export const themePresets: ThemePreset[] = [
     isPremium: false,
     themeId: "light",
     preview: {
-      backgroundColor: "#ffffff",
-      primaryColor: "#4f46e5",
-      textColor: "#111827",
+      backgroundColor: "#f8fafc",
+      primaryColor: "#8b5cf6",
+      textColor: "#0f172a",
     },
   },
   {
@@ -64,9 +64,9 @@ export const themePresets: ThemePreset[] = [
     isPremium: false,
     themeId: "dark",
     preview: {
-      backgroundColor: "#111827",
-      primaryColor: "#6366f1",
-      textColor: "#f9fafb",
+      backgroundColor: "#0f172a",
+      primaryColor: "#7c3aed",
+      textColor: "#f8fafc",
     },
   },
   {
@@ -136,6 +136,33 @@ export const themePresets: ThemePreset[] = [
       textColor: "#ffffff",
     },
   },
+  // Novos temas modernos
+  {
+    id: "cyberpunk",
+    name: "Cyberpunk",
+    description: "Futuristic theme with vibrant neon colors",
+    category: "special",
+    isPremium: true,
+    themeId: "cyberpunk",
+    preview: {
+      backgroundColor: "#0d0221",
+      primaryColor: "#f706cf",
+      textColor: "#ffffff",
+    },
+  },
+  {
+    id: "pastel",
+    name: "Pastel",
+    description: "Soft pastel colors with rounded elements",
+    category: "light",
+    isPremium: true,
+    themeId: "pastel",
+    preview: {
+      backgroundColor: "#f8f9fc",
+      primaryColor: "#94c2f3",
+      textColor: "#4a5568",
+    },
+  },
 ];
 
 // Variações de temas (ex: mais vibrante, mais sóbrio, mais contrastante)
@@ -196,6 +223,17 @@ export const themeVariations: ThemeVariation[] = [
       contrast: 1.3,
     },
   },
+  {
+    id: "modern",
+    name: "Modern",
+    description: "Enhanced with modern design principles",
+    colorAdjustments: {
+      saturation: 1.05,
+      lightness: 1.02,
+      darkness: 0.98,
+      contrast: 1.1,
+    },
+  },
 ];
 
 // Classe ThemeManager para gerenciar temas
@@ -244,11 +282,21 @@ export class ThemeManager {
   /**
    * Obter tokens de design para um tema específico
    * @param themeId ID do tema
+   * @param customTokens Tokens personalizados para sobrescrever o tema base
    * @returns Tokens de design para o tema especificado
    */
-  static getThemeTokens(themeId?: string): DesignTokens {
+  static getThemeTokens(
+    themeId?: string,
+    customTokens?: Partial<DesignTokens>
+  ): DesignTokens {
     const validThemeId = this.validateThemeId(themeId);
-    return baseThemes[validThemeId];
+    const baseTokens = baseThemes[validThemeId];
+
+    // Se não houver tokens personalizados, retornar os tokens base
+    if (!customTokens) return baseTokens;
+
+    // Mesclar tokens personalizados com os tokens base
+    return this.mergeTokens(baseTokens, customTokens);
   }
 
   /**
@@ -395,12 +443,52 @@ export class ThemeManager {
   }
 
   /**
+   * Mescla tokens de design base com tokens personalizados
+   * @param baseTokens Tokens base
+   * @param customTokens Tokens personalizados
+   * @returns Tokens mesclados
+   */
+  static mergeTokens(
+    baseTokens: DesignTokens,
+    customTokens: Partial<DesignTokens>
+  ): DesignTokens {
+    // Função auxiliar para mesclar objetos profundamente
+    const deepMerge = (target: any, source: any): any => {
+      if (!source) return target;
+
+      const output = { ...target };
+
+      Object.keys(source).forEach((key) => {
+        if (
+          source[key] &&
+          typeof source[key] === "object" &&
+          !Array.isArray(source[key])
+        ) {
+          if (target[key]) {
+            output[key] = deepMerge(target[key], source[key]);
+          } else {
+            output[key] = source[key];
+          }
+        } else {
+          output[key] = source[key];
+        }
+      });
+
+      return output;
+    };
+
+    return deepMerge(baseTokens, customTokens);
+  }
+
+  /**
    * Salva o tema do usuário no banco de dados
    * @param themeId ID do tema a ser salvo
+   * @param customTokens Tokens personalizados (opcional)
    * @returns Promise com resultado da operação
    */
   static async saveUserTheme(
-    themeId: string
+    themeId: string,
+    customTokens?: Partial<DesignTokens>
   ): Promise<{ success: boolean; error?: string }> {
     try {
       const validThemeId = this.validateThemeId(themeId);
@@ -413,10 +501,16 @@ export class ThemeManager {
         return { success: false, error: "Usuário não autenticado" };
       }
 
+      // Converter tokens personalizados para JSON se existirem
+      const customTokensJson = customTokens
+        ? JSON.stringify(customTokens)
+        : null;
+
       const { error } = await supabase
         .from("profiles")
         .update({
           theme: validThemeId,
+          custom_theme: customTokensJson,
           updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);

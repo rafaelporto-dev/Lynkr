@@ -190,6 +190,26 @@
     min-height: 3rem !important;
   }
 
+  /* Estilo para os links de botão - aplicando as variáveis de tema para botões */
+  a.profile-button-link {
+    transition: all 0.3s ease;
+    text-decoration: none !important;
+    display: block;
+    width: 100%;
+  }
+
+  /* Estilo para botões com aparência de botão */
+  a.profile-button-link.button-style {
+    background-color: var(--color-buttonBackground) !important;
+    color: var(--color-buttonText) !important;
+    border-radius: 0.5rem;
+  }
+
+  a.profile-button-link.button-style:hover {
+    background-color: var(--color-buttonBackgroundHover) !important;
+    transform: translateY(-2px);
+  }
+
   /* Aplicar estilo específico somente quando a classe de botão é explicitamente aplicada */
   .profile-link-button.rounded-md {
     border-radius: 0.375rem !important;
@@ -208,6 +228,8 @@
     box-shadow:
       0 10px 25px -5px rgba(0, 0, 0, 0.1),
       0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    background-color: var(--color-cardBackgroundHover) !important;
+    border-color: var(--color-borderHover) !important;
   }
 
   /* Estilos para os containers de conteúdo dentro dos botões */
@@ -231,6 +253,11 @@
     padding-right: 0.5rem !important;
     flex: 1 !important;
     line-height: 1.4 !important;
+  }
+
+  /* Estilo para o título do link quando dentro de um botão de link */
+  a.profile-button-link .link-title {
+    color: var(--color-buttonText) !important;
   }
 
   /* Para links muito longos, manter pelo menos duas linhas */
@@ -268,12 +295,15 @@
 
   /* Ícone de link externo */
   .link-icon {
-    color: var(--color-textMuted) !important;
+    color: var(--color-buttonText) !important;
     transition: all 0.2s ease;
+    opacity: 0.8;
   }
 
-  .profile-link-button:hover .link-icon {
-    color: var(--color-primary) !important;
+  .profile-link-button:hover .link-icon,
+  a.profile-button-link:hover .link-icon {
+    color: var(--color-buttonText) !important;
+    opacity: 1;
   }
 
   /* Avatar do perfil */

@@ -1,11 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  ThemePreset,
-  availableThemePresets,
-  ThemeManager,
-} from "@/lib/themes/theme-manager";
+import { ThemePreset, availableThemePresets } from "@/lib/themes/theme-manager";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -124,14 +120,14 @@ export default function ThemePreview({
       </div>
 
       {/* Grid de temas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {availablePresets.map((preset) => (
           <Card
             key={preset.id}
             className={cn(
-              "relative overflow-hidden cursor-pointer transition-all border-2",
+              "relative overflow-hidden cursor-pointer transition-all border-2 hover:shadow-xl",
               currentTheme === preset.themeId
-                ? "border-primary ring-2 ring-primary/20"
+                ? "border-primary ring-2 ring-primary/20 shadow-lg shadow-primary/10"
                 : "border-transparent hover:border-primary/20"
             )}
             onClick={() => handleThemeSelect(preset)}
@@ -166,7 +162,7 @@ export default function ThemePreview({
             {/* Preview em miniatura do tema */}
             <div
               className={cn(
-                "p-6 h-[200px] flex flex-col space-y-3",
+                "p-6 h-[220px] flex flex-col space-y-4 transition-all duration-300",
                 preset.isPremium && !isPremiumUser
                   ? "opacity-70 filter grayscale"
                   : ""
@@ -201,14 +197,26 @@ export default function ThemePreview({
 
               {/* Botão de exemplo */}
               <button
-                className="py-2 px-4 rounded-md w-full flex items-center justify-center space-x-2 transition-all"
+                className="py-2 px-4 rounded-md w-full flex items-center justify-center space-x-2 transition-all duration-300 hover:opacity-90 shadow-sm"
                 style={{
                   backgroundColor: preset.preview?.primaryColor,
                   color: "#ffffff",
+                  boxShadow: `0 2px 10px ${preset.preview?.primaryColor}40`,
                 }}
               >
                 <ExternalLink className="h-4 w-4" />
                 <span>Example link</span>
+              </button>
+
+              {/* Botão secundário */}
+              <button
+                className="py-2 px-4 rounded-md w-full flex items-center justify-center space-x-2 transition-all duration-300 hover:opacity-90 border"
+                style={{
+                  borderColor: preset.preview?.primaryColor,
+                  color: preset.preview?.primaryColor,
+                }}
+              >
+                <span>Secondary action</span>
               </button>
 
               {/* Nome do tema */}

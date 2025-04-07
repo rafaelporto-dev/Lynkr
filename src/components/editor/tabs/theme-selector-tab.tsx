@@ -18,7 +18,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CircleHelp, Palette, Crown, Check } from "lucide-react";
+import {
+  CircleHelp,
+  Palette,
+  Crown,
+  Check,
+  Sliders,
+  Paintbrush,
+} from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -26,8 +33,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import ThemePreview from "@/components/editor/theme-preview";
+import ThemeCustomizer from "@/components/editor/theme-customizer";
 import { ThemeManager, themeVariations } from "@/lib/themes/theme-manager";
 import { ThemeId } from "@/lib/themes/base-themes";
+import { DesignTokens } from "@/lib/themes/tokens";
 import { useToast } from "@/components/ui/use-toast";
 
 type Profile = {
@@ -109,7 +118,10 @@ export default function ThemeSelectorTab({
   }, [currentThemeId]);
 
   // Função para salvar o tema selecionado
-  const handleThemeChange = async (themeId: string) => {
+  const handleThemeChange = async (
+    themeId: string,
+    customTokens?: Partial<DesignTokens>
+  ) => {
     const validThemeId = ThemeManager.validateThemeId(themeId);
     setCurrentThemeId(validThemeId);
 
@@ -121,7 +133,10 @@ export default function ThemeSelectorTab({
 
     // Tentar salvar o tema diretamente também
     try {
-      const result = await ThemeManager.saveUserTheme(validThemeId);
+      const result = await ThemeManager.saveUserTheme(
+        validThemeId,
+        customTokens
+      );
       if (!result.success) {
         console.error("Erro ao salvar tema:", result.error);
       }
@@ -159,8 +174,12 @@ export default function ThemeSelectorTab({
             <Palette className="h-4 w-4 mr-2" />
             Theme selection
           </TabsTrigger>
+          <TabsTrigger value="customize-theme">
+            <Paintbrush className="h-4 w-4 mr-2" />
+            Customize Theme
+          </TabsTrigger>
           <TabsTrigger value="advanced-settings">
-            <Palette className="h-4 w-4 mr-2" />
+            <Sliders className="h-4 w-4 mr-2" />
             Advanced settings
           </TabsTrigger>
         </TabsList>
@@ -175,6 +194,25 @@ export default function ThemeSelectorTab({
             </CardHeader>
             <CardContent>
               <ThemePreview
+                currentTheme={currentThemeId}
+                onThemeChange={handleThemeChange}
+                userProfile={profile}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="customize-theme">
+          <Card>
+            <CardHeader>
+              <CardTitle>Customize your theme</CardTitle>
+              <CardDescription>
+                Personalize colors, fonts, and other visual elements of your
+                theme
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ThemeCustomizer
                 currentTheme={currentThemeId}
                 onThemeChange={handleThemeChange}
                 userProfile={profile}

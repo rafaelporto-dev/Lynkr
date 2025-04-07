@@ -195,6 +195,13 @@ const buttonStyles = [
   { id: "pill", name: "Pill", class: "rounded-full", isPremium: false },
   { id: "square", name: "Square", class: "rounded-none", isPremium: false },
   {
+    id: "button",
+    name: "Button",
+    class: "rounded-md",
+    description: "Styled as a button with theme colors",
+    isPremium: false,
+  },
+  {
     id: "3d",
     name: "3D",
     class: "rounded-md shadow-lg transform hover:-translate-y-1",
